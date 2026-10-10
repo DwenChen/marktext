@@ -26,10 +26,7 @@
         </li>
       </ul>
     </div>
-    <div
-      v-show="rightColumn"
-      class="right-column"
-    >
+    <div v-show="rightColumn" class="right-column">
       <tree
         v-if="rightColumn === 'files'"
         :project-tree="projectTree"
@@ -69,6 +66,7 @@ import SideBarSearch from './search.vue'
 import Toc from './toc.vue'
 import { storeToRefs } from 'pinia'
 import type { TabDescriptor } from './types'
+import bus from '@/bus'
 
 const layoutStore = useLayoutStore()
 const projectStore = useProjectStore()
@@ -128,6 +126,7 @@ const stopResize = (): void => {
   if (dragBar.value?.hasPointerCapture(id)) dragBar.value.releasePointerCapture(id)
   sideBarViewWidth.value = pendingWidth
   if (pendingWidth !== sideBarWidth.value) layoutStore.CHANGE_SIDE_BAR_WIDTH(pendingWidth)
+  bus.emit('sidebar-resize', false)
 }
 
 const finishResize = (event: PointerEvent): void => {
@@ -143,6 +142,7 @@ const startResize = (event: PointerEvent): void => {
   startX = event.clientX
   startWidth = sideBarViewWidth.value
   pendingWidth = startWidth
+  bus.emit('sidebar-resize', true)
   dragBar.value.setPointerCapture(event.pointerId)
   window.addEventListener('pointermove', moveResize)
   window.addEventListener('pointerup', finishResize)

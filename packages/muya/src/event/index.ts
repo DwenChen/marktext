@@ -1,4 +1,5 @@
 import type { IEvent, IListeners, Listener } from './types';
+import { BLOCK_DOM_PROPERTY } from '../config';
 
 // TODO: @Jocs use the same name function in utils.
 function* uniqueIdGenerator() {
@@ -13,6 +14,8 @@ const idIterator = uniqueIdGenerator();
 class EventCenter {
     public events: IEvent[] = [];
     public listeners: IListeners = {};
+
+    private _eventsByTarget = new WeakMap<HTMLElement | Document, IEvent[]>();
 
     private get _eventId() {
         return `${PREFIX}${idIterator.next().value}`;
@@ -33,13 +36,17 @@ class EventCenter {
 
         const eventId = this._eventId;
         target.addEventListener(event, listener, capture);
-        this.events.push({
+        const entry = {
             eventId,
             target,
             event,
             listener,
             capture,
-        });
+        };
+        this.events.push(entry);
+        const targetEvents = this._eventsByTarget.get(target) ?? [];
+        targetEvents.push(entry);
+        this._eventsByTarget.set(target, targetEvents);
 
         return eventId;
     }
@@ -58,7 +65,26 @@ class EventCenter {
             target.removeEventListener(event, listener, capture);
             const index = this.events.findIndex(e => e.eventId === eventId);
             this.events.splice(index, 1);
+            const targetEvents = this._eventsByTarget.get(target);
+            if (targetEvents)
+                targetEvents.splice(targetEvents.indexOf(removeEvent), 1);
         }
+    }
+
+    /** Release listeners owned by a discarded subtree, preserving the root's listeners. */
+    detachDOMEventsIn(root: HTMLElement) {
+        this.events = this.events.filter((entry) => {
+            const block = entry.target instanceof HTMLElement ? entry.target[BLOCK_DOM_PROPERTY] : undefined;
+            // Already-deleted blocks can still be held by their listener
+            // closures even though they no longer sit under the old root.
+            const ownedBlock = block?.muya.editor.scrollPage?.domNode === root;
+            if (entry.target === root || (!ownedBlock && !root.contains(entry.target)))
+                return true;
+            const { target, event, listener, capture } = entry;
+            target.removeEventListener(event, listener, capture);
+            this._eventsByTarget.delete(target);
+            return false;
+        });
     }
 
     /**
@@ -71,6 +97,7 @@ class EventCenter {
         }
 
         this.events = [];
+        this._eventsByTarget = new WeakMap();
     }
 
     /**
@@ -146,7 +173,7 @@ class EventCenter {
         cListener: EventListenerOrEventListenerObject,
         cCapture?: boolean | AddEventListenerOptions,
     ) {
-        for (const { target, event, listener, capture } of this.events) {
+        for (const { target, event, listener, capture } of this._eventsByTarget.get(cTarget) ?? []) {
             if (
                 target === cTarget
                 && event === cEvent

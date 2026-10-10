@@ -27,6 +27,12 @@ class TreeNode implements ILinkedNode {
 
     static blockName = 'tree.node';
 
+    private _isDisposed = false;
+
+    get disposed() {
+        return this._isDisposed;
+    }
+
     protected get static(): IConstructor<TreeNode> {
         // `this.constructor` is `Function` in lib.d.ts; subclasses' generated
         // constructors carry the static `blockName` etc., but TS can't see
@@ -73,6 +79,11 @@ class TreeNode implements ILinkedNode {
     }
 
     constructor(public muya: Muya) {}
+
+    /** Release resources when a subtree is discarded, never when it is reparented. */
+    dispose() {
+        this._isDisposed = true;
+    }
 
     /**
      * check this is a Content block?

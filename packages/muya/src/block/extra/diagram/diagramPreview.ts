@@ -1,3 +1,4 @@
+import type { Subscription } from 'rxjs';
 import type { Muya } from '../../../muya';
 import type { IDiagramState, TState } from '../../../state/types';
 import { fromEvent } from 'rxjs';
@@ -13,6 +14,8 @@ class DiagramPreview extends Parent {
     private _code: string;
     private _type: string;
     private _cancelFinalize: (() => void) | null = null;
+    private _disposed = false;
+    private _clickSubscription: Subscription | undefined;
     static override blockName = 'diagram-preview';
 
     static create(muya: Muya, state: IDiagramState) {
@@ -47,8 +50,15 @@ class DiagramPreview extends Parent {
     }
 
     private _attachDOMEvents() {
-        const clickObservable = fromEvent(this.domNode!, 'click');
-        clickObservable.subscribe(this.clickHandler.bind(this));
+        this._clickSubscription = fromEvent(this.domNode!, 'click').subscribe(this.clickHandler.bind(this));
+    }
+
+    override dispose() {
+        super.dispose();
+        this._clickSubscription?.unsubscribe();
+        this._disposed = true;
+        this._cancelFinalize?.();
+        this._cancelFinalize = null;
     }
 
     clickHandler(event: Event) {
@@ -63,6 +73,8 @@ class DiagramPreview extends Parent {
     }
 
     async update(code = this._code) {
+        if (this._disposed)
+            return;
         const { i18n } = this.muya;
         if (this._code !== code)
             this._code = code;
@@ -89,9 +101,13 @@ class DiagramPreview extends Parent {
                     plantumlServer,
                     sequenceTheme,
                 });
+                if (this._disposed)
+                    return;
                 this._cancelFinalize = finalizeRenderedDiagram(this.domNode!, i18n.t('Diagram'));
             }
             catch (error) {
+                if (this._disposed)
+                    return;
                 const detail
                     = error instanceof Error ? error.message : String(error);
                 debug.error(`render ${type} diagram failed: ${detail}`);

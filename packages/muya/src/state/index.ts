@@ -7,6 +7,7 @@ import { deepClone } from '../utils';
 import logger from '../utils/logger';
 import { getTOC } from './getTOC';
 
+import { MarkdownStateCache } from './markdownStateCache';
 import { MarkdownToState } from './markdownToState';
 import StateToMarkdown from './stateToMarkdown';
 
@@ -52,6 +53,14 @@ class JSONState {
 
     private _state: TState[] = [];
 
+    private _revision = 0;
+    private _markdownCache = new MarkdownStateCache();
+    private _parserOptionsKey = '';
+
+    get revision() {
+        return this._revision;
+    }
+
     constructor(private _muya: Muya, stateOrMarkdown: TState[] | string) {
         this.setContent(stateOrMarkdown);
     }
@@ -63,6 +72,7 @@ class JSONState {
         if (op === null)
             return;
         this._state = asState(json1.type.apply(asDoc(this._state), op));
+        this._revision++;
     }
 
     setContent(content: TState[] | string) {
@@ -80,6 +90,7 @@ class JSONState {
             this._setState(content);
         else
             this._setMarkdown(content);
+        this._revision++;
     }
 
     private _setState(state: TState[]) {
@@ -87,13 +98,28 @@ class JSONState {
     }
 
     private _setMarkdown(markdown: string) {
+        const optionsKey = JSON.stringify(this._getParserOptions());
+        if (optionsKey !== this._parserOptionsKey) {
+            this._markdownCache.clear();
+            this._parserOptionsKey = optionsKey;
+        }
+        const cached = this._markdownCache.get(markdown);
+        if (cached) {
+            this._state = cached;
+            return;
+        }
         this._state = this.markdownToState(markdown);
+        this._markdownCache.set(markdown, this._state);
     }
 
     // Parse markdown into a block-state array with the editor's current
     // render-affecting options, WITHOUT mutating `this._state`. Used by
     // `buildReplaceOp` to compute the target state for a bulk replacement.
     markdownToState(markdown: string): TState[] {
+        return new MarkdownToState(this._getParserOptions()).generate(markdown);
+    }
+
+    private _getParserOptions() {
         const {
             footnote,
             texMathGfm,
@@ -105,7 +131,7 @@ class JSONState {
             multilineBlockquote,
         } = this._muya.options;
 
-        return new MarkdownToState({
+        return {
             footnote,
             texMathGfm,
             texMathSingleBackslash,
@@ -114,7 +140,7 @@ class JSONState {
             frontMatter,
             texMathDollars,
             multilineBlockquote,
-        }).generate(markdown);
+        };
     }
 
     /**
@@ -240,7 +266,13 @@ class JSONState {
     }
 
     getMarkdown() {
-        return this.getMarkdownFromState(this.getState());
+        // The serializer clones mutable list metadata itself.
+        return this.getMarkdownFromState(this._state);
+    }
+
+    destroy() {
+        this.setContent([]);
+        this._markdownCache.clear();
     }
 
     getTOC() {

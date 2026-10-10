@@ -1,0 +1,18 @@
+{
+  "loads": [
+    {
+      "blocks": 1001,
+      "characters": 43817,
+      "medianMs": 680,
+      "samplesMs": [578, 680, 744]
+    },
+    {
+      "blocks": 3001,
+      "characters": 133617,
+      "medianMs": 3280,
+      "samplesMs": [3131, 3280, 3726]
+    }
+  ],
+  "listenersBefore": 2506,
+  "listenersAfter": 4506
+}

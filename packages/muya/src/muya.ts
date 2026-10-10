@@ -1683,6 +1683,12 @@ export class Muya {
     }
 
     destroy() {
+        this.editor.selection.clear();
+        this.editor.scrollPage?.dispose();
+        this.editor.jsonState.destroy();
+        this.editor.inlineRenderer.resetDocumentCaches();
+        this.editor.history.clear();
+        this.editor.searchModule.reset();
         this.eventCenter.detachAllDomEvents();
         this.eventCenter.unsubscribeAll();
         // this.domNode[BLOCK_DOM_PROPERTY] = null;

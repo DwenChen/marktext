@@ -1,3 +1,4 @@
+import type { Subscription } from 'rxjs';
 import type { Muya } from '../../../muya';
 import type { IMathBlockState, TState } from '../../../state/types';
 import katex from 'katex';
@@ -12,6 +13,7 @@ const debug = logger('mathPreview:');
 
 class MathPreview extends Parent {
     private _math: string;
+    private _clickSubscription: Subscription | undefined;
 
     static override blockName = 'math-preview';
 
@@ -46,8 +48,12 @@ class MathPreview extends Parent {
     }
 
     private _attachDOMEvents() {
-        const clickObservable = fromEvent(this.domNode!, 'click');
-        clickObservable.subscribe(this.clickHandler.bind(this));
+        this._clickSubscription = fromEvent(this.domNode!, 'click').subscribe(this.clickHandler.bind(this));
+    }
+
+    override dispose() {
+        super.dispose();
+        this._clickSubscription?.unsubscribe();
     }
 
     clickHandler(event: Event) {

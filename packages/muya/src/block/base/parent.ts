@@ -230,6 +230,12 @@ class Parent extends TreeNode {
         });
     }
 
+    override dispose() {
+        super.dispose();
+        this.children.forEach(child => child.dispose());
+        this.attachments.forEach(attachment => attachment.dispose());
+    }
+
     removeChild(node: TreeNode, source = 'user') {
         if (!this.children.contains(node)) {
             debug.warn(

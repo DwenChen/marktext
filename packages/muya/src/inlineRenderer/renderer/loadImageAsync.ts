@@ -15,6 +15,7 @@ export default function loadImageAsync(
     imageClass?: string,
 ) {
     const { src, isUnknownType } = imageInfo;
+    const cacheVersion = this.imageCacheVersion;
     let id: string;
     let isSuccess: boolean | undefined;
     let url: string | undefined;
@@ -38,6 +39,8 @@ export default function loadImageAsync(
             : src;
         loadImage(loadSrc, isUnknownType)
             .then(({ url, width, height }) => {
+                if (cacheVersion !== this.imageCacheVersion)
+                    return;
                 const imageText: HTMLElement | null = document.querySelector(`#${id}`);
                 const img = document.createElement('img');
                 img.src = url;
@@ -109,6 +112,8 @@ export default function loadImageAsync(
                 });
             })
             .catch(() => {
+                if (cacheVersion !== this.imageCacheVersion)
+                    return;
                 const imageText: HTMLElement | null = document.querySelector(`#${id}`);
                 if (imageText) {
                     operateClassName(imageText, 'remove', CLASS_NAMES.MU_IMAGE_LOADING);

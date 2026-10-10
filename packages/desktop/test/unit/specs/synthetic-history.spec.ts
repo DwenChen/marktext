@@ -9,6 +9,18 @@ const isClean = (entryId: number, lastSavedHistoryId: number): boolean =>
   entryId === lastSavedHistoryId
 
 describe('SyntheticHistory (saved/clean indicator id allocator)', () => {
+  it('preserves FNV-1a signatures for large Unicode content without per-character BigInts', () => {
+    const content = 'Unicode 中文 😀\r\n'.repeat(1000) + 'end\n\n'
+    let expected = 0xcbf29ce484222325n
+    const normalized = content.replace(/[\r\n]+$/, '')
+    for (let i = 0; i < normalized.length; i++) {
+      expected ^= BigInt(normalized.charCodeAt(i))
+      expected = (expected * 0x100000001b3n) & 0xffffffffffffffffn
+    }
+    const history = new SyntheticHistory(content)
+    const signatures = Reflect.get(history, 'idByContent') as Map<bigint, number>
+    expect([...signatures.keys()]).toEqual([expected])
+  })
   it('seeds the loaded/baseline content to id 0', () => {
     const h = new SyntheticHistory('A\n')
     expect(h.idFor('A\n')).toBe(0)

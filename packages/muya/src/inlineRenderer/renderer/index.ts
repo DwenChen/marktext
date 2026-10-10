@@ -112,6 +112,14 @@ class Renderer {
 
     public urlMap: Map<string, string> = new Map();
 
+    public imageCacheVersion = 0;
+
+    clearImageCache() {
+        this.imageCacheVersion++;
+        this.loadImageMap.clear();
+        this.urlMap.clear();
+    }
+
     constructor(public muya: Muya, public parent: InlineRenderer) {}
 
     private _checkConflicted(block: Format, token: Token, cursor: IRenderCursor = {}) {

@@ -495,6 +495,7 @@ export class Editor {
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
+        this.inlineRenderer.resetDocumentCaches();
         this.jsonState.setContent(content);
         const state = this.jsonState.getState();
 

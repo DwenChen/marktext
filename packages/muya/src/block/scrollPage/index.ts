@@ -95,7 +95,11 @@ export class ScrollPage extends Parent {
 
     updateState(state: TState[]) {
         const { muya } = this;
-        // Empty scrollPage dom
+        muya.editor.selection.clear();
+        muya.editor.activeContentBlock = null;
+        this._blurFocus = { blur: null, focus: null };
+        muya.eventCenter.detachDOMEventsIn(this.domNode!);
+        this.children.forEach(child => child.dispose());
         this.empty();
         this.append(
             ...state.map((block) => {

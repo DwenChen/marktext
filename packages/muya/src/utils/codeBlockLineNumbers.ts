@@ -91,28 +91,34 @@ function measureLineTops(codeEl: HTMLElement): number[] {
     return tops;
 }
 
-// Measure the actual visual top of every logical line using Range API, then
-// set `top` on each span so line numbers align correctly in wrap mode (where
-// a single logical line can span multiple visual rows).
-//
-// Must run after layout (call via requestAnimationFrame).
+// Wrapped logical lines can span multiple visual rows and need measurement;
+// unwrapped lines share a fixed height. Call after layout via requestAnimationFrame.
 export function repositionLineNumberSpans(
     wrapper: HTMLElement,
     codeEl: HTMLElement,
+    wrapCodeBlocks = true,
 ): void {
     const spans = Array.from(wrapper.children) as HTMLElement[];
     if (spans.length === 0)
         return;
 
-    const tops = measureLineTops(codeEl);
+    // Unwrapped lines have identical height; Range measurements would force
+    // layout once per line on every width change, even though no line wraps.
+    const lineHeight = Number.parseFloat(getComputedStyle(codeEl).lineHeight) || 24;
+    const tops = wrapCodeBlocks
+        ? measureLineTops(codeEl)
+        : spans.map((_, i) => i * lineHeight);
     const measuredCount = Math.min(tops.length, spans.length);
     // Origin = the measured top of the first logical line. A measured top sits
     // at the text box (below the line-box leading), so subtracting the wrapper
     // top would offset every number down by that constant leading. Anchoring to
     // the first line cancels it and keeps line 1 flush with the gutter top,
     // while preserving correct per-line deltas for wrap mode.
-    for (let i = 0; i < measuredCount; i++)
-        spans[i].style.top = `${tops[i] - tops[0]}px`;
+    for (let i = 0; i < measuredCount; i++) {
+        const top = `${tops[i] - tops[0]}px`;
+        if (spans[i].style.top !== top)
+            spans[i].style.top = top;
+    }
 
     // Lines with nothing to measure: the single line of a wholly empty code
     // block, or a final empty line rendered without a trailing break. The first

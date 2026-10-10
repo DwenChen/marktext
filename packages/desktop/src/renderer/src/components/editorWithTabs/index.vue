@@ -1,7 +1,7 @@
 <template>
   <div class="editor-with-tabs">
     <tabs v-show="showTabBar" />
-    <div class="container">
+    <div ref="container" class="container" :style="{ width: resizeWidth }">
       <editor
         :markdown="markdown"
         :cursor="cursor"
@@ -24,6 +24,19 @@ import Tabs from './tabs.vue'
 import Editor from './editor.vue'
 import SourceCode from './sourceCode.vue'
 import TabNotifications from './notifications.vue'
+import { ref, onBeforeUnmount } from 'vue'
+import bus from '@/bus'
+
+const container = ref<HTMLElement | null>(null)
+const resizeWidth = ref<string>()
+const handleSidebarResize = (resizing: unknown): void => {
+  // Keep Muya and CodeMirror's line layout stable throughout a drag. The
+  // parent clips the temporary overflow; the final width reflows once on release.
+  resizeWidth.value =
+    resizing && container.value ? `${container.value.getBoundingClientRect().width}px` : undefined
+}
+bus.on('sidebar-resize', handleSidebarResize)
+onBeforeUnmount(() => bus.off('sidebar-resize', handleSidebarResize))
 
 defineProps<{
   markdown: string

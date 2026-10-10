@@ -15,6 +15,8 @@ class InlineRenderer {
     public labels: Labels = new Map();
     public renderer: Renderer;
 
+    private _labelsRevision = -1;
+
     constructor(public muya: Muya) {
         this.renderer = new Renderer(muya, this);
     }
@@ -46,8 +48,7 @@ class InlineRenderer {
      * afresh.
      */
     invalidateImageCache() {
-        this.renderer.loadImageMap.clear();
-        this.renderer.urlMap.clear();
+        this.renderer.clearImageCache();
 
         const { scrollPage } = this.muya.editor;
         if (!scrollPage)
@@ -57,6 +58,13 @@ class InlineRenderer {
             if (node.isContent())
                 node.update();
         });
+    }
+
+    resetDocumentCaches() {
+        this.renderer.clearImageCache();
+        this.renderer.loadMathMap.clear();
+        this.labels.clear();
+        this._labelsRevision = -1;
     }
 
     patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {
@@ -78,7 +86,12 @@ class InlineRenderer {
     // resolving `[text][ref]` needs a document-wide pass. Shared with
     // `getTOC`, which tokenizes headings outside a rendered block.
     collectReferenceDefinitions(): Labels {
-        const state = this.muya.editor.jsonState.getState();
+        const { jsonState } = this.muya.editor;
+        // getState clones the document; doing this for each leaf makes a
+        // full render quadratic. One snapshot suffices until an OT edit lands.
+        if (this._labelsRevision === jsonState.revision)
+            return this.labels;
+        const state = jsonState.getState();
         const labels = new Map();
 
         const travel = (sts: TState[]) => {
@@ -97,7 +110,8 @@ class InlineRenderer {
         };
 
         travel(state);
-
+        this._labelsRevision = jsonState.revision;
+        this.labels = labels;
         return labels;
     }
 

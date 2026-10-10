@@ -1,0 +1,25 @@
+{
+  "recordedAt": "2026-10-10T09:32:39.324Z",
+  "loads": [
+    {
+      "blocks": 1001,
+      "characters": 43817,
+      "medianMs": 322,
+      "samplesMs": [273, 322, 569]
+    },
+    {
+      "blocks": 3001,
+      "characters": 133617,
+      "medianMs": 839,
+      "samplesMs": [803, 839, 1522]
+    },
+    {
+      "blocks": 10001,
+      "characters": 447917,
+      "medianMs": 3188,
+      "samplesMs": [2634, 3188, 6949]
+    }
+  ],
+  "listenersBefore": 104,
+  "listenersAfter": 104
+}

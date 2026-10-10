@@ -177,6 +177,8 @@ class CodeBlockContent extends Content {
     }
 
     override update(_cursor?: IRenderCursor, highlights = []) {
+        if (this.disposed)
+            return;
         const { _lang: lang, text } = this;
         // transform alias to original language
         const fullLengthLang = transformAliasToOrigin([lang])[0];
@@ -222,6 +224,12 @@ class CodeBlockContent extends Content {
     private _lastLineCount = -1;
     private _lineNumberResizeObserver: ResizeObserver | null = null;
 
+    override dispose() {
+        super.dispose();
+        this._lineNumberResizeObserver?.disconnect();
+        this._lineNumberResizeObserver = null;
+    }
+
     private _updateLineNumbers(text: string) {
         if (!this.muya.options.codeBlockLineNumbers)
             return;
@@ -245,7 +253,7 @@ class CodeBlockContent extends Content {
         const codeEl = this.domNode!;
         this._lineNumberResizeObserver = new ResizeObserver(() => {
             if (codeEl.isConnected && wrapper.isConnected)
-                repositionLineNumberSpans(wrapper, codeEl);
+                repositionLineNumberSpans(wrapper, codeEl, !!this.muya.options.wrapCodeBlocks);
             else
                 this._lineNumberResizeObserver?.disconnect();
         });

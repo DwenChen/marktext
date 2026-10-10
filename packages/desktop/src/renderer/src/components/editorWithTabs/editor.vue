@@ -1,17 +1,13 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="[{ typewriter: typewriter, focus: focus, source: sourceCode, 'viewer-open': viewerOpen }]"
+    :class="[
+      { typewriter: typewriter, focus: focus, source: sourceCode, 'viewer-open': viewerOpen }
+    ]"
     :dir="textDirection"
   >
-    <div
-      ref="editorRef"
-      class="editor-component"
-    />
-    <media-viewer
-      ref="mediaViewer"
-      @open-change="viewerOpen = $event"
-    />
+    <div ref="editorRef" class="editor-component" />
+    <media-viewer ref="mediaViewer" @open-change="viewerOpen = $event" />
     <el-dialog
       v-model="dialogTableVisible"
       :show-close="isShowClose"
@@ -26,10 +22,7 @@
           {{ t('editor.insertTable.title') }}
         </div>
       </template>
-      <el-form
-        :model="tableChecker"
-        :inline="true"
-      >
+      <el-form :model="tableChecker" :inline="true">
         <el-form-item :label="t('editor.insertTable.rows')">
           <el-input-number
             ref="rowInput"
@@ -55,10 +48,7 @@
           <el-button @click="dialogTableVisible = false">
             {{ t('common.cancel') }}
           </el-button>
-          <el-button
-            type="primary"
-            @click="handleDialogTableConfirm"
-          >
+          <el-button type="primary" @click="handleDialogTableConfirm">
             {{ t('common.ok') }}
           </el-button>
         </div>
@@ -69,7 +59,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, reactive, watch, onMounted, onBeforeUnmount, nextTick, markRaw } from 'vue'
+import {
+  ref,
+  shallowRef,
+  reactive,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  markRaw
+} from 'vue'
 import log from 'electron-log'
 import {
   Muya,
@@ -278,6 +277,19 @@ let scrollHandler: ((e: Event) => void) | null = null
 // per-tab map here for restoration across in-session tab switches, and feed the
 // store a SYNTHETIC desktop-shaped history.
 const engineHistoryByTab = new Map<string, ISerializedHistory>()
+let activeEngineTabId: string | undefined
+const snapshotOutgoingHistory = (nextId: string | undefined): void => {
+  // Serialized history belongs to inactive tabs; the active tab already owns
+  // its live stack. Copying on every edit or save would duplicate that stack.
+  if (
+    editor.value &&
+    activeEngineTabId &&
+    nextId !== activeEngineTabId &&
+    tabs.value.some((tab) => tab.id === activeEngineTabId)
+  ) {
+    engineHistoryByTab.set(activeEngineTabId, editor.value.getHistory())
+  }
+}
 
 // The WYSIWYG caret captured the instant the user switches INTO source mode.
 // Focus moves to CodeMirror while source mode is up, so by the time the tab is
@@ -379,13 +391,9 @@ const adaptSelectionChange = (changes: MuyaChange) => {
   const anchorBlock = changes.anchorBlock as { text?: string } | null | undefined
   const focusBlock = changes.focusBlock as { text?: string } | null | undefined
   const anchorInfo = changes.anchorBlockInfo as
-    | { type?: string; functionType?: string }
-    | null
-    | undefined
+    { type?: string; functionType?: string } | null | undefined
   const focusInfo = changes.focusBlockInfo as
-    | { type?: string; functionType?: string }
-    | null
-    | undefined
+    { type?: string; functionType?: string } | null | undefined
   const rawAffiliation = (changes.affiliation ?? []) as EngineAffiliationEntry[]
   const affiliation = rawAffiliation.map((entry) => {
     const functionType =
@@ -549,11 +557,14 @@ watch(sequenceTheme, (value, oldValue) => {
   }
 })
 
-watch(() => preferencesStore.plantumlServer, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ plantumlServer: value }, true)
+watch(
+  () => preferencesStore.plantumlServer,
+  (value, oldValue) => {
+    if (value !== oldValue && editor.value) {
+      editor.value.setOptions({ plantumlServer: value }, true)
+    }
   }
-})
+)
 
 watch(listIndentation, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
@@ -1489,7 +1500,13 @@ const setMarkdownToEditor = (payload: unknown) => {
   if (editor.value) {
     // `setContent` resets the document and clears the undo history; only set a
     // cursor afterwards (a freshly-opened file has no history to restore).
-    editor.value.setContent(newMarkdown ?? '')
+    // UPDATE_CURRENT_FILE already activates this document via file-changed.
+    // file-loaded then establishes the clean baseline and initial focus.
+    if (!id || activeEngineTabId !== id) {
+      snapshotOutgoingHistory(id)
+      editor.value.setContent(newMarkdown ?? '')
+      activeEngineTabId = id
+    }
     // The freshly loaded content is this tab's clean baseline (id 0). Re-seed
     // the monotonic save-tracking allocator so undoing an edit back to this
     // content reads as clean again (matches the store's `lastSavedHistoryId: 0`).
@@ -1603,7 +1620,9 @@ const handleFileChange = (payload: unknown) => {
       // per-tab) afterwards — preserves undo/redo on in-session tab switch. The
       // `history` in the payload is the synthetic desktop-shaped history used
       // for save tracking, not the engine history.
+      snapshotOutgoingHistory(id)
       editor.value.setContent(newMarkdown)
+      activeEngineTabId = id
       // Tab switch swaps content without firing `json-change`, so re-seed the
       // TOC (otherwise returning to an open tab keeps the other tab's TOC).
       editorStore.UPDATE_TOC(editor.value.getTOC())
@@ -1617,14 +1636,15 @@ const handleFileChange = (payload: unknown) => {
         editor.value.setCursorByOffset(muyaIndexCursor)
       }
       const savedEngineHistory = id ? engineHistoryByTab.get(id) : undefined
-      if (savedEngineHistory) {
+      if (id && savedEngineHistory) {
         editor.value.setHistory(savedEngineHistory)
+        engineHistoryByTab.delete(id)
       }
       // First activation of a tab the save-tracking allocator has never seen:
       // seed its clean baseline from the engine's serialization now, before
       // any edit. For a tab that already has a tracker this is a no-op —
       // switching back must keep the existing content -> id map.
-      if (id) {
+      if (id && !syntheticHistoryByTab.has(id)) {
         getSyntheticHistory(id, editor.value.getMarkdown())
       }
     }
@@ -1842,6 +1862,7 @@ onMounted(() => {
   // after the first edit — so the pristine content never maps to id 0 and
   // undoing back to the on-disk content can never read as clean again (PG15).
   if (currentFile.value?.id) {
+    activeEngineTabId = currentFile.value.id
     getSyntheticHistory(currentFile.value.id, muya.getMarkdown())
   }
 
@@ -1897,8 +1918,8 @@ onMounted(() => {
 
   // The engine emits a low-level `json-change` ({ op, source, prevDoc, doc })
   // on every document mutation; the desktop's content-change pipeline wants the
-  // derived document snapshot (markdown / word count / cursor / history / TOC /
-  // block AST), so we compute it here — mirroring the legacy engine's
+  // derived document snapshot (markdown / word count / cursor / save state / TOC),
+  // so we compute it here — mirroring the legacy engine's
   // `dispatchChange` payload.
   editor.value.on('json-change', () => {
     // There is a chance that this event is fired AFTER the tab is switched. If we purely rely on this.currentFile later on
@@ -1907,13 +1928,6 @@ onMounted(() => {
     const { id } = currentFile.value
     if (!id) return
     const markdown = editor.value.getMarkdown()
-    // Stash the real engine history for in-session tab-switch restoration. The
-    // synthetic save-tracking id is derived from the live document content (a
-    // monotonic, never-reused id — see `syntheticHistory.ts`), NOT the engine
-    // undo-stack depth, which is reused and falsely showed a divergently
-    // re-edited tab as clean (Phase G — G6).
-    const engineHistory = editor.value.getHistory()
-    engineHistoryByTab.set(id, engineHistory)
     editorStore.LISTEN_FOR_CONTENT_CHANGE({
       id,
       markdown,
@@ -1922,8 +1936,7 @@ onMounted(() => {
       // Synthetic, desktop-shaped history so the store's save/dirty tracking
       // keeps working (the engine history shape is incompatible).
       history: makeSyntheticHistory(id, markdown),
-      toc: editor.value.getTOC(),
-      blocks: editor.value.getState()
+      toc: editor.value.getTOC()
     })
   })
 
@@ -2156,5 +2169,4 @@ onBeforeUnmount(() => {
   padding-top: calc(50vh - 136px);
   padding-bottom: calc(50vh - 54px);
 }
-
 </style>

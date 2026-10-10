@@ -36,9 +36,6 @@
 // `setContent` -> edit -> undo round-trip purely in trailing newlines (loading
 // `'x\n'` may serialize to `'x\n\n\n'`, while undoing an edit lands on `'x\n'`),
 // so the content signature must ignore them or undo-to-saved would never match.
-const stripTrailingNewlines = (content: string): string =>
-  content.replace(/[\r\n]+$/, '')
-
 // A fast, stable 64-bit string hash (FNV-1a) over the trailing-newline-normalized
 // content. Used so the content -> id map stores short keys instead of whole
 // documents; a collision would map two genuinely different documents to the same
@@ -46,18 +43,22 @@ const stripTrailingNewlines = (content: string): string =>
 // collision probability negligible even for a long editing session with many
 // thousands of distinct snapshots (a 32-bit hash hits ~50% collision odds near
 // ~77k snapshots via the birthday bound — realistic over a long session — so the
-// extra width is worth the BigInt key).
-const FNV64_OFFSET = 0xcbf29ce484222325n
-const FNV64_PRIME = 0x100000001b3n
-const MASK64 = 0xffffffffffffffffn
+// extra width is worth the BigInt key). The two 32-bit limbs compute exactly
+// the same hash without allocating BigInts for every character in a large file.
 const hashContent = (content: string): bigint => {
-  const normalized = stripTrailingNewlines(content)
-  let hash = FNV64_OFFSET
-  for (let i = 0; i < normalized.length; i++) {
-    hash ^= BigInt(normalized.charCodeAt(i))
-    hash = (hash * FNV64_PRIME) & MASK64
+  let end = content.length
+  while (end > 0 && (content.charCodeAt(end - 1) === 10 || content.charCodeAt(end - 1) === 13))
+    end--
+  let high = 0xcbf29ce4
+  let low = 0x84222325
+  for (let i = 0; i < end; i++) {
+    low = (low ^ content.charCodeAt(i)) >>> 0
+    const product = low * 0x1b3
+    high =
+      (Math.imul(high, 0x1b3) + Math.imul(low, 0x100) + Math.floor(product / 0x100000000)) >>> 0
+    low = product >>> 0
   }
-  return hash
+  return (BigInt(high) << 32n) | BigInt(low)
 }
 
 export interface IFileHistoryLike {
