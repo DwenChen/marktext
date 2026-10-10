@@ -332,6 +332,12 @@
     "type": "string",
     "default": "light"
   },
+  "documentStyle": {
+    "description": "Editor--Typography and layout of the rendered document.",
+    "type": "string",
+    "enum": ["default", "github", "classic", "book"],
+    "default": "default"
+  },
   "followSystemTheme": {
     "description": "Theme--Use separate theme in dark mode.",
     "type": "boolean",

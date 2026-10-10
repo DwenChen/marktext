@@ -439,7 +439,8 @@
         "imageRelativeDirectoryName": "相对图片文件夹名称",
         "fileSortOrder": "打开文件夹中文件的排序顺序：升序或降序",
         "openedFilesInSidebar": "是否在侧边栏中显示已打开文件",
-        "showPandocConvert": "显示 Pandoc 转换菜单。需要先安装 Pandoc。"
+        "showPandocConvert": "显示 Pandoc 转换菜单。需要先安装 Pandoc。",
+        "documentStyle": "正文渲染风格"
       }
     },
     "categories": {
@@ -587,7 +588,16 @@
         "autoNormalizeLineEndings": "打开时自动将行尾规范化为 LF",
         "wrapCodeBlocks": "换行代码块",
         "sourceCodeLineNumbers": "在源码模式中显示行号"
-      }
+      },
+      "documentStyle": {
+        "label": "正文渲染风格",
+        "notes": "独立于界面主题选择正文排版，不改变 Markdown 语法。",
+        "default": "MarkText 原生",
+        "github": "GitHub",
+        "classic": "经典",
+        "book": "书籍"
+      },
+      "resizeSidebar": "调整侧边栏宽度"
     },
     "image": {
       "title": "图片",

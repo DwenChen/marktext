@@ -439,7 +439,8 @@
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
         "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
-        "showPandocConvert": "顯示 Pandoc 轉換選單。需要先安裝 Pandoc。"
+        "showPandocConvert": "顯示 Pandoc 轉換選單。需要先安裝 Pandoc。",
+        "documentStyle": "內文渲染風格"
       }
     },
     "categories": {
@@ -587,7 +588,16 @@
         "autoNormalizeLineEndings": "開啟時自動將行尾標準化為 LF",
         "wrapCodeBlocks": "換行程式碼區塊",
         "sourceCodeLineNumbers": "在原始碼模式中顯示行號"
-      }
+      },
+      "documentStyle": {
+        "label": "內文渲染風格",
+        "notes": "獨立於介面主題選擇內文排版，不改變 Markdown 語法。",
+        "default": "MarkText 原生",
+        "github": "GitHub",
+        "classic": "經典",
+        "book": "書籍"
+      },
+      "resizeSidebar": "調整側邊欄寬度"
     },
     "image": {
       "title": "圖片",

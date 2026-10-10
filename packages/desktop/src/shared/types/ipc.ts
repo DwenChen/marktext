@@ -42,8 +42,7 @@ export interface SaveDialogRequest {
 }
 
 export type PlantumlFetchResult =
-  | { ok: true; mime: string; data: Uint8Array }
-  | { ok: false; error: string }
+  { ok: true; mime: string; data: Uint8Array } | { ok: false; error: string }
 
 // =================================================================
 // Invoke channels (renderer → main, returns Promise<T>)
@@ -103,6 +102,7 @@ export interface IpcInvokeChannels {
   // Main derives the BrowserWindow via BrowserWindow.fromWebContents(e.sender);
   // no need to pass windowId. Payload is the editor+project+layout snapshot.
   'update-buffer-state': { args: [payload: unknown]; ret: void }
+  'mt::update-sidebar-width': { args: [width: number]; ret: boolean }
 }
 
 // =================================================================
@@ -150,7 +150,9 @@ export interface IpcSendChannels {
   'mt::open-file-by-window-id': [windowId: number, filePath: string, options?: unknown]
   'mt::open-keybindings-config': []
   'mt::open-setting-window': []
-  'mt::rename': [payload: { id: string; pathname: string; newPathname: string; currentFile?: unknown }]
+  'mt::rename': [
+    payload: { id: string; pathname: string; newPathname: string; currentFile?: unknown }
+  ]
   'mt::request-keybindings': []
   'mt::set-editor-format-menus-enabled': [windowId: number, enabled: boolean]
   'mt::response-export': [

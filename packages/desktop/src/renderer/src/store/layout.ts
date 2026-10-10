@@ -137,7 +137,12 @@ export const useLayoutStore = defineStore('layout', () => {
     localStorage.setItem('side-bar-width', String(normalizedWidth))
     sideBarWidth.value = normalizedWidth
     if (scheduleBufferUpdate) {
-      debouncedSendBufferedState()
+      // Resizing must not serialize every tab and its undo history.
+      window.electron.ipcRenderer
+        .invoke('mt::update-sidebar-width', normalizedWidth)
+        .catch((err) => {
+          console.error('Failed to persist sidebar width', err)
+        })
     }
   }
 

@@ -439,7 +439,8 @@
         "autoNormalizeLineEndings": "Automatically normalize line endings when opening files. When disabled, files are opened as-is.",
         "fileSortOrder": "Sort order for files in opened folders: ascending or descending.",
         "openedFilesInSidebar": "Whether to show opened files in the sidebar.",
-        "showPandocConvert": "Show the Pandoc conversion menu. Requires Pandoc to be installed."
+        "showPandocConvert": "Show the Pandoc conversion menu. Requires Pandoc to be installed.",
+        "documentStyle": "Document rendering style"
       }
     },
     "categories": {
@@ -587,7 +588,16 @@
         "autoNormalizeLineEndings": "Auto-normalize line endings to LF on open",
         "wrapCodeBlocks": "Wrap code blocks",
         "sourceCodeLineNumbers": "Show line numbers in source code mode"
-      }
+      },
+      "documentStyle": {
+        "label": "Document rendering style",
+        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
+        "default": "MarkText",
+        "github": "GitHub",
+        "classic": "Classic",
+        "book": "Book"
+      },
+      "resizeSidebar": "Resize sidebar"
     },
     "image": {
       "title": "Image",

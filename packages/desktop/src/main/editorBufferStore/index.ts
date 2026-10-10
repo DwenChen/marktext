@@ -77,7 +77,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
         const allSaved = buffer.tabs.every((file) => file.isSaved)
         if (buffer.tabs.length === 0 || allSaved) {
           try {
-            fs.unlinkSync(this.bufferStores[id].filePath)
+            this.removeBufferStoreFile(this.bufferStores[id].filePath)
           } catch (e) {
             console.error('Failed to delete buffer store file during clear', e)
           }
@@ -114,7 +114,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
         const buffer = this.readBufferStoreFile(this.bufferStores[restoreBufferId].filePath)
         const allSaved = buffer.tabs.every((file) => file.isSaved)
         if (buffer.tabs.length === 0 || allSaved) {
-          fs.unlinkSync(this.bufferStores[restoreBufferId].filePath)
+          this.removeBufferStoreFile(this.bufferStores[restoreBufferId].filePath)
           delete this.bufferStores[restoreBufferId]
         }
       } catch (e) {
@@ -172,6 +172,17 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
       throw new Error('Invalid editor buffer state.')
     }
 
+    // Width has a small sidecar so resizing never rewrites a large recovery snapshot.
+    try {
+      const width: unknown = JSON.parse(fs.readFileSync(`${filePath}.sidebar-width.json`, 'utf8'))
+      if (typeof width === 'number' && Number.isFinite(width) && width >= 220) {
+        const layout = buffer.layout && typeof buffer.layout === 'object' ? buffer.layout : {}
+        buffer.layout = { ...layout, sideBarWidth: width }
+      }
+    } catch {
+      // Older snapshots and interrupted sidecar writes retain their saved layout.
+    }
+
     return buffer
   }
 
@@ -182,6 +193,12 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     // still leave this crash-recovery buffer — which holds unsaved tab content —
     // truncated or zero-filled, the same gap the document save path had (#3786).
     writeFileAtomic.sync(filePath, JSON.stringify(newState), 'utf8')
+  }
+
+  private removeBufferStoreFile(filePath: string): void {
+    fs.unlinkSync(filePath)
+    const widthPath = `${filePath}.sidebar-width.json`
+    if (fs.existsSync(widthPath)) fs.unlinkSync(widthPath)
   }
 
   updateBufferState(e: IpcMainInvokeEvent, newState: unknown): boolean {
@@ -195,6 +212,17 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
 
     const bufferStore = this.getBufferStoreInfo(restoreBufferId)
     this.writeBufferStoreFile(bufferStore.filePath, newState)
+    return true
+  }
+
+  async updateSidebarWidth(e: IpcMainInvokeEvent, width: unknown): Promise<boolean> {
+    if (typeof width !== 'number' || !Number.isFinite(width) || width < 220) return false
+    const win = BrowserWindow.fromWebContents(e.sender)
+    const restoreBufferId = (win as unknown as { restoreBufferId?: string })?.restoreBufferId
+    if (!restoreBufferId) return false
+
+    const { filePath } = this.getBufferStoreInfo(restoreBufferId)
+    await writeFileAtomic(`${filePath}.sidebar-width.json`, JSON.stringify(width), 'utf8')
     return true
   }
 
@@ -215,6 +243,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     ipcMain.handle('update-buffer-state', (e, newState) => {
       return this.updateBufferState(e, newState)
     })
+    ipcMain.handle('mt::update-sidebar-width', (e, width) => this.updateSidebarWidth(e, width))
   }
 }
 

@@ -1,0 +1,71 @@
+name: Windows Preview Build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - name: Enable Git long paths
+        run: git config --global core.longpaths true
+
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+
+      - name: Install Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Setup pnpm, Node.js, and dependencies
+        uses: ./.github/actions/setup
+        with:
+          node-version: '24.14.1'
+
+      - name: Prepare Electron and native modules
+        run: pnpm run postinstall
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          npm_config_user_agent: 'pnpm'
+
+      - name: Build Windows installer and ZIP
+        run: pnpm run build:win:x64
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Verify startup and editor changes
+        run: >-
+          pnpm -C packages/desktop exec playwright test
+          test/e2e/launch.spec.ts
+          test/e2e/document-appearance.spec.ts
+          test/e2e/titlebar-selection-word-count.spec.ts
+          test/e2e/issue-2421-sidebar-state.spec.ts
+          --workers=1
+
+      - name: Upload Windows preview
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: marktext-windows-x64-preview
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            dist/*.exe
+            dist/*.zip
+
+      - name: Upload failed test diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: windows-preview-test-diagnostics
+          retention-days: 7
+          if-no-files-found: ignore
+          path: packages/desktop/test-results/

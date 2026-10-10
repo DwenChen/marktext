@@ -11,7 +11,6 @@ import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { showEditorContextMenu } from '../contextMenu/editor'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { switchLanguage } from '../spellchecker'
-import fs from 'fs'
 
 type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
 
@@ -561,11 +560,11 @@ class EditorWindow extends BaseWindow {
       throw new Error('Invalid state.')
     }
     const { browserWindow, bufferStoreInfo, _accessor } = this
-    const { menu: appMenu, preferences } = _accessor
+    const { menu: appMenu, preferences, editorBufferStore } = _accessor
 
     try {
-      const bufferState = JSON.parse(
-        fs.readFileSync(bufferStoreInfo!.filePath!, 'utf-8')
+      const bufferState = editorBufferStore.readBufferStoreFile(
+        bufferStoreInfo!.filePath!
       ) as RestoredBufferState
       if (!bufferState || !Array.isArray(bufferState.tabs)) {
         throw new Error('Invalid editor buffer state.')

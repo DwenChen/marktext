@@ -439,7 +439,8 @@
         "autoNormalizeLineEndings": "Dosyaları açarken yeni satır karakterlerini otomatik olarak normalleştir. Devre dışı bırakıldığında dosyalar olduğu gibi açılır.",
         "fileSortOrder": "Açık klasörlerdeki dosyaların sıralama düzeni: artan veya azalan.",
         "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği.",
-        "showPandocConvert": "Pandoc dönüştürme menüsünü gösterir. Pandoc kurulu olmalıdır."
+        "showPandocConvert": "Pandoc dönüştürme menüsünü gösterir. Pandoc kurulu olmalıdır.",
+        "documentStyle": "Document rendering style"
       }
     },
     "categories": {
@@ -587,7 +588,16 @@
         "autoNormalizeLineEndings": "Açılışta satır sonlarını LF'ye otomatik normalleştir",
         "wrapCodeBlocks": "Kod bloklarını kaydır",
         "sourceCodeLineNumbers": "Kaynak kod modunda satır numaralarını göster"
-      }
+      },
+      "documentStyle": {
+        "label": "Document rendering style",
+        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
+        "default": "MarkText",
+        "github": "GitHub",
+        "classic": "Classic",
+        "book": "Book"
+      },
+      "resizeSidebar": "Resize sidebar"
     },
     "image": {
       "title": "Görsel",

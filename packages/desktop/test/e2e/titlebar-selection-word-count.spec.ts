@@ -26,10 +26,10 @@ const clearSourceSelection = async(page: Page): Promise<void> => {
 // below waits for the released state rather than an intermediate one.
 const dragAcrossParagraphs = async(page: Page, from: number, to: number): Promise<void> => {
   const paragraphs = page.locator('p.mu-paragraph')
+  await paragraphs.nth(from).click({ position: { x: 1, y: 1 } })
   const start = await paragraphs.nth(from).boundingBox()
   const end = await paragraphs.nth(to).boundingBox()
   if (!start || !end) throw new Error('paragraphs not found')
-
   await page.mouse.move(start.x + 1, start.y + start.height / 2)
   await page.mouse.down()
   await page.mouse.move(end.x + end.width - 1, end.y + end.height / 2, { steps: 8 })
@@ -48,7 +48,7 @@ const dragSelectTableCells = async(page: Page): Promise<void> => {
   await page.mouse.up()
 }
 
-test.describe('Title bar selection word count', () => {
+test.describe('Status bar selection word count', () => {
   let app: ElectronApplication
   let page: Page
 
@@ -56,11 +56,30 @@ test.describe('Title bar selection word count', () => {
     const launched = await launchWithMarkdown(DOC, { suppressErrorDialog: true })
     app = launched.app
     page = launched.page
+    await app.evaluate(({ BrowserWindow }) => {
+      const window = BrowserWindow.getAllWindows()[0]
+      window.setSize(1280, 800)
+      window.focus()
+    })
     await clearRendererErrors(app)
   })
 
   test.afterEach(async() => {
     if (app) await app.close()
+  })
+
+  test('keeps document statistics at the bottom in either title bar mode', async() => {
+    for (const titleBarStyle of ['custom', 'native']) {
+      await page.evaluate((style) => {
+        window.electron.ipcRenderer.send('mt::set-user-preference', { titleBarStyle: style })
+      }, titleBarStyle)
+      const counter = page.locator('.status-bar .word-count')
+      await expect(counter).toHaveText('W 5')
+      const bounds = await counter.boundingBox()
+      const height = await page.evaluate(() => window.innerHeight)
+      expect(bounds!.y).toBeGreaterThan(height - 35)
+      await expect(page.locator('.title-bar .word-count')).toHaveCount(0)
+    }
   })
 
   test('shows document count first and selected count second', async() => {
@@ -117,9 +136,9 @@ test.describe('Title bar selection word count', () => {
     await expect(counter).toHaveText('W 3')
 
     await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
-    await expect.poll(() => page.evaluate(() => window.getSelection()?.toString())).toBe(
-      'Alpha beta gamma'
-    )
+    await expect
+      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
+      .toBe('Alpha beta gamma')
     await expect(counter).toHaveText('W 5 / 3')
 
     await placeCaretInEditor(page)

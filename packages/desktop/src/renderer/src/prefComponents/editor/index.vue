@@ -8,6 +8,14 @@
         </h6>
       </template>
       <template #children>
+        <cur-select
+          class="document-style-select"
+          :description="t('preferences.editor.documentStyle.label')"
+          :notes="t('preferences.editor.documentStyle.notes')"
+          :value="documentStyle"
+          :options="documentStyleOptions"
+          :on-change="(value) => onSelectChange('documentStyle', value)"
+        />
         <range
           :description="t('preferences.editor.textEditor.fontSize')"
           :value="fontSize"
@@ -190,6 +198,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
@@ -212,8 +221,15 @@ const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
 
 const defaultEncodingOptions = getDefaultEncodingOptions()
+const documentStyleOptions = computed(() =>
+  ['default', 'github', 'classic', 'book'].map((value) => ({
+    value,
+    label: t(`preferences.editor.documentStyle.${value}`)
+  }))
+)
 
 const {
+  documentStyle,
   fontSize,
   editorFontFamily,
   lineHeight,

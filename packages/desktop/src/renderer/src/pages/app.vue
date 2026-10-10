@@ -2,14 +2,15 @@
   <div class="editor-container">
     <side-bar v-if="init" />
 
-    <div class="editor-middle">
+    <div
+      class="editor-middle"
+      :data-document-style="documentStyle"
+    >
       <title-bar
         :project="projectTree"
         :pathname="pathname"
         :filename="filename"
         :active="windowActive"
-        :word-count="wordCount"
-        :selection-word-count="selectionWordCount"
         :platform="platform"
         :is-saved="isSaved"
       />
@@ -29,6 +30,11 @@
         :text-direction="textDirection"
         :platform="platform"
       />
+      <status-bar
+        v-if="hasCurrentFile && init"
+        :word-count="wordCount"
+        :selection-word-count="selectionWordCount"
+      />
       <command-palette />
       <about-dialog />
       <export-setting-dialog />
@@ -46,6 +52,8 @@ import { addStyles, addThemeStyle, addCustomStyle, type AddStylesOptions } from 
 import Recent from '@/components/recent/index.vue'
 import EditorWithTabs from '@/components/editorWithTabs/index.vue'
 import TitleBar from '@/components/titleBar/index.vue'
+import StatusBar from '@/components/statusBar/index.vue'
+import '@/assets/styles/documentStyles.css'
 import SideBar from '@/components/sideBar/index.vue'
 import AboutDialog from '@/components/about/index.vue'
 import CommandPalette from '@/components/commandPalette/index.vue'
@@ -77,7 +85,8 @@ const timer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const { windowActive, platform, init } = storeToRefs(mainStore)
 const { showTabBar } = storeToRefs(layoutStore)
-const { sourceCode, theme, customCss, textDirection, zoom } = storeToRefs(preferencesStore)
+const { sourceCode, theme, documentStyle, customCss, textDirection, zoom } =
+  storeToRefs(preferencesStore)
 const { projectTree } = storeToRefs(projectStore)
 const { currentFile, selectionWordCount } = storeToRefs(editorStore)
 
@@ -246,7 +255,8 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 100vh;
+  min-width: 0;
+  min-height: 0;
   position: relative;
   & > .editor {
     flex: 1;

@@ -439,7 +439,8 @@
         "imageRelativeDirectoryName": "相対画像フォルダー名",
         "fileSortOrder": "開いたフォルダー内のファイルの並べ替え順、昇順または降順",
         "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか",
-        "showPandocConvert": "Pandoc 変換メニューを表示します。Pandoc がインストールされている必要があります。"
+        "showPandocConvert": "Pandoc 変換メニューを表示します。Pandoc がインストールされている必要があります。",
+        "documentStyle": "Document rendering style"
       }
     },
     "categories": {
@@ -587,7 +588,16 @@
         "autoNormalizeLineEndings": "開くときに改行コードを自動的に LF へ統一",
         "wrapCodeBlocks": "コードブロックを折り返し",
         "sourceCodeLineNumbers": "ソースコードモードで行番号を表示"
-      }
+      },
+      "documentStyle": {
+        "label": "Document rendering style",
+        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
+        "default": "MarkText",
+        "github": "GitHub",
+        "classic": "Classic",
+        "book": "Book"
+      },
+      "resizeSidebar": "Resize sidebar"
     },
     "image": {
       "title": "画像",

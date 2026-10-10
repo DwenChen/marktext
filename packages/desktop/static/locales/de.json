@@ -439,7 +439,8 @@
         "imageRelativeDirectoryName": "Der relative Bildordner-Name",
         "fileSortOrder": "Sortierreihenfolge für Dateien in geöffneten Ordnern: aufsteigend oder absteigend.",
         "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen.",
-        "showPandocConvert": "Pandoc-Konvertierungsmenü anzeigen. Erfordert eine Pandoc-Installation."
+        "showPandocConvert": "Pandoc-Konvertierungsmenü anzeigen. Erfordert eine Pandoc-Installation.",
+        "documentStyle": "Document rendering style"
       }
     },
     "categories": {
@@ -587,7 +588,16 @@
         "autoNormalizeLineEndings": "Zeilenenden beim Öffnen automatisch auf LF normalisieren",
         "wrapCodeBlocks": "Code-Blöcke umbrechen",
         "sourceCodeLineNumbers": "Zeilennummern im Quellcode-Modus anzeigen"
-      }
+      },
+      "documentStyle": {
+        "label": "Document rendering style",
+        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
+        "default": "MarkText",
+        "github": "GitHub",
+        "classic": "Classic",
+        "book": "Book"
+      },
+      "resizeSidebar": "Resize sidebar"
     },
     "image": {
       "title": "Bild",

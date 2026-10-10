@@ -43,12 +43,22 @@
       v-show="rightColumn"
       ref="dragBar"
       class="drag-bar"
+      role="separator"
+      tabindex="0"
+      aria-orientation="vertical"
+      :aria-label="t('preferences.editor.resizeSidebar')"
+      :aria-valuenow="finalSideBarWidth"
+      :aria-valuemin="220"
+      @pointerdown="startResize"
+      @lostpointercapture="stopResize"
+      @keydown="resizeWithKeyboard"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useLayoutStore } from '@/store/layout'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
@@ -63,14 +73,15 @@ import type { TabDescriptor } from './types'
 const layoutStore = useLayoutStore()
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
+const { t } = useI18n()
 
 const sideBar = ref<HTMLDivElement | null>(null)
 const dragBar = ref<HTMLDivElement | null>(null)
 
 const openedFiles = ref<TabDescriptor[]>([])
-const sideBarViewWidth = ref(280)
 
 const { rightColumn, showSideBar, sideBarWidth } = storeToRefs(layoutStore)
+const sideBarViewWidth = ref(sideBarWidth.value)
 
 const { projectTree } = storeToRefs(projectStore)
 const { tabs } = storeToRefs(editorStore)
@@ -81,38 +92,73 @@ const finalSideBarWidth = computed<number>(() => {
   return sideBarViewWidth.value < 220 ? 220 : sideBarViewWidth.value
 })
 
-onMounted(() => {
-  nextTick(() => {
-    const dragBarEl = dragBar.value
-    if (!dragBarEl) return
-    let startX = 0
-    let currentSideBarWidth = +sideBarWidth.value
-    let startWidth = currentSideBarWidth
+let pointerId: number | null = null
+let startX = 0
+let startWidth = 0
+let pendingWidth = sideBarWidth.value
+let resizeFrame: number | null = null
 
-    sideBarViewWidth.value = currentSideBarWidth
+const clampWidth = (width: number): number =>
+  Math.min(Math.max(220, width), Math.max(220, window.innerWidth - 320))
 
-    const mouseUpHandler = (): void => {
-      document.removeEventListener('mousemove', mouseMoveHandler, false)
-      document.removeEventListener('mouseup', mouseUpHandler, false)
-      layoutStore.CHANGE_SIDE_BAR_WIDTH(currentSideBarWidth < 220 ? 220 : currentSideBarWidth)
-    }
-
-    const mouseMoveHandler = (event: MouseEvent): void => {
-      const offset = event.clientX - startX
-      currentSideBarWidth = startWidth + offset
-      sideBarViewWidth.value = currentSideBarWidth
-    }
-
-    const mouseDownHandler = (event: MouseEvent): void => {
-      startX = event.clientX
-      startWidth = +sideBarWidth.value
-      document.addEventListener('mousemove', mouseMoveHandler, false)
-      document.addEventListener('mouseup', mouseUpHandler, false)
-    }
-
-    dragBarEl.addEventListener('mousedown', mouseDownHandler, false)
-  })
+watch(sideBarWidth, (width) => {
+  if (pointerId == null) sideBarViewWidth.value = width
 })
+
+const moveResize = (event: PointerEvent): void => {
+  if (event.pointerId !== pointerId) return
+  pendingWidth = clampWidth(startWidth + event.clientX - startX)
+  if (resizeFrame != null) return
+  resizeFrame = requestAnimationFrame(() => {
+    resizeFrame = null
+    sideBarViewWidth.value = pendingWidth
+  })
+}
+
+const stopResize = (): void => {
+  if (pointerId == null) return
+  const id = pointerId
+  pointerId = null
+  if (resizeFrame != null) cancelAnimationFrame(resizeFrame)
+  resizeFrame = null
+  window.removeEventListener('pointermove', moveResize)
+  window.removeEventListener('pointerup', finishResize)
+  window.removeEventListener('pointercancel', stopResize)
+  window.removeEventListener('blur', stopResize)
+  if (dragBar.value?.hasPointerCapture(id)) dragBar.value.releasePointerCapture(id)
+  sideBarViewWidth.value = pendingWidth
+  if (pendingWidth !== sideBarWidth.value) layoutStore.CHANGE_SIDE_BAR_WIDTH(pendingWidth)
+}
+
+const finishResize = (event: PointerEvent): void => {
+  if (event.pointerId !== pointerId) return
+  pendingWidth = clampWidth(startWidth + event.clientX - startX)
+  stopResize()
+}
+
+const startResize = (event: PointerEvent): void => {
+  if (event.button !== 0 || pointerId != null || !dragBar.value) return
+  event.preventDefault()
+  pointerId = event.pointerId
+  startX = event.clientX
+  startWidth = sideBarViewWidth.value
+  pendingWidth = startWidth
+  dragBar.value.setPointerCapture(event.pointerId)
+  window.addEventListener('pointermove', moveResize)
+  window.addEventListener('pointerup', finishResize)
+  window.addEventListener('pointercancel', stopResize)
+  window.addEventListener('blur', stopResize)
+}
+
+const resizeWithKeyboard = (event: KeyboardEvent): void => {
+  if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return
+  event.preventDefault()
+  const width =
+    event.key === 'Home' ? 220 : sideBarWidth.value + (event.key === 'ArrowLeft' ? -10 : 10)
+  layoutStore.CHANGE_SIDE_BAR_WIDTH(clampWidth(width))
+}
+
+onBeforeUnmount(stopResize)
 
 const handleLeftIconClick = (name: string): void => {
   if (rightColumn.value === name) {
@@ -219,11 +265,16 @@ const handleLeftBottomClick = (name: string): void => {
   right: 0;
   bottom: 0;
   height: 100%;
-  width: 3px;
+  width: 6px;
   cursor: col-resize;
+  touch-action: none;
 }
 
 .drag-bar:hover {
   border-right: 2px solid var(--iconColor);
+}
+
+.drag-bar:focus-visible {
+  outline: 1px solid var(--themeColor);
 }
 </style>

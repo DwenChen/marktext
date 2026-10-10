@@ -26,6 +26,11 @@ test.describe('#2421 sidebar state survives icon toggle', () => {
     const launched = await launchWithMarkdown('# Doc\n\n## A\n\n## B\n')
     app = launched.app
     page = launched.page
+    await app.evaluate(({ BrowserWindow }) => {
+      const window = BrowserWindow.getAllWindows()[0]
+      window.setSize(1280, 800)
+      window.focus()
+    })
     // The files panel is the default right column; make sure it is open + wide.
     await page.waitForFunction(() => {
       const el = document.querySelector('.side-bar') as HTMLElement | null

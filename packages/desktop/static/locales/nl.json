@@ -439,7 +439,8 @@
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren bij het openen van bestanden. Indien uitgeschakeld worden bestanden ongewijzigd geopend.",
         "fileSortOrder": "Sorteervolgorde voor bestanden in geopende mappen: oplopend of aflopend.",
         "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk.",
-        "showPandocConvert": "Het Pandoc-conversiemenu tonen. Vereist een installatie van Pandoc."
+        "showPandocConvert": "Het Pandoc-conversiemenu tonen. Vereist een installatie van Pandoc.",
+        "documentStyle": "Document rendering style"
       }
     },
     "categories": {
@@ -587,7 +588,16 @@
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren naar LF bij openen",
         "wrapCodeBlocks": "Codeblokken terugloopbaar",
         "sourceCodeLineNumbers": "Regelnummers tonen in broncodeweergave"
-      }
+      },
+      "documentStyle": {
+        "label": "Document rendering style",
+        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
+        "default": "MarkText",
+        "github": "GitHub",
+        "classic": "Classic",
+        "book": "Book"
+      },
+      "resizeSidebar": "Resize sidebar"
     },
     "image": {
       "title": "Afbeelding",

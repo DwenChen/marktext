@@ -439,7 +439,8 @@
         "imageRelativeDirectoryName": "O nome da pasta de imagem relativa",
         "fileSortOrder": "Ordem de classificação dos arquivos nas pastas abertas: ascendente ou descendente.",
         "openedFilesInSidebar": "Se os arquivos abertos são mostrados na barra lateral.",
-        "showPandocConvert": "Mostrar o menu de conversão do Pandoc. Requer o Pandoc instalado."
+        "showPandocConvert": "Mostrar o menu de conversão do Pandoc. Requer o Pandoc instalado.",
+        "documentStyle": "Document rendering style"
       }
     },
     "categories": {
@@ -587,7 +588,16 @@
         "autoNormalizeLineEndings": "Normalizar automaticamente finais de linha para LF ao abrir",
         "wrapCodeBlocks": "Quebrar blocos de código",
         "sourceCodeLineNumbers": "Mostrar números de linha no modo código fonte"
-      }
+      },
+      "documentStyle": {
+        "label": "Document rendering style",
+        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
+        "default": "MarkText",
+        "github": "GitHub",
+        "classic": "Classic",
+        "book": "Book"
+      },
+      "resizeSidebar": "Resize sidebar"
     },
     "image": {
       "title": "Imagem",

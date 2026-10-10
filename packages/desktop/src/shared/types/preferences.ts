@@ -6,6 +6,8 @@
 // Kept intentionally open with `[key: string]: unknown` until the schema
 // is mechanically derived from schema.json in a follow-up.
 
+export type DocumentStyle = 'default' | 'github' | 'classic' | 'book'
+
 export interface IUserPreferences {
   autoSave?: boolean
   autoSaveDelay?: number
@@ -55,6 +57,7 @@ export interface IUserPreferences {
   isHtmlEnabled?: boolean
   softNewlineAsSpace?: boolean
   theme?: string
+  documentStyle?: DocumentStyle
   spellcheckerEnabled?: boolean
   spellcheckerNoUnderline?: boolean
   spellcheckerLanguage?: string
