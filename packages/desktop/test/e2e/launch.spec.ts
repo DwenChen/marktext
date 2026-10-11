@@ -1,13 +1,15 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchElectron } from './helpers'
+import { launchElectron, waitForEditor } from './helpers'
 
 test.describe('Check Launch MarkText', () => {
   let app: ElectronApplication
   let page: Page
 
   test.beforeAll(async() => {
-    const { app: electronApp, page: firstPage } = await launchElectron()
+    const { app: electronApp, page: firstPage } = await launchElectron(undefined, {
+      preferences: { language: 'en' }
+    })
     app = electronApp
     page = firstPage
   })
@@ -16,8 +18,9 @@ test.describe('Check Launch MarkText', () => {
     await app.close()
   })
 
-  test('Empty MarkText', async() => {
-    const title = await page.title()
-    expect(/^MarkText|Untitled-1 - MarkText$/.test(title)).toBeTruthy()
+  test('Creates a document from the empty start screen', async() => {
+    await page.getByRole('button', { name: 'New File', exact: true }).click()
+    await waitForEditor(page)
+    await expect(page).toHaveTitle(/^Untitled-1(?: - .+)?$/)
   })
 })
