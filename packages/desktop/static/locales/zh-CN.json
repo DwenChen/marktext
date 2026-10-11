@@ -246,7 +246,8 @@
       "closeAll": "关闭全部",
       "emptyProject": "空项目",
       "createFile": "创建文件",
-      "openFolder": "打开文件夹"
+      "openFolder": "打开文件夹",
+      "closeFolder": "关闭文件夹"
     },
     "toc": {
       "title": "目录",

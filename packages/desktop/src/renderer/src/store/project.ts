@@ -7,7 +7,9 @@ import {
   unlinkDirectory,
   resortTree,
   updateFileMtime,
-  expandAncestors
+  expandAncestors,
+  findFolder,
+  mergeDirectoryEntries
 } from './treeCtrl'
 import { usePreferencesStore } from './preferences'
 import bus from '../bus'
@@ -20,7 +22,7 @@ import { useLayoutStore } from './layout'
 import { useEditorStore } from './editor'
 import { debouncedSendBufferedState } from './bufferedState'
 import type { TreeNode, TreeFolderNode } from '../components/sideBar/types'
-import type { FileChangeDetail } from '@shared/types/files'
+import type { DirectoryEntry, FileChangeDetail, ProjectTreeUpdate, ProjectTreeEvent } from '@shared/types/files'
 
 type ProjectTree = TreeNode
 type TreeChange = FileChangeDetail
@@ -45,6 +47,8 @@ const createProjectRoot = (pathname: string): ProjectTree | null => {
     isDirectory: true,
     isFile: false,
     isMarkdown: false,
+    childrenLoaded: false,
+    isLoading: true,
     folders: [],
     files: []
   }
@@ -97,6 +101,8 @@ export const useProjectStore = defineStore('project', () => {
   const projectTree = ref<ProjectTree | null>(null)
   const treeVersion = ref(0)
   const pendingTreeEvents = ref<PendingEvent[]>([])
+  const directoryLoads = new Map<string, Promise<void>>()
+  let projectGeneration = 0
 
   const preferencesStore = usePreferencesStore()
 
@@ -118,6 +124,10 @@ export const useProjectStore = defineStore('project', () => {
     if (!tree) return
 
     projectTree.value = tree
+    projectGeneration++
+    directoryLoads.clear()
+    newFileNameCache.value = ''
+    clipboard.value = null
     // The old tree's selection and in-progress name inputs do not survive a new root.
     activeItem.value = {}
     CLEAR_NAME_INPUT_STATE()
@@ -132,13 +142,33 @@ export const useProjectStore = defineStore('project', () => {
 
     // Process pending events that arrived before projectTree was initialized.
     for (const event of pendingTreeEvents.value) {
-      _processTreeEvent(event.type, event.change)
+      if (isWithinProject(event.change.pathname)) _processTreeEvent(event.type, event.change)
     }
     pendingTreeEvents.value = []
 
     if (scheduleBufferUpdate) {
       debouncedSendBufferedState()
     }
+  }
+
+  function CLEAR_PROJECT(): void {
+    projectGeneration++
+    directoryLoads.clear()
+    projectTree.value = null
+    pendingTreeEvents.value = []
+    activeItem.value = {}
+    newFileNameCache.value = ''
+    clipboard.value = null
+    CLEAR_NAME_INPUT_STATE()
+    treeVersion.value++
+  }
+
+  function CLOSE_PROJECT(): void {
+    const rootPath = projectTree.value?.pathname
+    if (!rootPath) return
+    CLEAR_PROJECT()
+    window.electron.ipcRenderer.send('mt::close-project', rootPath)
+    debouncedSendBufferedState()
   }
 
   function CREATE_BUFFERED_STATE(): BufferedProjectState {
@@ -153,10 +183,7 @@ export const useProjectStore = defineStore('project', () => {
       if (projectTree.value?.pathname === rootDirectory) return
       OPEN_PROJECT(rootDirectory, { scheduleBufferUpdate: false })
     } else {
-      projectTree.value = null
-      pendingTreeEvents.value = []
-      activeItem.value = {}
-      CLEAR_NAME_INPUT_STATE()
+      CLEAR_PROJECT()
     }
   }
 
@@ -164,17 +191,71 @@ export const useProjectStore = defineStore('project', () => {
     window.electron.ipcRenderer.on('mt::open-directory', (_e, pathname) => {
       OPEN_PROJECT(String(pathname))
     })
+    window.electron.ipcRenderer.on('mt::close-directory', () => {
+      CLEAR_PROJECT()
+      debouncedSendBufferedState()
+    })
+  }
+
+  function isWithinProject(pathname: string): boolean {
+    if (!projectTree.value || !pathname) return false
+    const relative = window.path.relative(projectTree.value.pathname, pathname)
+    return relative !== '..' && !relative.startsWith(`..${PATH_SEPARATOR}`) && !window.path.isAbsolute(relative)
   }
 
   function LISTEN_FOR_UPDATE_PROJECT(): void {
     window.electron.ipcRenderer.on('mt::update-object-tree', (_e, payload) => {
+      if (payload && typeof payload === 'object' && 'rootPath' in payload) {
+        const update = payload as ProjectTreeUpdate
+        if (!projectTree.value || !isSamePath(update.rootPath, projectTree.value.pathname)) return
+        if (update.type === 'directory' || update.type === 'directory-error') {
+          const folder = findFolder(projectTree.value, update.pathname)
+          if (!folder) return
+          folder.isLoading = false
+          if (update.type === 'directory') {
+            mergeDirectoryEntries(folder, update.entries, String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder), true)
+            folder.childrenLoaded = true
+            treeVersion.value++
+          } else {
+            notice.notify({ title: 'Cannot load folder', type: 'error', message: update.message })
+          }
+        } else if (update.type === 'batch') {
+          PROCESS_TREE_BATCH(update.events)
+        }
+        return
+      }
       const { type, change } = (payload as { type: string; change: TreeChange }) ?? {}
       if (!projectTree.value) {
         pendingTreeEvents.value.push({ type, change })
         return
       }
-      _processTreeEvent(type, change)
+      if (isWithinProject(change?.pathname)) _processTreeEvent(type, change)
     })
+  }
+
+  function PROCESS_TREE_BATCH(events: ProjectTreeEvent[]): void {
+    let additions = new Map<string, DirectoryEntry[]>()
+    const flushAdditions = (): void => {
+      for (const [pathname, entries] of additions) {
+        const folder = projectTree.value && findFolder(projectTree.value, pathname)
+        if (folder) mergeDirectoryEntries(folder, entries, String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
+      }
+      additions = new Map()
+    }
+    for (const event of events) {
+      if (!isWithinProject(event.change.pathname)) continue
+      if (event.type === 'add' || event.type === 'addDir') {
+        const parent = window.path.dirname(event.change.pathname)
+        const entries = additions.get(parent) ?? []
+        entries.push(event.change as unknown as DirectoryEntry)
+        additions.set(parent, entries)
+      } else {
+        flushAdditions()
+        _processTreeEvent(event.type, event.change)
+      }
+    }
+    flushAdditions()
+    treeVersion.value++
   }
 
   function _processTreeEvent(type: string, change: TreeChange): void {
@@ -198,6 +279,10 @@ export const useProjectStore = defineStore('project', () => {
         addDirectory(projectTree.value!, change)
         break
       case 'unlinkDir':
+        if (isSamePath(change.pathname, projectTree.value!.pathname)) {
+          CLOSE_PROJECT()
+          return
+        }
         unlinkDirectory(projectTree.value!, change)
         break
       case 'change':
@@ -225,6 +310,49 @@ export const useProjectStore = defineStore('project', () => {
   function REVEAL_PATH(pathname: string | null | undefined): boolean {
     if (!pathname || !projectTree.value) return false
     return expandAncestors(projectTree.value, pathname) !== null
+  }
+
+  async function LOAD_DIRECTORY(folder: TreeFolderNode): Promise<void> {
+    if (folder.childrenLoaded) return
+    const pending = directoryLoads.get(folder.pathname)
+    if (pending) return pending
+    const rootPath = projectTree.value?.pathname
+    if (!rootPath) return
+    const generation = projectGeneration
+    folder.isLoading = true
+    const load = (async() => {
+      try {
+        const loaded = await window.electron.ipcRenderer.invoke('mt::load-project-directory', rootPath, folder.pathname)
+        if (!loaded && generation === projectGeneration) folder.isLoading = false
+      } catch (error) {
+        if (generation !== projectGeneration) return
+        folder.isLoading = false
+        notice.notify({ title: 'Cannot load folder', type: 'error', message: String(error) })
+      } finally {
+        if (generation === projectGeneration) directoryLoads.delete(folder.pathname)
+      }
+    })()
+    directoryLoads.set(folder.pathname, load)
+    return load
+  }
+
+  async function REVEAL_PATH_ASYNC(pathname: string): Promise<boolean> {
+    if (!isWithinProject(pathname)) return false
+    if (REVEAL_PATH(pathname)) return true
+    const root = projectTree.value!
+    const generation = projectGeneration
+    let folder = root
+    await LOAD_DIRECTORY(folder)
+    const relative = window.path.relative(root.pathname, window.path.dirname(pathname))
+    for (const name of relative ? relative.split(PATH_SEPARATOR) : []) {
+      if (generation !== projectGeneration) return false
+      const child = folder.folders.find(f => f.name === name)
+      if (!child) return false
+      child.isCollapsed = false
+      folder = child
+      await LOAD_DIRECTORY(folder)
+    }
+    return generation === projectGeneration && REVEAL_PATH(pathname)
   }
 
   function REVEAL_FILE_IN_SIDE_BAR(pathname?: string | null): void {
@@ -265,6 +393,7 @@ export const useProjectStore = defineStore('project', () => {
 
   function SET_FOLDER_COLLAPSED(folder: TreeFolderNode, isCollapsed: boolean): void {
     folder.isCollapsed = isCollapsed
+    if (!isCollapsed) void LOAD_DIRECTORY(folder)
   }
 
   function ASK_FOR_OPEN_PROJECT(): void {
@@ -272,6 +401,7 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   function LISTEN_FOR_SIDEBAR_CONTEXT_MENU(): void {
+    bus.on('SIDEBAR::close-project', CLOSE_PROJECT)
     bus.on('SIDEBAR::show-in-folder', () => {
       const { pathname } = activeItem.value
       window.electron.shell.showItemInFolder(pathname)
@@ -395,7 +525,9 @@ export const useProjectStore = defineStore('project', () => {
 
       await create(fullName, type as FileCreateType)
       if (type === 'file') {
-        newFileNameCache.value = fullName
+        const editorStore = useEditorStore()
+        editorStore.SET_OPEN_INTENT(fullName, false)
+        window.electron.ipcRenderer.send('mt::open-file', fullName)
       }
     } catch (err) {
       notice.notify({
@@ -455,12 +587,15 @@ export const useProjectStore = defineStore('project', () => {
     treeVersion,
     pendingTreeEvents,
     OPEN_PROJECT,
+    CLOSE_PROJECT,
     CREATE_BUFFERED_STATE,
     RESTORE_BUFFERED_STATE,
     LISTEN_FOR_LOAD_PROJECT,
     LISTEN_FOR_UPDATE_PROJECT,
     CHANGE_ACTIVE_ITEM,
     REVEAL_PATH,
+    REVEAL_PATH_ASYNC,
+    LOAD_DIRECTORY,
     REVEAL_FILE_IN_SIDE_BAR,
     CHANGE_CLIPBOARD,
     CLEAR_NAME_INPUT_STATE,

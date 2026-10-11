@@ -16,6 +16,7 @@ export interface TreeFileNode {
   pathname: string
   name: string
   birthTime?: number | Date
+  mtimeMs?: number
   isDirectory: false
   isFile: true
   isMarkdown: boolean
@@ -26,6 +27,8 @@ export interface TreeFolderNode {
   pathname: string
   name: string
   isCollapsed?: boolean
+  childrenLoaded?: boolean
+  isLoading?: boolean
   isDirectory: true
   isFile: false
   isMarkdown: false

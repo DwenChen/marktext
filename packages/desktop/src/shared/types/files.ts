@@ -110,6 +110,27 @@ export interface FileChangeDetail {
   [key: string]: unknown
 }
 
+export interface DirectoryEntry {
+  pathname: string
+  name: string
+  isDirectory: boolean
+  isFile: boolean
+  isMarkdown: boolean
+  birthTime?: number
+  mtimeMs?: number
+}
+
+export interface ProjectTreeEvent {
+  type: 'add' | 'addDir' | 'unlink' | 'unlinkDir' | 'change'
+  change: FileChangeDetail
+}
+
+// Snapshots contain only immediate children; file contents belong to tab watchers.
+export type ProjectTreeUpdate =
+  | { type: 'directory'; rootPath: string; pathname: string; entries: DirectoryEntry[] }
+  | { type: 'batch'; rootPath: string; events: ProjectTreeEvent[] }
+  | { type: 'directory-error'; rootPath: string; pathname: string; message: string }
+
 export interface TabOptions {
   selected?: boolean
   /** Link fragment to reveal once the tab is active, e.g. `setup` from `other.md#setup`. */

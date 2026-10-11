@@ -66,6 +66,19 @@ describe('watcher awaitWriteFinish (#3955)', () => {
     })
   })
 
+  it('deduplicates loaded directories and releases their descendants without stopping tab watchers', () => {
+    watcher.watch(win as never, '/project', 'dir')
+    watcher.watch(win as never, '/project/sub', 'dir', '/project')
+    watcher.watch(win as never, '/project/sub', 'dir', '/project')
+    watcher.watch(win as never, '/project/note.md', 'file')
+    expect(Object.values(watcher.watchers)).toHaveLength(3)
+    expect(watchMock).toHaveBeenCalledTimes(3)
+    watcher.unwatchDirectories(win.id, '/project')
+    expect(Object.values(watcher.watchers).map(entry => entry.type)).toEqual(['file'])
+    watcher.close()
+    expect(Object.values(watcher.watchers)).toHaveLength(0)
+  })
+
   it('forces polling for UNC roots because fs.watch does not enumerate WSL shares reliably', () => {
     watcher.watch(win as never, '\\\\wsl.localhost\\Ubuntu-24.04\\home\\me\\project', 'dir')
     expect(optionsForLastWatch().usePolling).toBe(true)

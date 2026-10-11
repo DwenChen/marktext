@@ -86,6 +86,16 @@
         >{{
           projectTree.name
         }}</span>
+        <button
+          class="close-project"
+          :title="t('sideBar.tree.closeFolder')"
+          :aria-label="t('sideBar.tree.closeFolder')"
+          @click.stop="projectStore.CLOSE_PROJECT()"
+        >
+          <el-icon :size="14">
+            <Close />
+          </el-icon>
+        </button>
       </div>
       <div
         v-show="showDirectories"
@@ -95,33 +105,46 @@
         @mousedown="handleTreeMouseDown"
         @focusout="handleTreeFocusOut"
         @keydown="handleTreeKeydown"
+        @scroll="handleTreeScroll"
       >
-        <folder
-          v-for="folder of projectTree.folders"
-          :key="folder.id"
-          :folder="folder"
-          :depth="depth"
-        />
-        <input
-          v-show="createCacheDirname === projectTree.pathname"
-          ref="input"
-          v-model="nameInputValue"
-          placeholder="Enter .md file name"
-          type="text"
-          class="new-input"
-          :style="{ 'margin-left': `${depth * 5 + 15}px` }"
-          @keypress.enter="handleInputEnter"
+        <div :style="{ height: `${rowRange.start * TREE_ROW_HEIGHT}px` }" />
+        <template
+          v-for="row in renderedRows"
+          :key="row.key"
         >
-        <file
-          v-for="file of projectTree.files"
-          :key="file.id"
-          :file="file"
-          :depth="depth"
-        />
+          <folder
+            v-if="row.kind === 'folder'"
+            :folder="row.node"
+            :depth="row.depth"
+          />
+          <file
+            v-else-if="row.kind === 'file'"
+            :file="row.node"
+            :depth="row.depth"
+          />
+          <div
+            v-else
+            class="side-bar-folder"
+          >
+            <div class="folder-contents name-input-row">
+              <input
+                :ref="setInput"
+                v-model="nameInputValue"
+                placeholder="Enter .md file name"
+                type="text"
+                class="new-input"
+                :style="{ 'margin-left': `${row.depth * 5 + 15}px` }"
+                @keypress.enter="handleInputEnter"
+              >
+            </div>
+          </div>
+        </template>
+        <div :style="{ height: `${(rows.length - rowRange.end) * TREE_ROW_HEIGHT}px` }" />
         <div
           v-if="
             projectTree.files.length === 0 &&
               projectTree.folders.length === 0 &&
+              projectTree.childrenLoaded &&
               createCacheDirname !== projectTree.pathname
           "
           class="empty-project"
@@ -157,7 +180,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, provide, watch, onMounted, onUnmounted, nextTick, type ComponentPublicInstance } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
@@ -169,7 +192,7 @@ import OpenedFile from './treeOpenedTab.vue'
 import bus from '../../bus'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
-import { ArrowRight } from '@element-plus/icons-vue'
+import { ArrowRight, Close } from '@element-plus/icons-vue'
 import { PATH_SEPARATOR } from '@/config'
 import { isMac } from '@/util'
 import { computeRevealScrollTop } from '@/util/revealTreeRow'
@@ -183,6 +206,8 @@ import {
 import { shouldRenameSelection } from './renameKey'
 import { TREE_ROW_REGISTRY_KEY, toRowKey, type TreeRowRegistry } from './rowRegistry'
 import type { TreeNode, TabDescriptor } from './types'
+import { flattenVisibleTree, visibleRowRange, TREE_ROW_HEIGHT } from './visibleTree'
+import { findFolder } from '@/store/treeCtrl'
 
 const { t } = useI18n()
 
@@ -196,7 +221,6 @@ const props = defineProps<{
   tabs?: TabDescriptor[]
 }>()
 
-const depth = 0
 // Persist the section collapse state (#2421). The tree is rendered under a
 // v-if and is destroyed when the sidebar collapses to its icon strip, so local
 // refs reset to expanded on re-open. Back them with localStorage (like the
@@ -208,6 +232,10 @@ const showDirectories = ref(readSectionExpanded(SHOW_DIRECTORIES_KEY))
 const showOpenedFiles = ref(readSectionExpanded(SHOW_OPENED_FILES_KEY))
 const input = ref<HTMLInputElement | null>(null)
 const treeWrapper = ref<HTMLDivElement | null>(null)
+const scrollTop = ref(0)
+const viewportHeight = ref(600)
+let resizeObserver: ResizeObserver | null = null
+let revealRequest = 0
 
 const rowRegistry: TreeRowRegistry = new Map()
 provide(TREE_ROW_REGISTRY_KEY, rowRegistry)
@@ -233,6 +261,48 @@ const createCacheDirname = computed<string | undefined>(() => {
   return cache.dirname
 })
 
+const rows = computed(() => props.projectTree ? flattenVisibleTree(props.projectTree, createCacheDirname.value) : [])
+const rowRange = computed(() => visibleRowRange(rows.value.length, scrollTop.value, viewportHeight.value))
+const renderedRows = computed(() => rows.value.slice(rowRange.value.start, rowRange.value.end))
+const setInput = (element: Element | ComponentPublicInstance | null): void => {
+  input.value = element as HTMLInputElement | null
+}
+
+const handleTreeScroll = (): void => {
+  scrollTop.value = treeWrapper.value?.scrollTop ?? 0
+}
+
+watch(treeWrapper, (container) => {
+  resizeObserver?.disconnect()
+  if (!container) return
+  resizeObserver = new ResizeObserver(() => {
+    viewportHeight.value = container.clientHeight || 600
+  })
+  resizeObserver.observe(container)
+  scrollTop.value = container.scrollTop
+})
+
+watch(() => props.projectTree?.pathname, () => {
+  scrollTop.value = 0
+  if (treeWrapper.value) treeWrapper.value.scrollTop = 0
+})
+
+const scrollToIndex = (index: number): void => {
+  const container = treeWrapper.value
+  if (!container || index < 0) return
+  const top = computeRevealScrollTop({
+    rowTopInContent: index * TREE_ROW_HEIGHT,
+    rowHeight: TREE_ROW_HEIGHT,
+    viewportHeight: container.clientHeight,
+    scrollHeight: rows.value.length * TREE_ROW_HEIGHT,
+    scrollTop: container.scrollTop
+  })
+  if (top !== null) {
+    container.scrollTop = top
+    scrollTop.value = top
+  }
+}
+
 // Methods
 const openFolder = (): void => {
   projectStore.ASK_FOR_OPEN_PROJECT()
@@ -249,7 +319,7 @@ const createFile = (): void => {
 
 const handleRootContextMenu = (event: MouseEvent): void => {
   projectStore.CHANGE_ACTIVE_ITEM(props.projectTree)
-  showContextMenu(event, !!clipboard.value)
+  showContextMenu(event, !!clipboard.value, true)
 }
 
 const toggleOpenedFiles = (): void => {
@@ -304,12 +374,20 @@ const revealPath = async (
   }
   // Off screen (icon strip, View menu) there is nothing to reveal.
   if (!layoutStore.showSideBar || layoutStore.rightColumn !== 'files') return
-  if (!projectStore.REVEAL_PATH(pathname)) return
+  const request = ++revealRequest
+  const root = props.projectTree
+  if (!await projectStore.REVEAL_PATH_ASYNC(pathname) || props.projectTree !== root || request !== revealRequest) return
 
   await nextTick()
+  if (request !== revealRequest) return
   const container = treeWrapper.value
   // Hidden views report a zero-size viewport.
   if (!container || container.offsetParent === null) return
+
+  const index = rows.value.findIndex(row => row.kind === 'file' && window.fileUtils.isSamePathSync(row.node.pathname, pathname))
+  scrollToIndex(index)
+  await nextTick()
+  if (request !== revealRequest) return
 
   const row = findRow(pathname)
   if (row) scrollRowIntoView(container, row)
@@ -321,7 +399,14 @@ const handleRevealPath = (pathname: unknown): void => {
 
 // From createFileOrDirectoryMixins
 const handleInputFocus = (): void => {
-  nextTick(() => {
+  const dirname = createCacheDirname.value
+  if (dirname && props.projectTree) {
+    const folder = findFolder(props.projectTree, dirname)
+    if (folder) projectStore.SET_FOLDER_COLLAPSED(folder, false)
+  }
+  nextTick(async() => {
+    scrollToIndex(rows.value.findIndex(row => row.kind === 'input'))
+    await nextTick()
     if (input.value) {
       input.value.focus()
     }
@@ -448,6 +533,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  resizeObserver?.disconnect()
   bus.off('SIDEBAR::show-new-input', handleInputFocus)
   bus.off('SIDEBAR::focus-tree', focusTree)
   bus.off('SIDEBAR::reveal-path', handleRevealPath)
@@ -551,7 +637,8 @@ onUnmounted(() => {
 .project-tree {
   display: flex;
   flex-direction: column;
-  overflow: auto;
+  overflow: hidden;
+  min-height: 0;
   flex: 1;
 }
 
@@ -559,11 +646,29 @@ onUnmounted(() => {
   padding-right: 15px;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .project-tree > .title > span {
   flex: 1;
   user-select: none;
+}
+
+.close-project {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin-left: 8px;
+  border: none;
+  background: transparent;
+  color: var(--sideBarIconColor);
+  cursor: pointer;
+}
+.close-project:hover {
+  color: var(--highlightThemeColor);
 }
 
 .project-tree > .title > a {
@@ -627,13 +732,17 @@ onUnmounted(() => {
 .new-input {
   outline: none;
   height: 22px;
-  margin: 5px 0;
+  margin: 4px 0;
+  box-sizing: border-box;
   padding: 0 6px;
   color: var(--sideBarColor);
   border: 1px solid var(--focusColor);
   background: var(--inputBgColor);
   width: calc(100% - 45px);
   border-radius: 3px;
+}
+.name-input-row {
+  height: 30px;
 }
 .tree-wrapper {
   position: relative;

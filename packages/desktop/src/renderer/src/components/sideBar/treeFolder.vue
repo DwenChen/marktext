@@ -29,42 +29,15 @@
         class="text-overflow"
       >{{ folder.name }}</span>
     </div>
-    <div
-      v-if="!isCollapsed"
-      class="folder-contents"
-    >
-      <tree-folder
-        v-for="childFolder of folder.folders"
-        :key="childFolder.id"
-        :folder="childFolder"
-        :depth="depth + 1"
-      />
-      <input
-        v-if="createCache.dirname === folder.pathname"
-        ref="input"
-        v-model="nameInputValue"
-        type="text"
-        class="new-input"
-        :style="{ 'margin-left': `${depth * 5 + 15}px` }"
-        @keypress.enter="handleInputEnter"
-      >
-      <File
-        v-for="file of folder.files"
-        :key="file.id"
-        :file="file"
-        :depth="depth + 1"
-      />
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import bus from '../../bus'
-import File from './treeFile.vue'
 import { ArrowRight } from '@element-plus/icons-vue'
 import type { TreeFolderNode } from './types'
 
@@ -77,7 +50,6 @@ const projectStore = useProjectStore()
 
 const folderEl = ref<HTMLDivElement | null>(null)
 const renameInput = ref<HTMLInputElement | null>(null)
-const input = ref<HTMLInputElement | null>(null)
 
 // Kept on the tree node, not locally: the Files view is under a v-if and
 // remounts on every sidebar view switch (#5631).
@@ -89,29 +61,9 @@ const isCollapsed = computed<boolean>({
 })
 
 const { renameCache } = storeToRefs(projectStore)
-const { createCache } = storeToRefs(projectStore)
 const { nameInputValue } = storeToRefs(projectStore)
 const { activeItem } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
-
-const handleInputFocus = (): void => {
-  // Only the folder that is the create target reacts. Expand it FIRST so the
-  // create input renders even when the folder was collapsed, then focus it on
-  // the next tick — previously the expand sat behind `if (input.value)`, which
-  // is null while collapsed, so New File on a collapsed folder did nothing
-  // (#3439).
-  if (createCache.value.dirname !== props.folder.pathname) return
-  isCollapsed.value = false
-  nextTick(() => {
-    if (input.value) {
-      input.value.focus()
-    }
-  })
-}
-
-const handleInputEnter = (): void => {
-  projectStore.CREATE_FILE_DIRECTORY(nameInputValue.value)
-}
 
 const folderNameClick = (): void => {
   projectStore.CHANGE_ACTIVE_ITEM(props.folder)
@@ -141,8 +93,11 @@ onMounted(() => {
       showContextMenu(event, !!clipboard.value)
     })
   }
-  bus.on('SIDEBAR::show-new-input', handleInputFocus)
   bus.on('SIDEBAR::show-rename-input', focusRenameInput)
+})
+
+onBeforeUnmount(() => {
+  bus.off('SIDEBAR::show-rename-input', focusRenameInput)
 })
 </script>
 
@@ -174,7 +129,6 @@ onMounted(() => {
     }
   }
 }
-.new-input,
 input.rename {
   outline: none;
   height: 22px;

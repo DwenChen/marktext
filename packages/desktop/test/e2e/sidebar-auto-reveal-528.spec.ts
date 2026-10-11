@@ -38,13 +38,13 @@ const createFixture = (): Fixture => {
 }
 
 const treeRow = (page: Page, filePath: string) =>
-  page.locator(`.tree-wrapper .side-bar-file[title="${filePath}"]`)
+  page.locator('.tree-wrapper').getByTitle(filePath, { exact: true })
 
 const folderHeader = (page: Page, folderPath: string) =>
-  page.locator(`.tree-wrapper .folder-name[title="${folderPath}"]`)
+  page.locator('.tree-wrapper').getByTitle(folderPath.replace(/\\/g, '/'), { exact: true })
 
 const tab = (page: Page, filePath: string) =>
-  page.locator(`.editor-tabs .tabs-container li[title="${filePath}"]`)
+  page.locator('.editor-tabs .tabs-container').getByTitle(filePath, { exact: true })
 
 const filesIcon = (page: Page) =>
   page.locator('.side-bar .left-column > ul').first().locator('li').nth(0)
@@ -65,10 +65,7 @@ const scrollTreeTo = async(page: Page, top: number): Promise<void> => {
 }
 
 const isFolderCollapsed = (page: Page, folderPath: string): Promise<boolean> =>
-  page.evaluate((selector) => {
-    const arrow = document.querySelector(`${selector} .icon-arrow`)
-    return !!arrow && arrow.classList.contains('fold')
-  }, `.tree-wrapper .folder-name[title="${folderPath}"]`)
+  folderHeader(page, folderPath).locator('.icon-arrow').evaluate(arrow => arrow.classList.contains('fold'))
 
 const setFolderExpanded = async(
   page: Page,
@@ -79,15 +76,17 @@ const setFolderExpanded = async(
   await folderHeader(page, folderPath).click()
 }
 
-const isRowVisible = (page: Page, filePath: string): Promise<boolean> =>
-  page.evaluate((selector) => {
-    const row = document.querySelector(selector)
+const isRowVisible = async(page: Page, filePath: string): Promise<boolean> => {
+  const row = treeRow(page, filePath)
+  if (!await row.count()) return false
+  return row.evaluate((element) => {
     const container = document.querySelector('.tree-wrapper')
-    if (!row || !container) return false
-    const rowRect = row.getBoundingClientRect()
+    if (!container) return false
+    const rowRect = element.getBoundingClientRect()
     const containerRect = container.getBoundingClientRect()
     return rowRect.top >= containerRect.top - 1 && rowRect.bottom <= containerRect.bottom + 1
-  }, `.tree-wrapper .side-bar-file[title="${filePath}"]`)
+  })
+}
 
 const openProject = async(app: ElectronApplication, page: Page, root: string): Promise<void> => {
   await page.waitForSelector('.side-bar', { timeout: 15000 })
@@ -164,6 +163,7 @@ test.describe('#528 reveal active file in the side bar', () => {
     await expect.poll(() => isRowVisible(page, fixture.deep)).toBe(true)
     expect(await treeScrollTop(page)).toBeGreaterThan(0)
     // Other folders keep the state the user left them in.
+    await scrollTreeTo(page, 0)
     expect(await isFolderCollapsed(page, fixture.bulk)).toBe(false)
   })
 

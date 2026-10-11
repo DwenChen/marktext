@@ -246,7 +246,8 @@
       "closeAll": "모두 닫기",
       "emptyProject": "빈 프로젝트",
       "createFile": "파일 만들기",
-      "openFolder": "폴더 열기"
+      "openFolder": "폴더 열기",
+      "closeFolder": "폴더 닫기"
     },
     "toc": {
       "title": "목차",

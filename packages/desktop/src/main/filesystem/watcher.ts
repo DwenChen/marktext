@@ -10,6 +10,7 @@ import { isLinux, isOsx } from '../config'
 import type { BrowserWindow } from 'electron'
 import type { LineEnding } from '@shared/types/files'
 import type Preference from '../preferences'
+import { watchDirectory } from './directoryWatcher'
 
 // TODO(refactor): Please see GH#1035.
 
@@ -39,6 +40,7 @@ interface WatcherEntry {
   pathname: string
   type: WatchType
   close: () => void
+  ready?: Promise<boolean>
 }
 
 const add = async(
@@ -156,36 +158,6 @@ const change = async(
   }
 }
 
-const addDir = (win: BrowserWindow, pathname: string, type: WatchType): void => {
-  if (type === 'file') return
-
-  const directory = {
-    pathname,
-    name: path.basename(pathname),
-    isCollapsed: true,
-    isDirectory: true,
-    isFile: false,
-    isMarkdown: false,
-    folders: [],
-    files: []
-  }
-
-  win.webContents.send('mt::update-object-tree', {
-    type: 'addDir',
-    change: directory
-  })
-}
-
-const unlinkDir = (win: BrowserWindow, pathname: string, type: WatchType): void => {
-  if (type === 'file') return
-
-  const directory = { pathname }
-  win.webContents.send('mt::update-object-tree', {
-    type: 'unlinkDir',
-    change: directory
-  })
-}
-
 class Watcher {
   private _preferences: Preference
   private _ignoreChangeEvents: IgnoreEntry[]
@@ -197,12 +169,34 @@ class Watcher {
     this.watchers = {}
   }
 
-  watch(win: BrowserWindow, watchPath: string, type: WatchType = 'dir'): () => void {
+  watch(win: BrowserWindow, watchPath: string, type: WatchType = 'dir', rootPath = watchPath): () => void {
+    watchPath = path.normalize(watchPath)
+    rootPath = path.normalize(rootPath)
+    const existing = Object.values(this.watchers).find(w =>
+      w.win === win && w.pathname === watchPath && w.type === type
+    )
+    if (existing) return existing.close
+
     const usePolling = isOsx || isUncPath(watchPath)
       ? true
       : this._preferences.getItem<boolean>('watcherUsePolling')
 
     const id = getUniqueId()
+
+    if (type === 'dir') {
+      const directory = watchDirectory(
+        win, watchPath, rootPath,
+        this._preferences.getItem<readonly string[]>('treePathExcludePatterns') || [],
+        usePolling,
+        (pathname) => this.unwatchDirectories(win.id, pathname)
+      )
+      const close = (): void => {
+        delete this.watchers[id]
+        directory.close()
+      }
+      this.watchers[id] = { win, pathname: watchPath, type, ...directory, close }
+      return close
+    }
 
     const watcher = chokidar.watch(watchPath, {
       ignored: (pathname: string, fileInfo?: { isDirectory: () => boolean }) => {
@@ -227,25 +221,17 @@ class Watcher {
         }
         return !hasMarkdownExtension(pathname)
       },
-      ignoreInitial: type === 'file',
+      ignoreInitial: true,
       persistent: true,
       ignorePermissionErrors: true,
 
-      depth: type === 'file' ? (isOsx ? 1 : 0) : undefined,
+      depth: isOsx ? 1 : 0,
 
-      // Defer events until writes settle only for the file watcher, which
-      // reloads file CONTENT on change and would otherwise read a partial file
-      // (GH#1043). The directory watcher just lists nodes and re-sorts by mtime,
-      // so deferring its `add` events only made new files appear in the sidebar
-      // ~1s late (GH#3955).
-      ...(type === 'file'
-        ? {
-          awaitWriteFinish: {
-            stabilityThreshold: WATCHER_STABILITY_THRESHOLD,
-            pollInterval: WATCHER_STABILITY_POLL_INTERVAL
-          }
-        }
-        : {}),
+      // Tab reloads must not read a partially written document (GH#1043).
+      awaitWriteFinish: {
+        stabilityThreshold: WATCHER_STABILITY_THRESHOLD,
+        pollInterval: WATCHER_STABILITY_POLL_INTERVAL
+      },
 
       usePolling
       // chokidar's `ignored` callback signature varies between versions; this options
@@ -298,8 +284,6 @@ class Watcher {
         }
       })
       .on('unlink', (pathname: string) => unlink(win, pathname, type))
-      .on('addDir', (pathname: string) => addDir(win, pathname, type))
-      .on('unlinkDir', (pathname: string) => unlinkDir(win, pathname, type))
       .on('raw', (event: string, subpath: string, details: unknown) => {
         if (
           globalThis.MARKTEXT_DEBUG_VERBOSE >= 3
@@ -371,28 +355,35 @@ class Watcher {
   unwatch(win: BrowserWindow, watchPath: string, type: WatchType = 'dir'): void {
     for (const id of Object.keys(this.watchers)) {
       const w = this.watchers[id]
-      if (w.win === win && w.pathname === watchPath && w.type === type) {
-        w.watcher.close()
-        delete this.watchers[id]
+      if (w.win === win && w.pathname === path.normalize(watchPath) && w.type === type) {
+        w.close()
         break
       }
     }
   }
 
   unwatchByWindowId(windowId: number): void {
-    const watchers: FSWatcher[] = []
-    const watchIds: string[] = []
-    for (const id of Object.keys(this.watchers)) {
-      const w = this.watchers[id]
-      if (w.win.id === windowId) {
-        watchers.push(w.watcher)
-        watchIds.push(id)
+    for (const entry of Object.values(this.watchers)) {
+      if (entry.win.id === windowId) entry.close()
+    }
+  }
+
+  unwatchDirectories(windowId: number, rootPath?: string): void {
+    for (const entry of Object.values(this.watchers)) {
+      const relative = rootPath ? path.relative(rootPath, entry.pathname) : ''
+      if (entry.win.id === windowId && entry.type === 'dir' &&
+        (!rootPath || relative === '' || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative)))) {
+        entry.close()
       }
     }
-    if (watchers.length) {
-      watchIds.forEach((id) => delete this.watchers[id])
-      watchers.forEach((watcher) => watcher.close())
-    }
+  }
+
+  async loadDirectory(win: BrowserWindow, pathname: string, rootPath: string): Promise<boolean> {
+    this.watch(win, pathname, 'dir', rootPath)
+    const entry = Object.values(this.watchers).find(w =>
+      w.win === win && w.type === 'dir' && w.pathname === path.normalize(pathname)
+    )
+    return entry?.ready ? await entry.ready : false
   }
 
   close(): void {

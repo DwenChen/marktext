@@ -246,7 +246,8 @@
       "closeAll": "Tout fermer",
       "emptyProject": "Projet vide",
       "createFile": "Créer un fichier",
-      "openFolder": "Ouvrir un dossier"
+      "openFolder": "Ouvrir un dossier",
+      "closeFolder": "Fermer le dossier"
     },
     "toc": {
       "title": "Table des matières",

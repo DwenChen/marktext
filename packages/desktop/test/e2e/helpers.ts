@@ -238,7 +238,7 @@ export const openProjectFolder = async(
     if (!win) throw new Error('no editor window')
     ipcMain.emit('app-open-directory-by-id', win.id, target, true)
   }, root)
-  await page.waitForSelector(`.tree-wrapper .side-bar-file[title="${marker}"]`, { timeout })
+  await page.locator('.tree-wrapper').getByTitle(marker, { exact: true }).waitFor({ timeout })
 }
 
 export const enterSourceMode = async(page: Page, app: ElectronApplication): Promise<void> => {

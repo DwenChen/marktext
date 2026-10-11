@@ -1,16 +1,18 @@
 import { getUniqueId, isSamePath } from '../util'
 import { PATH_SEPARATOR } from '../config'
+import type { DirectoryEntry } from '@shared/types/files'
 
 // Helper module (NOT a Pinia store): file-tree mutation helpers.
 
-const naturalCompare = (a: string, b: string): number =>
-  a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+const naturalCompare = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' }).compare
 
 interface TreeFolder {
   id?: string
   pathname: string
   name: string
   isCollapsed?: boolean
+  childrenLoaded?: boolean
+  isLoading?: boolean
   isDirectory: true
   isFile: false
   isMarkdown: false
@@ -30,6 +32,45 @@ interface TreeFile {
 }
 
 type AddFileInput = Omit<TreeFile, 'id'>
+
+export const findFolder = (tree: TreeFolder, pathname: string): TreeFolder | null => {
+  const relative = window.path.relative(tree.pathname, pathname)
+  if (relative === '..' || relative.startsWith(`..${PATH_SEPARATOR}`) || window.path.isAbsolute(relative)) return null
+  let folder = tree
+  for (const name of relative ? relative.split(PATH_SEPARATOR) : []) {
+    const child = folder.folders.find(f => f.name === name)
+    if (!child) return null
+    folder = child
+  }
+  return folder
+}
+
+/** Merge immediate children in bulk, preserving expanded folders and row identities. */
+export const mergeDirectoryEntries = (
+  folder: TreeFolder, entries: DirectoryEntry[], sortBy: string, sortOrder: string,
+  replace = false
+): void => {
+  const previousFolders = new Map(folder.folders.map(f => [f.name, f]))
+  const previousFiles = new Map(folder.files.map(f => [f.name, f]))
+  const folders = replace ? new Map<string, TreeFolder>() : previousFolders
+  const files = replace ? new Map<string, TreeFile>() : previousFiles
+  for (const entry of entries) {
+    const pathname = window.path.normalize(entry.pathname)
+    if (entry.isDirectory) {
+      folders.set(entry.name, previousFolders.get(entry.name) ?? {
+        ...entry, pathname, id: getUniqueId(), isDirectory: true, isFile: false, isMarkdown: false,
+        isCollapsed: true, childrenLoaded: false, folders: [], files: []
+      })
+    } else {
+      files.set(entry.name, {
+        ...entry, id: previousFiles.get(entry.name)?.id ?? getUniqueId(),
+        isDirectory: false, isFile: true
+      })
+    }
+  }
+  folder.folders = [...folders.values()].sort((a, b) => naturalCompare(a.name, b.name))
+  folder.files = [...files.values()].sort(makeFileComparator(sortBy, sortOrder))
+}
 
 const safeTime = (v: number | undefined): number => (v !== undefined && isFinite(v) ? v : 0)
 

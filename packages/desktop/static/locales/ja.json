@@ -246,7 +246,8 @@
       "closeAll": "すべて閉じる",
       "emptyProject": "空のプロジェクト",
       "createFile": "ファイルの作成",
-      "openFolder": "フォルダーを開く"
+      "openFolder": "フォルダーを開く",
+      "closeFolder": "フォルダーを閉じる"
     },
     "toc": {
       "title": "目次",

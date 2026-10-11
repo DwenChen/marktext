@@ -124,6 +124,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   rowRegistry?.delete(toRowKey(props.file.pathname))
+  bus.off('SIDEBAR::show-rename-input', focusRenameInput)
 })
 </script>
 

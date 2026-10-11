@@ -435,6 +435,14 @@ class EditorWindow extends BaseWindow {
     }
   }
 
+  closeFolder(): void {
+    if (!this._openedRootDirectory) return
+    ipcMain.emit('watcher-unwatch-directory', this.browserWindow, this._openedRootDirectory)
+    this._openedRootDirectory = ''
+    this._directoryToOpen = ''
+    this.browserWindow?.webContents.send('mt::close-directory')
+  }
+
   /**
    * Add a new path to the file list and watch the given path.
    */

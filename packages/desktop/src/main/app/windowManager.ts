@@ -12,6 +12,8 @@ import type Preference from '../preferences'
 import { WindowType } from '../windows/base'
 import type { WindowTypeValue } from '../windows/base'
 import type EditorWindow from '../windows/editor'
+import path from 'path'
+import { isChildOfDirectory } from 'common/filesystem/paths'
 
 class WindowActivityList {
   // Oldest             Newest
@@ -366,6 +368,24 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
   // --- private --------------------------------
 
   private _listenForIpcMain(): void {
+    ipcMain.on('mt::close-project', (e, rootPath: string) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      const editor = win ? this.get(win.id) as EditorWindow | undefined : undefined
+      if (editor?.openedRootDirectory && path.normalize(rootPath) === path.normalize(editor.openedRootDirectory)) {
+        editor.closeFolder()
+      }
+    })
+
+    ipcMain.handle('mt::load-project-directory', async(e, rootPath: string, pathname: string) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      const editor = win ? this.get(win.id) as EditorWindow | undefined : undefined
+      const root = editor?.openedRootDirectory
+      if (!win || !root || typeof rootPath !== 'string' || typeof pathname !== 'string' ||
+        path.normalize(rootPath) !== path.normalize(root) ||
+        (path.normalize(pathname) !== path.normalize(root) && !isChildOfDirectory(root, pathname))) return false
+      return this._watcher.loadDirectory(win, pathname, root)
+    })
+
     // HACK: Don't use this event! Please see #1034 and #1035
     ipcMain.on('mt::window-add-file-path', (e, filePath: string) => {
       const win = BrowserWindow.fromWebContents(e.sender)
@@ -432,7 +452,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       this._watcher.unwatch(win, filePath, 'file')
     })
     onInternalChannel('watcher-unwatch-directory', (win: IBrowserWindow, pathname: string) => {
-      this._watcher.unwatch(win, pathname, 'dir')
+      this._watcher.unwatchDirectories(win.id, pathname)
     })
 
     onInternalChannel('window-add-file-path', (windowId: number, filePath: string) => {

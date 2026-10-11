@@ -246,7 +246,8 @@
       "closeAll": "Close All",
       "emptyProject": "Empty project",
       "createFile": "Create File",
-      "openFolder": "Open Folder"
+      "openFolder": "Open Folder",
+      "closeFolder": "Close Folder"
     },
     "toc": {
       "title": "Table Of Contents",

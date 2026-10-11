@@ -63,6 +63,7 @@ export interface IpcInvokeChannels {
   'mt::dialog::show-save': { args: [request: SaveDialogRequest]; ret: string | null }
   'mt::fonts::list': { args: []; ret: string[] }
   'mt::fs-trash-item': { args: [pathname: string]; ret: boolean }
+  'mt::load-project-directory': { args: [rootPath: string, pathname: string]; ret: boolean }
   'mt::fs::copy': { args: [src: string, dest: string]; ret: void }
   'mt::fs::copy-with-content-hash': { args: [src: string, outputDir: string]; ret: string }
   'mt::fs::empty-dir': { args: [path: string]; ret: void }
@@ -127,6 +128,7 @@ export interface IpcSendChannels {
   'mt::ask-for-image-auto-path': [payload: unknown]
   'mt::ask-for-modify-image-folder-path': [imagePath?: string]
   'mt::ask-for-open-project-in-sidebar': []
+  'mt::close-project': [rootPath: string]
   'mt::ask-for-user-data': []
   'mt::ask-for-user-preference': []
   'mt::check-for-update': []
@@ -273,6 +275,7 @@ export interface IpcMainEventChannels {
   'mt::menu::closed': []
   'mt::new-untitled-tab': [selected?: boolean, markdown?: string]
   'mt::open-directory': [directoryPath: string]
+  'mt::close-directory': []
   'mt::open-new-tab': [
     markdownDocument: MarkdownDocument | null,
     options?: TabOptions,

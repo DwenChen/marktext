@@ -246,7 +246,8 @@
       "closeAll": "Cerrar",
       "emptyProject": "Proyecto vacío",
       "createFile": "Crear Archivo",
-      "openFolder": "Abrir Carpeta"
+      "openFolder": "Abrir Carpeta",
+      "closeFolder": "Cerrar carpeta"
     },
     "toc": {
       "title": "Tabla de Contenidos",
