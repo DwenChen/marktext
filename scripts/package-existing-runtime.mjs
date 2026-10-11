@@ -5,7 +5,10 @@ import asar from '@electron/asar'
 
 // Reuse a verified Electron distribution and its ABI-matched native binaries
 // when the machine cannot rebuild them.
-const source = path.resolve(process.argv[2] || 'dist/performance-preview/win-unpacked')
+const defaultSource = fs.existsSync('dist/win-unpacked/resources/app.asar')
+  ? 'dist/win-unpacked'
+  : 'dist/performance-preview/win-unpacked'
+const source = path.resolve(process.argv[2] || defaultSource)
 const target = path.resolve(process.argv[3] || 'dist/optimization-preview/win-unpacked')
 const dist = path.resolve('dist')
 const update = process.argv.includes('--update')

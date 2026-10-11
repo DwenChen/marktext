@@ -180,10 +180,11 @@ describe('getCssForOptions', () => {
     const { getCssForOptions } = await loadPdf()
     const printable = await getCssForOptions({})
     const styledHtml = await getCssForOptions({ type: 'styledHtml' })
+    const image = await getCssForOptions({ type: 'png' })
 
     expect(printable).toContain('@media print{@page{')
-    // type === 'styledHtml' is the only non-printable mode.
     expect(styledHtml).not.toContain('@media print')
+    expect(image).not.toContain('@media print')
   })
 })
 

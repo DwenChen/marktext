@@ -89,6 +89,8 @@
 
 ## 复用原生模块的预览版
 
+下列预览路径记录本地验证时的产物。云端完整构建后的安装包、ZIP 和免安装目录统一放在 `dist`，免安装入口为 `dist/win-unpacked/marktext.exe`。清理旧预览后，复用脚本默认使用这个最新目录作为原生模块来源，仍可通过参数指定其他已打包版本。
+
 可运行文件：`dist/optimization-preview/win-unpacked/marktext.exe`。运行或复制时需保留整个 `win-unpacked` 目录。
 
 复用来源：`dist/performance-preview/win-unpacked`。打包仅替换应用构建产物和语言资源，校验了 6 个原有原生二进制的 SHA-256，保持完全一致。无需安装 Visual Studio C++，也未运行原生模块重编译。
