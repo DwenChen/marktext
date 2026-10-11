@@ -154,7 +154,7 @@ test('outline level actions preserve manual expansion and per-tab state', async(
   }
 })
 
-test('tables stay centered in all document presets and interface themes', async() => {
+test('tables stay centered in all document themes and appearances', async() => {
   const { app, page } = await launchWithMarkdown(
     '# Table\n\n| A | B |\n| --- | --- |\n| C | D |\n',
     {
@@ -163,16 +163,18 @@ test('tables stay centered in all document presets and interface themes', async(
     }
   )
   try {
-    for (const theme of ['light', 'dark', 'graphite', 'nord']) {
-      for (const documentStyle of ['default', 'github', 'classic', 'book']) {
+    for (const appearance of ['light', 'dark']) {
+      for (const theme of ['github', 'academic', 'liber']) {
         await page.evaluate(
           (preferences) => window.electron.ipcRenderer.send('mt::set-user-preference', preferences),
-          { theme, documentStyle }
+          { appearance, theme }
         )
         await expect(page.locator('.editor-middle')).toHaveAttribute(
-          'data-document-style',
-          documentStyle
+          'data-document-theme',
+          theme
         )
+        if (appearance === 'dark') await expect(page.locator('body')).toHaveClass(/dark/)
+        else await expect(page.locator('body')).not.toHaveClass(/dark/)
         await expect
           .poll(() =>
             page.locator('.mu-table-inner').evaluate((table) => {
@@ -282,10 +284,7 @@ test('PNG export captures the complete document and releases its hidden window',
       dialog.showSaveDialog = async() => ({ canceled: false, filePath: filename })
     }, narrowOutput)
     await sendIpcToRenderer(app, 'mt::show-export-dialog', 'png')
-    await page
-      .locator('.print-settings-dialog .el-tabs__item')
-      .filter({ hasText: /^页面$/ })
-      .click()
+    await expect(page.locator('.print-settings-dialog .image-options')).toBeVisible()
     await page.locator('#image-export-width').fill('640')
     await page.locator('#image-export-width').press('Tab')
     await page.locator('.print-settings-dialog .button-primary').click()
