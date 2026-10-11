@@ -1,4 +1,5 @@
 import equal from 'deep-equal'
+import { contentSignature } from 'common/contentSignature'
 import bus from '../bus'
 import { getUniqueId, deepClone, isSamePath } from '../util'
 import listToTree, { type ListItem, type TreeNode } from '../util/listToTree'
@@ -29,7 +30,8 @@ import type {
   LineEnding,
   MarkdownDocument,
   PageOptions,
-  TabOptions
+  TabOptions,
+  SaveSnapshot
 } from '@shared/types/files'
 
 // ----------------------------------------------------------------------------
@@ -119,7 +121,12 @@ interface AffiliationEntry {
 }
 
 interface SelectionChange {
-  start: { key: string; offset: number; block?: { text?: string; functionType?: string }; type?: string }
+  start: {
+    key: string
+    offset: number
+    block?: { text?: string; functionType?: string }
+    type?: string
+  }
   end: { key: string; offset: number; block?: { functionType?: string }; type?: string }
   affiliation?: AffiliationEntry[]
   hasFrontMatter?: boolean
@@ -147,6 +154,7 @@ export interface EditorState {
   // Heading the cursor is inside, for the TOC highlight; null above the first.
   activeHeadingSlug: string | null
   selectionWordCount: FileWordCount | null
+  saveRequestSequence: number
 }
 
 const autoSaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
@@ -163,7 +171,8 @@ export const useEditorStore = defineStore('editor', {
     listToc: [], // Used for equal check and for searching for the correct github-slug to jump to
     toc: [],
     activeHeadingSlug: null,
-    selectionWordCount: null
+    selectionWordCount: null,
+    saveRequestSequence: 0
   }),
 
   getters: {
@@ -551,6 +560,28 @@ export const useEditorStore = defineStore('editor', {
       bus.emit('flush-active-editor')
     },
 
+    createSaveSnapshot(file: IFileState): SaveSnapshot {
+      const entry = file.history?.stack[file.history.lastEditIndex ?? -1]
+      return {
+        requestId: ++this.saveRequestSequence,
+        contentSignature: contentSignature(file.markdown),
+        optionsSignature: JSON.stringify(getOptionsFromState(file)),
+        historyId: typeof entry?.id === 'number' ? entry.id : undefined
+      }
+    },
+
+    applySaveReceipt(tab: IFileState, snapshot?: SaveSnapshot): void {
+      if (!snapshot || snapshot.requestId < (tab.lastSavedRequestId ?? 0)) return
+      tab.lastSavedRequestId = snapshot.requestId
+      tab.lastSavedContentSignature = snapshot.contentSignature
+      tab.lastSavedOptionsSignature = snapshot.optionsSignature
+      tab.lastSavedHistoryId = snapshot.historyId
+      tab.isSaved =
+        contentSignature(tab.markdown) === snapshot.contentSignature &&
+        JSON.stringify(getOptionsFromState(tab)) === snapshot.optionsSignature
+      debouncedSendBufferedState()
+    },
+
     FILE_SAVE(): void {
       if (!this.currentFile) return
       this.flushActiveEditor()
@@ -566,7 +597,8 @@ export const useEditorStore = defineStore('editor', {
           pathname,
           markdown,
           deepClone(options),
-          defaultPath
+          defaultPath,
+          this.createSaveSnapshot(this.currentFile)
         )
       }
     },
@@ -597,7 +629,8 @@ export const useEditorStore = defineStore('editor', {
           pathname,
           markdown,
           deepClone(options),
-          defaultPath
+          defaultPath,
+          this.createSaveSnapshot(this.currentFile)
         )
       }
     },
@@ -614,6 +647,7 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_SET_PATHNAME(): void {
       window.electron.ipcRenderer.on('mt::set-pathname', (_, fileInfo) => {
+        this.flushActiveEditor()
         const { tabs } = this
         const { pathname, id } = fileInfo
         const tab = tabs.find((f) => f.id === id)
@@ -637,31 +671,21 @@ export const useEditorStore = defineStore('editor', {
           window.DIRNAME = window.path.dirname(pathname)
         }
         if (tab) {
-          Object.assign(tab, { filename, pathname, isSaved: true })
+          Object.assign(tab, { filename, pathname })
+          this.applySaveReceipt(tab, fileInfo.snapshot)
           debouncedSendBufferedState()
         }
       })
 
-      window.electron.ipcRenderer.on('mt::tab-saved', (_, tabId) => {
+      window.electron.ipcRenderer.on('mt::tab-saved', (_, tabId, snapshot) => {
         const tab = this.tabs.find((f) => f.id === tabId)
         if (tab) {
-          const lastEditIndex = tab.history.lastEditIndex
-          if (
-            typeof lastEditIndex === 'number' &&
-            lastEditIndex >= 0 &&
-            lastEditIndex < tab.history.stack.length
-          ) {
-            const entry = tab.history.stack[lastEditIndex]
-            if (entry && typeof entry.id === 'number') {
-              tab.lastSavedHistoryId = entry.id
-            }
-          }
-          tab.isSaved = true
-          debouncedSendBufferedState()
+          this.flushActiveEditor()
+          this.applySaveReceipt(tab, snapshot)
         }
       })
 
-      window.electron.ipcRenderer.on('mt::tab-save-failure', (_, tabId, msg) => {
+      window.electron.ipcRenderer.on('mt::tab-save-failure', (_, tabId, msg, snapshot) => {
         const tab = this.tabs.find((t) => t.id === tabId)
         if (!tab) {
           notice.notify({
@@ -674,6 +698,7 @@ export const useEditorStore = defineStore('editor', {
           return
         }
 
+        if (snapshot && snapshot.requestId < (tab.lastSavedRequestId ?? 0)) return
         tab.isSaved = false
         this.pushTabNotification({
           tabId,
@@ -687,46 +712,81 @@ export const useEditorStore = defineStore('editor', {
     LISTEN_FOR_CLOSE(): void {
       const projectStore = useProjectStore()
       const preferencesStore = usePreferencesStore()
-      window.electron.ipcRenderer.on('mt::ask-for-close', () => {
-        sendBufferedState()
-          .catch((err) => {
+      window.electron.ipcRenderer.on('mt::ask-for-close', async() => {
+        let buffered: unknown = false
+        let stable = false
+        while (!stable) {
+          this.flushActiveEditor()
+          debouncedSendBufferedState.cancel()
+          const before = this.tabs.map((tab) => ({
+            id: tab.id,
+            markdown: tab.markdown,
+            isSaved: tab.isSaved,
+            pathname: tab.pathname,
+            options: JSON.stringify(getOptionsFromState(tab))
+          }))
+          try {
+            buffered = await sendBufferedState()
+          } catch (err) {
             console.error('Failed to update buffered state before closing', err)
-          })
-          .then(() => {
-            const unsavedFiles = this.tabs
-              .filter((file) => !file.isSaved)
-              .map((file) => {
-                const { id, filename, pathname, markdown } = file
-                const options = getOptionsFromState(file)
-                return {
-                  id,
-                  filename,
-                  pathname,
-                  markdown,
-                  options,
-                  defaultPath: getRootFolderFromState(projectStore)
-                }
-              })
-
-            if (unsavedFiles.length && preferencesStore.startUpAction !== 'restoreAll') {
-              // Ignore unsaved files when user has chosen to restore all on startup, as they will be restored anyway.
-              window.electron.ipcRenderer.send('mt::close-window-confirm', deepClone(unsavedFiles))
-            } else {
-              window.electron.ipcRenderer.send('mt::close-window')
+            buffered = false
+          }
+          this.flushActiveEditor()
+          stable =
+            before.length === this.tabs.length &&
+            before.every((tab, index) => {
+              const current = this.tabs[index]
+              return (
+                current &&
+                tab.id === current.id &&
+                tab.markdown === current.markdown &&
+                tab.isSaved === current.isSaved &&
+                tab.pathname === current.pathname &&
+                tab.options === JSON.stringify(getOptionsFromState(current))
+              )
+            })
+        }
+        debouncedSendBufferedState.cancel()
+        const unsavedFiles = this.tabs
+          .filter((file) => !file.isSaved)
+          .map((file) => {
+            const { id, filename, pathname, markdown } = file
+            const options = getOptionsFromState(file)
+            return {
+              id,
+              filename,
+              pathname,
+              markdown,
+              snapshot: this.createSaveSnapshot(file),
+              options,
+              defaultPath: getRootFolderFromState(projectStore)
             }
           })
+
+        if (unsavedFiles.length && (preferencesStore.startUpAction !== 'restoreAll' || !buffered)) {
+          // Restore All bypasses the prompt only after the final snapshot is durable.
+          window.electron.ipcRenderer.send('mt::close-window-confirm', deepClone(unsavedFiles))
+        } else {
+          window.electron.ipcRenderer.send('mt::close-window')
+        }
       })
     },
 
     LISTEN_FOR_SAVE_CLOSE(): void {
-      window.electron.ipcRenderer.on('mt::force-close-tabs-by-id', (_, tabIdList) => {
+      window.electron.ipcRenderer.on('mt::force-close-tabs-by-id', (_, tabIdList, onlySaved) => {
+        this.flushActiveEditor()
         if (Array.isArray(tabIdList) && tabIdList.length) {
-          this.CLOSE_TABS(tabIdList)
+          this.CLOSE_TABS(
+            onlySaved
+              ? tabIdList.filter((id) => this.tabs.find((tab) => tab.id === id)?.isSaved)
+              : tabIdList
+          )
         }
       })
     },
 
     ASK_FOR_SAVE_ALL(closeTabs: boolean): void {
+      this.flushActiveEditor()
       const { tabs } = this
       const projectStore = useProjectStore()
       const unsavedFiles = tabs
@@ -739,6 +799,7 @@ export const useEditorStore = defineStore('editor', {
             filename,
             pathname,
             markdown,
+            snapshot: this.createSaveSnapshot(file),
             options,
             defaultPath: getRootFolderFromState(projectStore)
           }
@@ -773,7 +834,8 @@ export const useEditorStore = defineStore('editor', {
           pathname,
           markdown,
           deepClone(options),
-          defaultPath
+          defaultPath,
+          this.createSaveSnapshot(this.currentFile)
         )
       } else {
         // if not, move to a new(maybe) folder
@@ -816,7 +878,8 @@ export const useEditorStore = defineStore('editor', {
           pathname,
           markdown,
           deepClone(options),
-          defaultPath
+          defaultPath,
+          this.createSaveSnapshot(this.currentFile)
         )
       } else {
         bus.emit('rename')
@@ -917,14 +980,8 @@ export const useEditorStore = defineStore('editor', {
             project: projectStore
           })
         )
-        bus.emit(
-          'cmd::register-command',
-          new LineEndingCommand(this)
-        )
-        bus.emit(
-          'cmd::register-command',
-          new TrailingNewlineCommand(this)
-        )
+        bus.emit('cmd::register-command', new LineEndingCommand(this))
+        bus.emit('cmd::register-command', new TrailingNewlineCommand(this))
 
         setTimeout(() => {
           window.electron.ipcRenderer.send('mt::request-keybindings')
@@ -1001,6 +1058,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     CLOSE_TAB(file: IFileState | null = null): void {
+      this.flushActiveEditor()
       const target = file ?? this.currentFile
       if (target === null) return
 
@@ -1097,10 +1155,18 @@ export const useEditorStore = defineStore('editor', {
     },
 
     CLOSE_UNSAVED_TAB(file: IFileState): void {
+      this.flushActiveEditor()
       const { id, pathname, filename, markdown } = file
       const options = getOptionsFromState(file)
       window.electron.ipcRenderer.send('mt::save-and-close-tabs', [
-        { id, pathname, filename, markdown, options: deepClone(options) }
+        {
+          id,
+          pathname,
+          filename,
+          markdown,
+          options: deepClone(options),
+          snapshot: this.createSaveSnapshot(file)
+        }
       ])
     },
 
@@ -1155,8 +1221,7 @@ export const useEditorStore = defineStore('editor', {
       this.updateTabIdToIndex() // Update before sending it out to prevent stale mappings.
 
       if (this.currentFile == null && this.tabs.length > 0) {
-        this.currentFile =
-          this.tabs[tabIndex] ?? this.tabs[tabIndex - 1] ?? this.tabs[0] ?? null
+        this.currentFile = this.tabs[tabIndex] ?? this.tabs[tabIndex - 1] ?? this.tabs[0] ?? null
         this.selectionWordCount = null
         if (this.currentFile && typeof this.currentFile.markdown === 'string') {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
@@ -1323,7 +1388,10 @@ export const useEditorStore = defineStore('editor', {
     NEW_UNTITLED_TAB({
       markdown: markdownString,
       selected
-    }: { markdown?: string; selected?: boolean }): void {
+    }: {
+      markdown?: string
+      selected?: boolean
+    }): void {
       if (selected == null) {
         selected = true
       }
@@ -1557,7 +1625,15 @@ export const useEditorStore = defineStore('editor', {
         (lastEditIndex === -1 &&
           tab.lastSavedHistoryId !== -1 &&
           tab.lastSavedHistoryId !== tab.history.lastInitIndex) // Edge Case: Undo to original content (lastEditIndex === -1) after saving means we cant use the lastEditIndex. Compare it against the lastInitIndex instead.
-      const isDirty = history === undefined ? markdown !== oldMarkdown : historyMarksDirty
+      const isDirty =
+        tab.lastSavedContentSignature !== undefined
+          ? (typeof editEntry?.contentSignature === 'string' && history !== undefined
+            ? editEntry.contentSignature
+            : contentSignature(markdown)) !== tab.lastSavedContentSignature ||
+            JSON.stringify(getOptionsFromState(tab)) !== tab.lastSavedOptionsSignature
+          : history === undefined
+            ? markdown !== oldMarkdown
+            : historyMarksDirty
       if (isDirty) {
         tab.isSaved = false
         if (pathname && autoSave) {
@@ -1570,14 +1646,16 @@ export const useEditorStore = defineStore('editor', {
             options
           })
         }
-      } else if (history !== undefined && tab.lastSavedHistoryId !== -1) {
-        // Check here is to prevent it from overriding a restored .isSaved state
-        tab.isSaved = true // An undo can trigger this
+      } else if (
+        tab.lastSavedContentSignature !== undefined ||
+        (history !== undefined && tab.lastSavedHistoryId !== -1)
+      ) {
+        tab.isSaved = true
       }
       debouncedSendBufferedState()
     },
 
-    HANDLE_AUTO_SAVE({ id, filename, pathname, markdown, options }: AutoSavePayload): void {
+    HANDLE_AUTO_SAVE({ id, pathname }: AutoSavePayload): void {
       if (!id || !pathname) {
         throw new Error('HANDLE_AUTO_SAVE: Invalid tab.')
       }
@@ -1595,8 +1673,11 @@ export const useEditorStore = defineStore('editor', {
       const timer = setTimeout(() => {
         autoSaveTimers.delete(id)
 
+        if (this.currentFile?.id === id) this.flushActiveEditor()
         const tab = this.tabs.find((t) => t.id === id)
         if (tab && !tab.isSaved) {
+          const { filename, pathname, markdown } = tab
+          const options = getOptionsFromState(tab)
           const defaultPath = getRootFolderFromState(projectStore)
           window.electron.ipcRenderer.send(
             'mt::response-file-save',
@@ -1605,7 +1686,8 @@ export const useEditorStore = defineStore('editor', {
             pathname,
             markdown,
             deepClone(options),
-            defaultPath
+            defaultPath,
+            this.createSaveSnapshot(tab)
           )
         }
       }, autoSaveDelay)
@@ -1728,7 +1810,7 @@ export const useEditorStore = defineStore('editor', {
       if (lineEnding !== oldLineEnding) {
         this.currentFile.lineEnding = lineEnding
         this.currentFile.adjustLineEndingOnSave = lineEnding !== 'lf'
-        this.currentFile.isSaved = true
+        this.currentFile.isSaved = false
         this.UPDATE_LINE_ENDING_MENU()
         debouncedSendBufferedState()
       }
@@ -1750,7 +1832,7 @@ export const useEditorStore = defineStore('editor', {
         if (encoding !== encodingName) {
           this.currentFile.encoding.encoding = encodingName as string
           this.currentFile.encoding.isBom = false
-          this.currentFile.isSaved = true
+          this.currentFile.isSaved = false
           debouncedSendBufferedState()
         }
       })
@@ -1762,7 +1844,7 @@ export const useEditorStore = defineStore('editor', {
         const { trimTrailingNewline } = this.currentFile
         if (trimTrailingNewline !== value) {
           this.currentFile.trimTrailingNewline = value as number
-          this.currentFile.isSaved = true
+          this.currentFile.isSaved = false
           debouncedSendBufferedState()
         }
       })
@@ -1919,10 +2001,7 @@ const getRootFolderFromState = (projectStore: ProjectStoreLike): string => {
  * @param markdown The text to trim.
  * @param trimTrailingNewlineOption The option how we should trim the final newlines.
  */
-const adjustTrailingNewlines = (
-  markdown: string,
-  trimTrailingNewlineOption: number
-): string => {
+const adjustTrailingNewlines = (markdown: string, trimTrailingNewlineOption: number): string => {
   if (!markdown) {
     return ''
   }
@@ -2095,9 +2174,7 @@ const createApplicationMenuState = ({
 /**
  * Creates a object that contains the formats selection state.
  */
-export const createSelectionFormatState = (
-  formats: SelectionFormat[]
-): Record<string, boolean> => {
+export const createSelectionFormatState = (formats: SelectionFormat[]): Record<string, boolean> => {
   const state: Record<string, boolean> = {}
   for (const item of formats) {
     // Underline/superscript/subscript/highlight are carried as `html_tag`
@@ -2139,6 +2216,8 @@ interface BufferedTabState {
   wordCount: IFileState['wordCount']
   muyaIndexCursor: unknown
   scrollTop: number
+  lastSavedContentSignature?: string
+  lastSavedOptionsSignature?: string
 }
 
 const createBufferedTabState = (tab: Partial<IFileState> & { id: string }): BufferedTabState => {
@@ -2158,7 +2237,9 @@ const createBufferedTabState = (tab: Partial<IFileState> & { id: string }): Buff
     cursor: toSerializableValue(tab.cursor, defaultFileState.cursor),
     wordCount: toSerializableValue(tab.wordCount, defaultFileState.wordCount),
     muyaIndexCursor: toSerializableValue(tab.muyaIndexCursor, defaultFileState.muyaIndexCursor),
-    scrollTop: tab.scrollTop ?? defaultFileState.scrollTop
+    scrollTop: tab.scrollTop ?? defaultFileState.scrollTop,
+    lastSavedContentSignature: tab.lastSavedContentSignature,
+    lastSavedOptionsSignature: tab.lastSavedOptionsSignature
   }
 }
 

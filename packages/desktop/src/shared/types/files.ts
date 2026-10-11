@@ -85,6 +85,9 @@ export interface IFileState {
   muyaIndexCursor: unknown
   notifications: FileNotification[]
   lastSavedHistoryId?: number
+  lastSavedContentSignature?: string
+  lastSavedOptionsSignature?: string
+  lastSavedRequestId?: number
   // Muya block tree; only populated for the actively edited tab.
   blocks?: unknown
   isMixedLineEndings?: boolean
@@ -147,6 +150,14 @@ export interface SaveOptions {
   trimTrailingNewline?: number
 }
 
+/** Receipts echo this unchanged; request IDs increase within one renderer session. */
+export interface SaveSnapshot {
+  requestId: number
+  contentSignature: string
+  optionsSignature: string
+  historyId?: number
+}
+
 /**
  * Per-tab payload sent with `mt::close-window-confirm` / `mt::save-tabs` /
  * `mt::save-and-close-tabs` when the renderer asks main to surface a
@@ -158,6 +169,7 @@ export interface UnsavedFile {
   filename: string
   pathname?: string
   markdown: string
+  snapshot?: SaveSnapshot
   options: SaveOptions
   defaultPath?: string
 }

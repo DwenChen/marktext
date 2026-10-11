@@ -14,6 +14,7 @@ import { MarkdownToHtml } from '@muyajs/core'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from './dompurify'
 import { resolveLocalImageSrc } from './resolveImageSrc'
 import { resolveLocalLinkHref } from './resolveLinkHref'
+import { getHtmlToc, type HtmlTocOptions } from './pdf'
 
 export interface HeaderFooterPart {
   type?: number
@@ -28,6 +29,7 @@ export interface ExportStyledHtmlOptions {
   extraCss?: string
   /** Pre-rendered TOC HTML (from `getHtmlToc`). Injected at `[TOC]`. */
   toc?: string
+  tocOptions?: HtmlTocOptions
   header?: HeaderFooterPart | null
   footer?: HeaderFooterPart | null
   headerFooterStyled?: boolean
@@ -175,10 +177,9 @@ export const exportStyledHTML = async(
   markdown: string,
   options: ExportStyledHtmlOptions = {}
 ): Promise<string> => {
-  const { title = '', toc = '', header, footer, headerFooterStyled, dir } = options
+  const { title = '', header, footer, headerFooterStyled, dir } = options
+  let { toc = '' } = options
   let { extraCss = '' } = options
-  extraCss +=
-    '\n.markdown-body table { display: table; margin-inline: auto !important; max-width: 100%; }'
 
   // The header/footer page table needs its own stylesheet — fold it into
   // extraCss (which `generate` injects into <head>) up front so we only render
@@ -198,6 +199,19 @@ export const exportStyledHTML = async(
 
   const articleMatch = /<article class="markdown-body">([\s\S]*)<\/article>/.exec(fullDoc)
   let article = articleMatch ? articleMatch[1] : fullDoc
+
+  if (options.tocOptions) {
+    // Read the rendered snapshot's IDs, including duplicate and explicit HTML
+    // anchors, so every TOC link targets the body this export actually contains.
+    const parsed = new DOMParser().parseFromString(article, 'text/html')
+    const headings = Array.from(parsed.querySelectorAll('h1,h2,h3,h4,h5,h6')).map((heading) => ({
+      lvl: Number(heading.tagName.slice(1)),
+      content: heading.textContent ?? '',
+      contentHtml: heading.innerHTML,
+      slug: heading.id
+    }))
+    toc = getHtmlToc(headings, { ...options.tocOptions, useHeadingIds: true })
+  }
 
   // Resolve relative image paths to absolute file:// URLs so the saved document
   // still shows its images when opened from a different folder (issue 230).

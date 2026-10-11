@@ -28,6 +28,13 @@ interface EditorWindow {
 // other main classes.
 type EditorBufferStoreEvents = Record<string, unknown[]>
 
+interface PendingBufferWrite {
+  state: unknown
+  done: Promise<void>
+}
+
+const pendingBufferWrites = new Map<string, PendingBufferWrite>()
+
 class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
   editorBufferStorePath: string
   bufferStores: Record<string, BufferStoreEntry> | null
@@ -186,13 +193,29 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     return buffer
   }
 
-  writeBufferStoreFile(filePath: string, newState: unknown): void {
-    // Durable atomic write: write-file-atomic writes to a temp file, fsyncs it,
-    // then renames it over the target. The previous temp-file + rename here was
-    // namespace-atomic (crash-safe) but omitted the fsync, so a power loss could
-    // still leave this crash-recovery buffer — which holds unsaved tab content —
-    // truncated or zero-filled, the same gap the document save path had (#3786).
-    writeFileAtomic.sync(filePath, JSON.stringify(newState), 'utf8')
+  writeBufferStoreFile(filePath: string, newState: unknown): Promise<void> {
+    const pending = pendingBufferWrites.get(filePath)
+    if (pending) {
+      pending.state = newState
+      return pending.done
+    }
+
+    // Waiters resolve only after the latest queued snapshot is durable. Keep
+    // fsync enabled while replacing superseded snapshots before serialization.
+    const entry: PendingBufferWrite = { state: newState, done: Promise.resolve() }
+    entry.done = Promise.resolve().then(async() => {
+      try {
+        while (entry.state !== undefined) {
+          const state = entry.state
+          entry.state = undefined
+          await writeFileAtomic(filePath, JSON.stringify(state), 'utf8')
+        }
+      } finally {
+        pendingBufferWrites.delete(filePath)
+      }
+    })
+    pendingBufferWrites.set(filePath, entry)
+    return entry.done
   }
 
   private removeBufferStoreFile(filePath: string): void {
@@ -201,7 +224,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     if (fs.existsSync(widthPath)) fs.unlinkSync(widthPath)
   }
 
-  updateBufferState(e: IpcMainInvokeEvent, newState: unknown): boolean {
+  async updateBufferState(e: IpcMainInvokeEvent, newState: unknown): Promise<boolean> {
     const win = BrowserWindow.fromWebContents(e.sender)
     const restoreBufferId = (win as unknown as { restoreBufferId?: string })?.restoreBufferId
 
@@ -211,7 +234,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     }
 
     const bufferStore = this.getBufferStoreInfo(restoreBufferId)
-    this.writeBufferStoreFile(bufferStore.filePath, newState)
+    await this.writeBufferStoreFile(bufferStore.filePath, newState)
     return true
   }
 

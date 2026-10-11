@@ -1,0 +1,4526 @@
+{
+  "recordedAt": "2026-10-11T13:09:03.329Z",
+  "browser": "155.0.4283.45",
+  "config": {
+    "root": "C:/Users/chen/Desktop/marktext-develop",
+    "counts": [
+      1000,
+      3000,
+      10000
+    ],
+    "samples": 21,
+    "warmup": 8,
+    "url": "http://127.0.0.1:5174"
+  },
+  "notes": [
+    "plain legacy-first-leaf uses the original document, edit and synchronous derived callback; warmup and sample count are increased.",
+    "instrumented timings add wrappers. Exclusive phases are disjoint; inclusive phases and stage medians must not be added together.",
+    "history.recordIncludingInvert includes invertWithDoc and history coalescing; optional CPU profiling distinguishes their internal costs.",
+    "Initialization, frame waits, full-state correctness checks and standalone clone samples are excluded from synchronous edit timings."
+  ],
+  "errors": [],
+  "cpuProfileFile": "C:\\Users\\chen\\Desktop\\marktext-develop\\docs\\audit-20261011\\performance-profile-current.cpuprofile",
+  "profileSamples": [
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.6000000238418579,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.199999988079071,
+          "exclusiveMs": 0.5999999642372131
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 27.30000001192093,
+          "exclusiveMs": 27.30000001192093
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 27.5,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 27.5,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 27.5,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 27.5,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 4.600000023841858,
+          "exclusiveMs": 4.600000023841858
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.7999999523162842,
+          "exclusiveMs": 1.7999999523162842
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 40,
+          "exclusiveMs": 0.5
+        }
+      },
+      "synchronousMs": 41.299999952316284
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5,
+          "exclusiveMs": 0.5
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.699999988079071,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 35.19999998807907,
+          "exclusiveMs": 35.19999998807907
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 35.39999997615814,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 35.39999997615814,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 35.39999997615814,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 35.60000002384186,
+          "exclusiveMs": 0.20000004768371582
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 6.199999988079071,
+          "exclusiveMs": 6.199999988079071
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.600000023841858,
+          "exclusiveMs": 2.600000023841858
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 50,
+          "exclusiveMs": 0.2999999523162842
+        }
+      },
+      "synchronousMs": 50.69999998807907
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0.09999996423721313,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.6000000238418579,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 0.3999999761581421
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 33.799999952316284,
+          "exclusiveMs": 33.799999952316284
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 33.799999952316284,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 33.799999952316284,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 33.799999952316284,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 34.09999996423721,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.600000023841858,
+          "exclusiveMs": 2.600000023841858
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.300000011920929,
+          "exclusiveMs": 2.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.699999988079071,
+          "exclusiveMs": 2.699999988079071
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.400000035762787
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 44.39999997615814,
+          "exclusiveMs": 0.19999998807907104
+        }
+      },
+      "synchronousMs": 45.39999997615814
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5999999642372131,
+          "exclusiveMs": 0.5999999642372131
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 0.40000003576278687
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 24,
+          "exclusiveMs": 24
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 24,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 24,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 24,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 24.19999998807907,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.400000035762787,
+          "exclusiveMs": 2.400000035762787
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.300000011920929,
+          "exclusiveMs": 2.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.699999988079071,
+          "exclusiveMs": 1.699999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 33.19999998807907,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 34.19999998807907
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5999999642372131,
+          "exclusiveMs": 0.5999999642372131
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.8999999761581421,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 31.799999952316284,
+          "exclusiveMs": 31.799999952316284
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 31.899999976158142,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 31.899999976158142,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 31.899999976158142,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 32.09999996423721,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 5.800000011920929,
+          "exclusiveMs": 5.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.299999952316284,
+          "exclusiveMs": 2.299999952316284
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.699999988079071,
+          "exclusiveMs": 2.699999988079071
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 3.199999988079071,
+          "exclusiveMs": 3.199999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 46.39999997615814,
+          "exclusiveMs": 0.30000007152557373
+        }
+      },
+      "synchronousMs": 47.299999952316284
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.800000011920929,
+          "exclusiveMs": 0.800000011920929
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.199999988079071,
+          "exclusiveMs": 0.3999999761581421
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 36,
+          "exclusiveMs": 36
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 36.09999996423721,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 36.09999996423721,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 36.09999996423721,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 36.19999998807907,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 5.099999964237213,
+          "exclusiveMs": 5.099999964237213
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 3.300000011920929,
+          "exclusiveMs": 3.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.699999988079071,
+          "exclusiveMs": 2.699999988079071
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2.199999988079071,
+          "exclusiveMs": 2.199999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 49.80000001192093,
+          "exclusiveMs": 0.30000007152557373
+        }
+      },
+      "synchronousMs": 51
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.699999988079071,
+          "exclusiveMs": 0.699999988079071
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.100000023841858,
+          "exclusiveMs": 0.40000003576278687
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 22.399999976158142,
+          "exclusiveMs": 22.399999976158142
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.399999976158142,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 22.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 22.5,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.7999999523162842,
+          "exclusiveMs": 1.7999999523162842
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.600000023841858,
+          "exclusiveMs": 2.600000023841858
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.800000011920929,
+          "exclusiveMs": 1.800000011920929
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 31.69999998807907,
+          "exclusiveMs": 0.19999998807907104
+        }
+      },
+      "synchronousMs": 32.80000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 1
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 23.399999976158142,
+          "exclusiveMs": 23.399999976158142
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 23.399999976158142,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 23.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 23.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 23.599999964237213,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2,
+          "exclusiveMs": 2
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.200000047683716,
+          "exclusiveMs": 2.200000047683716
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.699999988079071,
+          "exclusiveMs": 2.699999988079071
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2.199999988079071,
+          "exclusiveMs": 2.199999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 32.80000001192093,
+          "exclusiveMs": 0.10000002384185791
+        }
+      },
+      "synchronousMs": 34.10000002384186
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.800000011920929,
+          "exclusiveMs": 0.800000011920929
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.100000023841858,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 24.099999964237213,
+          "exclusiveMs": 24.099999964237213
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.099999964237213,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.099999964237213,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 24.099999964237213,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 24.299999952316284,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.300000011920929,
+          "exclusiveMs": 2.300000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.300000011920929,
+          "exclusiveMs": 2.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.799999952316284,
+          "exclusiveMs": 2.799999952316284
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.800000011920929,
+          "exclusiveMs": 1.800000011920929
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 33.69999998807907,
+          "exclusiveMs": 0.20000004768371582
+        }
+      },
+      "synchronousMs": 34.80000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.7999999523162842,
+          "exclusiveMs": 0.7999999523162842
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.0999999642372131,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 25.30000001192093,
+          "exclusiveMs": 25.30000001192093
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 25.399999976158142,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 25.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 25.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 25.5,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.300000011920929,
+          "exclusiveMs": 2.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 34.30000001192093,
+          "exclusiveMs": 0.10000002384185791
+        }
+      },
+      "synchronousMs": 35.39999997615814
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.7000000476837158,
+          "exclusiveMs": 0.7000000476837158
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 0.6999999284744263
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 42,
+          "exclusiveMs": 42
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 42,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 42,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 42,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 42,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.399999976158142,
+          "exclusiveMs": 2.399999976158142
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.900000035762787,
+          "exclusiveMs": 2.900000035762787
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2,
+          "exclusiveMs": 2
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 52,
+          "exclusiveMs": 0.19999998807907104
+        }
+      },
+      "synchronousMs": 53.39999997615814
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 1
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 0.3999999761581421
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 47.5,
+          "exclusiveMs": 47.5
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 47.5,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 47.5,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 47.5,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 47.90000003576279,
+          "exclusiveMs": 0.40000003576278687
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 6.599999964237213,
+          "exclusiveMs": 6.599999964237213
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 3,
+          "exclusiveMs": 3
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 4.699999988079071,
+          "exclusiveMs": 4.699999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 65.39999997615814,
+          "exclusiveMs": 0.3999999761581421
+        }
+      },
+      "synchronousMs": 66.79999995231628
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 1.199999988079071,
+          "exclusiveMs": 1.199999988079071
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.9000000357627869,
+          "exclusiveMs": 0.7000000476837158
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 53.89999997615814,
+          "exclusiveMs": 53.89999997615814
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 53.89999997615814,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 53.89999997615814,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 53.89999997615814,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 54.39999997615814,
+          "exclusiveMs": 0.5
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 9.300000011920929,
+          "exclusiveMs": 9.300000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 3.300000011920929,
+          "exclusiveMs": 3.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 3,
+          "exclusiveMs": 3
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 5,
+          "exclusiveMs": 5
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 75.30000001192093,
+          "exclusiveMs": 0.30000001192092896
+        }
+      },
+      "synchronousMs": 77.30000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 1.899999976158142,
+          "exclusiveMs": 1.899999976158142
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 0.9000000357627869
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 58.10000002384186,
+          "exclusiveMs": 58.10000002384186
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 58.19999998807907,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 58.19999998807907,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 58.19999998807907,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 58.30000001192093,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 11.099999964237213,
+          "exclusiveMs": 11.099999964237213
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.600000023841858,
+          "exclusiveMs": 2.600000023841858
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.799999952316284,
+          "exclusiveMs": 2.799999952316284
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 4.199999988079071,
+          "exclusiveMs": 4.199999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 79.80000001192093,
+          "exclusiveMs": 0.8000000715255737
+        }
+      },
+      "synchronousMs": 82.60000002384186
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 1.5
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 2.300000011920929,
+          "exclusiveMs": 0.800000011920929
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 66.90000003576279,
+          "exclusiveMs": 66.90000003576279
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0.09999996423721313,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 67.09999996423721,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 67.09999996423721,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 67.09999996423721,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 67.29999995231628,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 12.800000011920929,
+          "exclusiveMs": 12.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 3.100000023841858,
+          "exclusiveMs": 3.100000023841858
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.899999976158142,
+          "exclusiveMs": 2.899999976158142
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 5.600000023841858,
+          "exclusiveMs": 5.600000023841858
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 91.80000001192093,
+          "exclusiveMs": 0.10000002384185791
+        }
+      },
+      "synchronousMs": 94.19999998807907
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.800000011920929,
+          "exclusiveMs": 0.800000011920929
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 0.5
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 26.399999976158142,
+          "exclusiveMs": 26.399999976158142
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 26.399999976158142,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 26.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 26.5,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 26.599999964237213,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 3.300000011920929,
+          "exclusiveMs": 3.300000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.400000035762787,
+          "exclusiveMs": 2.400000035762787
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.799999952316284,
+          "exclusiveMs": 2.799999952316284
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2.100000023841858,
+          "exclusiveMs": 2.100000023841858
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 37.5,
+          "exclusiveMs": 0.30000001192092896
+        }
+      },
+      "synchronousMs": 38.80000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 1.0999999642372131,
+          "exclusiveMs": 1.0999999642372131
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.699999988079071,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 29.80000001192093,
+          "exclusiveMs": 29.80000001192093
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 29.80000001192093,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 29.80000001192093,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 29.80000001192093,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 29.900000035762787,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 3.599999964237213,
+          "exclusiveMs": 3.599999964237213
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.900000035762787,
+          "exclusiveMs": 2.900000035762787
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.5999999642372131,
+          "exclusiveMs": 1.5999999642372131
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 40.89999997615814,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 42.69999998807907
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.8999999761581421,
+          "exclusiveMs": 0.8999999761581421
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 31.099999964237213,
+          "exclusiveMs": 31.099999964237213
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0.10000002384185791,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 31.19999998807907,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 31.19999998807907,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 31.19999998807907,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 31.19999998807907,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.600000023841858,
+          "exclusiveMs": 2.600000023841858
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2.399999976158142,
+          "exclusiveMs": 2.399999976158142
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 42.10000002384186,
+          "exclusiveMs": 0.30000001192092896
+        }
+      },
+      "synchronousMs": 43.60000002384186
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 1.100000023841858,
+          "exclusiveMs": 1.100000023841858
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 0.3999999761581421
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 30.899999976158142,
+          "exclusiveMs": 30.899999976158142
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 31,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 31,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 31,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 31.100000023841858,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 5.099999964237213,
+          "exclusiveMs": 5.099999964237213
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.400000035762787,
+          "exclusiveMs": 2.400000035762787
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.899999976158142,
+          "exclusiveMs": 2.899999976158142
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2.199999988079071,
+          "exclusiveMs": 2.199999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 43.80000001192093,
+          "exclusiveMs": 0.10000002384185791
+        }
+      },
+      "synchronousMs": 45.30000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.699999988079071,
+          "exclusiveMs": 0.699999988079071
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.199999988079071,
+          "exclusiveMs": 0.5
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 36.30000001192093,
+          "exclusiveMs": 36.30000001192093
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 36.30000001192093,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 36.30000001192093,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 36.30000001192093,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 36.40000003576279,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 5,
+          "exclusiveMs": 5
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 3.100000023841858,
+          "exclusiveMs": 3.100000023841858
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.799999952316284,
+          "exclusiveMs": 2.799999952316284
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 3.600000023841858,
+          "exclusiveMs": 3.600000023841858
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 51.10000002384186,
+          "exclusiveMs": 0.19999998807907104
+        }
+      },
+      "synchronousMs": 52.30000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 1.199999988079071,
+          "exclusiveMs": 1.199999988079071
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.5999999642372131,
+          "exclusiveMs": 0.3999999761581421
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 48.700000047683716,
+          "exclusiveMs": 48.700000047683716
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 48.700000047683716,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 48.700000047683716,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 48.700000047683716,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 49.200000047683716,
+          "exclusiveMs": 0.5
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 6.5,
+          "exclusiveMs": 6.5
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 3.199999988079071,
+          "exclusiveMs": 3.199999988079071
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 3.800000011920929,
+          "exclusiveMs": 3.800000011920929
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 65.90000003576279,
+          "exclusiveMs": 0.3999999761581421
+        }
+      },
+      "synchronousMs": 67.5
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.8999999761581421,
+          "exclusiveMs": 0.8999999761581421
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 0.40000003576278687
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 32.200000047683716,
+          "exclusiveMs": 32.200000047683716
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 32.200000047683716,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 32.200000047683716,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 32.200000047683716,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 32.30000001192093,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 17.5,
+          "exclusiveMs": 17.5
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 3.300000011920929,
+          "exclusiveMs": 3.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.699999988079071,
+          "exclusiveMs": 2.699999988079071
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 25.700000047683716,
+          "exclusiveMs": 25.700000047683716
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 81.89999997615814,
+          "exclusiveMs": 0.3999999165534973
+        }
+      },
+      "synchronousMs": 83.19999998807907
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.7000000476837158,
+          "exclusiveMs": 0.7000000476837158
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 0.5999999642372131
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 28.399999976158142,
+          "exclusiveMs": 28.399999976158142
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 28.399999976158142,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 28.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 28.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 28.5,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.699999988079071,
+          "exclusiveMs": 2.699999988079071
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 4.399999976158142,
+          "exclusiveMs": 4.399999976158142
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 4.100000023841858,
+          "exclusiveMs": 4.100000023841858
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 3.599999964237213,
+          "exclusiveMs": 3.599999964237213
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 43.5,
+          "exclusiveMs": 0.20000004768371582
+        }
+      },
+      "synchronousMs": 44.80000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0.09999996423721313,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.699999988079071,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 26.899999976158142,
+          "exclusiveMs": 26.899999976158142
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0.10000002384185791,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 27,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 27,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 27,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 27.100000023841858,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 6,
+          "exclusiveMs": 6
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.399999976158142,
+          "exclusiveMs": 2.399999976158142
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.699999988079071,
+          "exclusiveMs": 2.699999988079071
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2.199999988079071,
+          "exclusiveMs": 2.199999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 40.69999998807907,
+          "exclusiveMs": 0.30000001192092896
+        }
+      },
+      "synchronousMs": 41.69999998807907
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.699999988079071,
+          "exclusiveMs": 0.699999988079071
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 33.39999997615814,
+          "exclusiveMs": 33.39999997615814
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 33.5,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 33.5,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 33.60000002384186,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 33.69999998807907,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.400000035762787,
+          "exclusiveMs": 2.400000035762787
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.799999952316284,
+          "exclusiveMs": 2.799999952316284
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 3.700000047683716,
+          "exclusiveMs": 3.700000047683716
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 45.5,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 46.5
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.800000011920929,
+          "exclusiveMs": 0.800000011920929
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.100000023841858,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 23,
+          "exclusiveMs": 23
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 23.099999964237213,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 23.099999964237213,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 23.099999964237213,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 23.19999998807907,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 4.599999964237213,
+          "exclusiveMs": 4.599999964237213
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.699999988079071,
+          "exclusiveMs": 2.699999988079071
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.600000023841858,
+          "exclusiveMs": 2.600000023841858
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 1.5
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 35.09999996423721,
+          "exclusiveMs": 0.5
+        }
+      },
+      "synchronousMs": 36.19999998807907
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 1
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.4000000357627869,
+          "exclusiveMs": 0.40000003576278687
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 24.30000001192093,
+          "exclusiveMs": 24.30000001192093
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.400000035762787,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.400000035762787,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 24.400000035762787,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 24.400000035762787,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.199999988079071,
+          "exclusiveMs": 2.199999988079071
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.400000035762787,
+          "exclusiveMs": 2.400000035762787
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.5999999642372131,
+          "exclusiveMs": 1.5999999642372131
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 32.09999996423721,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 33.5
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.6000000238418579,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 0.3999999761581421
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 22.30000001192093
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 22.5,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.400000035762787,
+          "exclusiveMs": 2.400000035762787
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 31.700000047683716,
+          "exclusiveMs": 0.10000002384185791
+        }
+      },
+      "synchronousMs": 32.80000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5,
+          "exclusiveMs": 0.5
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.9000000357627869,
+          "exclusiveMs": 0.40000003576278687
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 22.5,
+          "exclusiveMs": 22.5
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.599999964237213,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.599999964237213,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 22.599999964237213,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 22.69999998807907,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.399999976158142,
+          "exclusiveMs": 2.399999976158142
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 1.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 1.5
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 30.899999976158142,
+          "exclusiveMs": 0.19999998807907104
+        }
+      },
+      "synchronousMs": 31.80000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.699999988079071,
+          "exclusiveMs": 0.699999988079071
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.9000000357627869,
+          "exclusiveMs": 0.20000004768371582
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 23,
+          "exclusiveMs": 23
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 23,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 23,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 23,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 23,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.800000011920929,
+          "exclusiveMs": 1.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.600000023841858,
+          "exclusiveMs": 2.600000023841858
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 1.5
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 30.5,
+          "exclusiveMs": 0.19999998807907104
+        }
+      },
+      "synchronousMs": 31.400000035762787
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.6000000238418579,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.9000000357627869,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 20,
+          "exclusiveMs": 20
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 20,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 20,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 20,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 20,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.800000011920929,
+          "exclusiveMs": 1.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 3.300000011920929,
+          "exclusiveMs": 3.300000011920929
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.600000023841858,
+          "exclusiveMs": 1.600000023841858
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 28.19999998807907,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 29.19999998807907
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5,
+          "exclusiveMs": 0.5
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.800000011920929,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 22.399999976158142,
+          "exclusiveMs": 22.399999976158142
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.399999976158142,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 22.399999976158142,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 22.5,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.800000011920929,
+          "exclusiveMs": 2.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.2999999523162842,
+          "exclusiveMs": 1.2999999523162842
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.400000035762787,
+          "exclusiveMs": 2.400000035762787
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.699999988079071,
+          "exclusiveMs": 1.699999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 30.80000001192093,
+          "exclusiveMs": 0.10000002384185791
+        }
+      },
+      "synchronousMs": 31.600000023841858
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 1.2000000476837158,
+          "exclusiveMs": 1.2000000476837158
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 0.2999999523162842
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0.10000002384185791,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 23,
+          "exclusiveMs": 23
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 23.100000023841858,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 23.100000023841858,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 23.100000023841858,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 23.30000001192093,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.100000023841858,
+          "exclusiveMs": 2.100000023841858
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 1.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.899999976158142,
+          "exclusiveMs": 2.899999976158142
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 1.5
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 31.100000023841858,
+          "exclusiveMs": 0
+        }
+      },
+      "synchronousMs": 32.60000002384186
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5,
+          "exclusiveMs": 0.5
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.7000000476837158,
+          "exclusiveMs": 0.20000004768371582
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 21.69999998807907,
+          "exclusiveMs": 21.69999998807907
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.69999998807907,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.69999998807907,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 21.69999998807907,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 21.69999998807907,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.699999988079071,
+          "exclusiveMs": 1.699999988079071
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.4000000357627869,
+          "exclusiveMs": 1.4000000357627869
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.899999976158142,
+          "exclusiveMs": 2.899999976158142
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2,
+          "exclusiveMs": 2
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 29.899999976158142,
+          "exclusiveMs": 0.19999998807907104
+        }
+      },
+      "synchronousMs": 30.600000023841858
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.699999988079071,
+          "exclusiveMs": 0.699999988079071
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 24.5,
+          "exclusiveMs": 24.5
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.5,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.5,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 24.5,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 24.80000001192093,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.099999964237213,
+          "exclusiveMs": 2.099999964237213
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.4000000357627869,
+          "exclusiveMs": 1.4000000357627869
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.699999988079071,
+          "exclusiveMs": 1.699999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 32.5,
+          "exclusiveMs": 0
+        }
+      },
+      "synchronousMs": 33.5
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5,
+          "exclusiveMs": 0.5
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.800000011920929,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 21.599999964237213,
+          "exclusiveMs": 21.599999964237213
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.599999964237213,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.599999964237213,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 21.599999964237213,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 21.799999952316284,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 3.700000047683716,
+          "exclusiveMs": 3.700000047683716
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.5999999642372131,
+          "exclusiveMs": 1.5999999642372131
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.400000035762787,
+          "exclusiveMs": 2.400000035762787
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 1.5
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 31.099999964237213,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 31.899999976158142
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.6000000238418579,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.2000000476837158,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 21.80000001192093,
+          "exclusiveMs": 21.80000001192093
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.80000001192093,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.900000035762787,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 21.900000035762787,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 21.900000035762787,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.199999988079071,
+          "exclusiveMs": 2.199999988079071
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.600000023841858,
+          "exclusiveMs": 2.600000023841858
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.699999988079071,
+          "exclusiveMs": 1.699999988079071
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 29.899999976158142,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 31.100000023841858
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.6000000238418579,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.800000011920929,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 24.700000047683716,
+          "exclusiveMs": 24.700000047683716
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.700000047683716,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.700000047683716,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 24.700000047683716,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 24.900000035762787,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.699999988079071,
+          "exclusiveMs": 1.699999988079071
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 1.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 3.599999964237213,
+          "exclusiveMs": 3.599999964237213
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.4000000357627869,
+          "exclusiveMs": 1.4000000357627869
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 33,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 33.80000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.699999988079071,
+          "exclusiveMs": 0.699999988079071
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.8999999761581421,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 21.69999998807907,
+          "exclusiveMs": 21.69999998807907
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.69999998807907,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.69999998807907,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 21.69999998807907,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 21.799999952316284,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 3.100000023841858,
+          "exclusiveMs": 3.100000023841858
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 1.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 3.800000011920929,
+          "exclusiveMs": 3.800000011920929
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.5999999642372131,
+          "exclusiveMs": 1.5999999642372131
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 31.69999998807907,
+          "exclusiveMs": 0.10000002384185791
+        }
+      },
+      "synchronousMs": 32.59999996423721
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.6000000238418579,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 0.3999999761581421
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 22.899999976158142,
+          "exclusiveMs": 22.899999976158142
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.899999976158142,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.899999976158142,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 22.899999976158142,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 23,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.800000011920929,
+          "exclusiveMs": 1.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.900000035762787,
+          "exclusiveMs": 2.900000035762787
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 30.80000001192093,
+          "exclusiveMs": 0.30000001192092896
+        }
+      },
+      "synchronousMs": 31.80000001192093
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5999999642372131,
+          "exclusiveMs": 0.5999999642372131
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 0.40000003576278687
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 21,
+          "exclusiveMs": 21
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.100000023841858,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.100000023841858,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 21.19999998807907,
+          "exclusiveMs": 0.09999996423721313
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 21.30000001192093,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.699999988079071,
+          "exclusiveMs": 1.699999988079071
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 1.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.800000011920929,
+          "exclusiveMs": 1.800000011920929
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 28.600000023841858,
+          "exclusiveMs": 0
+        }
+      },
+      "synchronousMs": 29.600000023841858
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.8999999761581421,
+          "exclusiveMs": 0.8999999761581421
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.199999988079071,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 20,
+          "exclusiveMs": 20
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0.10000002384185791,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 20.100000023841858,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 20.100000023841858,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 20.100000023841858,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 20.100000023841858,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.199999988079071,
+          "exclusiveMs": 2.199999988079071
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.199999988079071,
+          "exclusiveMs": 1.199999988079071
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.599999964237213,
+          "exclusiveMs": 2.599999964237213
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.9000000357627869,
+          "exclusiveMs": 1.9000000357627869
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 28.30000001192093,
+          "exclusiveMs": 0.30000001192092896
+        }
+      },
+      "synchronousMs": 29.5
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.6000000238418579,
+          "exclusiveMs": 0.6000000238418579
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 0.3999999761581421
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 20.600000023841858,
+          "exclusiveMs": 20.600000023841858
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 20.600000023841858,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 20.600000023841858,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 20.600000023841858,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 20.600000023841858,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.600000023841858,
+          "exclusiveMs": 1.600000023841858
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.900000035762787,
+          "exclusiveMs": 2.900000035762787
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.2999999523162842,
+          "exclusiveMs": 1.2999999523162842
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 27.899999976158142,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 28.899999976158142
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5,
+          "exclusiveMs": 0.5
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.8999999761581421,
+          "exclusiveMs": 0.3999999761581421
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 22.30000001192093
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.800000011920929,
+          "exclusiveMs": 1.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 1.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.399999976158142,
+          "exclusiveMs": 2.399999976158142
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 1.5
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 29.600000023841858,
+          "exclusiveMs": 0.30000001192092896
+        }
+      },
+      "synchronousMs": 30.5
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.7999999523162842,
+          "exclusiveMs": 0.7999999523162842
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.2999999523162842,
+          "exclusiveMs": 0.5
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 22,
+          "exclusiveMs": 22
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 22,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 22,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 22,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 22,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.800000011920929,
+          "exclusiveMs": 1.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 1.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 29,
+          "exclusiveMs": 0
+        }
+      },
+      "synchronousMs": 30.399999976158142
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5,
+          "exclusiveMs": 0.5
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.800000011920929,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 21.599999964237213,
+          "exclusiveMs": 21.599999964237213
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.599999964237213,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.599999964237213,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 21.599999964237213,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 21.599999964237213,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 1.800000011920929,
+          "exclusiveMs": 1.800000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 2.199999988079071,
+          "exclusiveMs": 2.199999988079071
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.600000023841858,
+          "exclusiveMs": 2.600000023841858
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.399999976158142,
+          "exclusiveMs": 1.399999976158142
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 29.599999964237213,
+          "exclusiveMs": 0
+        }
+      },
+      "synchronousMs": 30.5
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.699999988079071,
+          "exclusiveMs": 0.699999988079071
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 22.30000001192093
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 22.30000001192093,
+          "exclusiveMs": 0
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.300000011920929,
+          "exclusiveMs": 2.300000011920929
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.5999999642372131,
+          "exclusiveMs": 1.5999999642372131
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.400000035762787,
+          "exclusiveMs": 2.400000035762787
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2,
+          "exclusiveMs": 2
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 30.69999998807907,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 31.69999998807907
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.7999999523162842,
+          "exclusiveMs": 0.7999999523162842
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 1.2999999523162842,
+          "exclusiveMs": 0.5
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 23.100000023841858,
+          "exclusiveMs": 23.100000023841858
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 23.100000023841858,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 23.100000023841858,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 23.100000023841858,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 23.200000047683716,
+          "exclusiveMs": 0.10000002384185791
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.199999988079071,
+          "exclusiveMs": 2.199999988079071
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.2000000476837158,
+          "exclusiveMs": 1.2000000476837158
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 2,
+          "exclusiveMs": 2
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 31.200000047683716,
+          "exclusiveMs": 0.09999996423721313
+        }
+      },
+      "synchronousMs": 32.5
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5999999642372131,
+          "exclusiveMs": 0.5999999642372131
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.8999999761581421,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 20.5,
+          "exclusiveMs": 20.5
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 20.5,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 20.5,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 20.5,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 20.69999998807907,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 2.399999976158142,
+          "exclusiveMs": 2.399999976158142
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.4000000357627869,
+          "exclusiveMs": 1.4000000357627869
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.699999988079071,
+          "exclusiveMs": 2.699999988079071
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.600000023841858,
+          "exclusiveMs": 1.600000023841858
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 29,
+          "exclusiveMs": 0.19999998807907104
+        }
+      },
+      "synchronousMs": 29.899999976158142
+    },
+    {
+      "phases": {
+        "tree.iteratorCreation": {
+          "calls": 2,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "tree.offset": {
+          "calls": 1,
+          "inclusiveMs": 0.5,
+          "exclusiveMs": 0.5
+        },
+        "edit.leafUpdate": {
+          "calls": 1,
+          "inclusiveMs": 0.800000011920929,
+          "exclusiveMs": 0.30000001192092896
+        },
+        "selection.nativeGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.anchorNode": {
+          "calls": 1,
+          "inclusiveMs": 21.900000035762787,
+          "exclusiveMs": 21.900000035762787
+        },
+        "selection.native.anchorOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusNode": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.native.focusOffset": {
+          "calls": 1,
+          "inclusiveMs": 0,
+          "exclusiveMs": 0
+        },
+        "selection.textGetSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.900000035762787,
+          "exclusiveMs": 0
+        },
+        "selection.getSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.900000035762787,
+          "exclusiveMs": 0
+        },
+        "history.selectionStack": {
+          "calls": 1,
+          "inclusiveMs": 21.900000035762787,
+          "exclusiveMs": 0
+        },
+        "history.recordIncludingInvert": {
+          "calls": 1,
+          "inclusiveMs": 22.100000023841858,
+          "exclusiveMs": 0.19999998807907104
+        },
+        "derived.serialization": {
+          "calls": 1,
+          "inclusiveMs": 3.199999988079071,
+          "exclusiveMs": 3.199999988079071
+        },
+        "derived.wordCount": {
+          "calls": 1,
+          "inclusiveMs": 1.300000011920929,
+          "exclusiveMs": 1.300000011920929
+        },
+        "derived.signature": {
+          "calls": 1,
+          "inclusiveMs": 2.5,
+          "exclusiveMs": 2.5
+        },
+        "derived.toc": {
+          "calls": 1,
+          "inclusiveMs": 1.5,
+          "exclusiveMs": 1.5
+        },
+        "state.flush": {
+          "calls": 1,
+          "inclusiveMs": 30.799999952316284,
+          "exclusiveMs": 0.19999992847442627
+        }
+      },
+      "synchronousMs": 31.599999964237213
+    }
+  ],
+  "reports": []
+}

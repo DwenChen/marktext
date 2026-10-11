@@ -143,44 +143,7 @@
       "clearFormat": "서식 지우기"
     },
     "theme": {
-      "theme": "&테마",
-      "dark": "어둡게",
-      "followThemDisabled": "시스템 테마를 따를 때는 테마 선택이 비활성화됩니다",
-      "lightThemes": "— 라이트 테마 —",
-      "darkThemes": "— 다크 테마 —",
-      "ayuDark": "Ayu 다크",
-      "ayuLight": "Ayu 라이트",
-      "ayuMirage": "Ayu Mirage",
-      "cadmiumDark": "카드뮴 다크",
-      "cadmiumLight": "카드뮴 라이트",
-      "catppuccinLatte": "Catppuccin Latte",
-      "catppuccinMocha": "Catppuccin Mocha",
-      "cyberdream": "cyberdream",
-      "dracula": "Dracula",
-      "everforestDark": "Everforest 다크",
-      "everforestLight": "Everforest 라이트",
-      "graphiteLight": "그래파이트 라이트",
-      "gruvboxDark": "Gruvbox 다크",
-      "gruvboxLight": "Gruvbox 라이트",
-      "horizonDark": "Horizon 다크",
-      "kanagawa": "Kanagawa",
-      "materialDark": "머티리얼 다크",
-      "monokaiPro": "Monokai Pro",
-      "nightfox": "Nightfox",
-      "nord": "Nord",
-      "oneDark": "One Dark",
-      "oxocarbonDark": "Oxocarbon 다크",
-      "palenight": "Palenight",
-      "rosePine": "Rosé Pine",
-      "rosePineDawn": "Rosé Pine Dawn",
-      "rosePineMoon": "Rosé Pine Moon",
-      "solarizedDark": "Solarized 다크",
-      "solarizedLight": "Solarized 라이트",
-      "synthwave84": "Synthwave '84",
-      "tokyoNight": "Tokyo Night",
-      "tokyoNightLight": "Tokyo Night 라이트",
-      "tokyoNightStorm": "Tokyo Night Storm",
-      "ulyssesLight": "율리시스 라이트"
+      "theme": "Document theme"
     }
   },
   "contextMenu": {
@@ -296,11 +259,6 @@
       "fontSize": "글꼴 크기",
       "lineHeight": "줄 높이"
     },
-    "theme": {
-      "label": "테마",
-      "description": "테마를 선택하거나 직접 만들어 문서 모양을 변경할 수 있습니다.",
-      "theme": "테마"
-    },
     "headerFooter": {
       "allowStyled": "스타일 텍스트 허용",
       "customizeStyle": "스타일 사용자 정의",
@@ -342,16 +300,35 @@
         "default": "기본값",
         "simple": "간단",
         "styled": "스타일"
-      },
-      "themes": {
-        "academic": "학술",
-        "default": "GitHub (기본값)",
-        "liber": "Liber"
       }
     },
     "image": {
       "description": "Export the entire document as one continuous PNG image. Images, diagrams and math are included. Choose the image width on the Page tab.",
       "width": "Image width (px)"
+    },
+    "compact": {
+      "title": "Export as {format}",
+      "more": "More settings",
+      "cancel": "Cancel",
+      "print": "Print",
+      "width": "Width",
+      "height": "Height",
+      "top": "Top",
+      "bottom": "Bottom",
+      "left": "Left",
+      "right": "Right",
+      "formats": {
+        "styledHtml": "HTML",
+        "pdf": "PDF",
+        "png": "PNG image",
+        "print": "Print"
+      },
+      "hints": {
+        "styledHtml": "A styled webpage that opens directly in a browser.",
+        "png": "Height adjusts automatically to the document content.",
+        "pdf": "A paginated document, ready to share or print.",
+        "print": "Paper size and orientation are chosen in the system print dialog."
+      }
     }
   },
   "recent": {
@@ -370,7 +347,7 @@
         "general": "일반",
         "editor": "편집기",
         "markdown": "마크다운",
-        "theme": "테마",
+        "theme": "Document theme",
         "image": "이미지",
         "view": "보기",
         "searcher": "검색기",
@@ -434,10 +411,7 @@
         "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
         "sequenceTheme": "시퀀스 다이어그램 테마",
         "plantumlServer": "PlantUML 서버 URL",
-        "theme": "MarkText에서 사용할 테마 선택",
-        "followSystemTheme": "시스템 테마 따르기",
-        "lightModeTheme": "시스템이 라이트 모드일 때 사용할 테마",
-        "darkModeTheme": "시스템이 다크 모드일 때 사용할 테마",
+        "theme": "Theme",
         "spellcheckerEnabled": "맞춤법 검사가 활성화되어 있는지 여부",
         "spellcheckerNoUnderline": "맞춤법 오류에 밑줄을 그지 않음",
         "spellcheckerLanguage": "맞춤법 검사기 언어",
@@ -448,7 +422,7 @@
         "fileSortOrder": "열린 폴더의 파일 정렬 순서: 오름차순 또는 내림차순",
         "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부",
         "showPandocConvert": "Pandoc 변환 메뉴를 표시합니다. Pandoc이 설치되어 있어야 합니다.",
-        "documentStyle": "Document rendering style"
+        "appearance": "Appearance"
       }
     },
     "categories": {
@@ -456,7 +430,7 @@
       "editor": "편집기",
       "markdown": "마크다운",
       "spelling": "맞춤법",
-      "theme": "테마",
+      "theme": "Document theme",
       "image": "이미지",
       "keybindings": "키 바인딩"
     },
@@ -538,6 +512,12 @@
           "turkish": "Türkçe",
           "russian": "Русский"
         }
+      },
+      "appearance": {
+        "label": "Appearance",
+        "system": "Follow system",
+        "light": "Light",
+        "dark": "Dark"
       }
     },
     "editor": {
@@ -549,7 +529,9 @@
         "fontFamily": "글꼴 패밀리",
         "maxWidth": "최대 너비",
         "maxWidthNotes": "편집기 콘텐츠의 최대 너비입니다. 숫자 뒤에 px, ch(문자 수) 또는 % 단위를 붙여 입력하세요(예: 800px, 80ch, 60%). 비워 두면 기본 너비를 사용합니다.",
-        "maxWidthInvalid": "숫자 뒤에 px, ch 또는 %를 붙여 입력하세요(예: 800px)."
+        "maxWidthInvalid": "숫자 뒤에 px, ch 또는 %를 붙여 입력하세요(예: 800px).",
+        "centerTables": "Center tables",
+        "centerTablesDetail": "Center tables in the editor and exports. Turn off to align tables to the left. Cell text alignment stays unchanged."
       },
       "codeBlock": {
         "title": "코드 블록",
@@ -596,14 +578,6 @@
         "autoNormalizeLineEndings": "열 때 줄 바꿈을 자동으로 LF로 정규화",
         "wrapCodeBlocks": "코드 블록 줄바꿈",
         "sourceCodeLineNumbers": "소스 코드 모드에서 줄 번호 표시"
-      },
-      "documentStyle": {
-        "label": "Document rendering style",
-        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
-        "default": "MarkText",
-        "github": "GitHub",
-        "classic": "Classic",
-        "book": "Book"
       },
       "resizeSidebar": "Resize sidebar"
     },
@@ -728,16 +702,23 @@
       }
     },
     "theme": {
-      "title": "테마",
-      "followSystemTheme": "시스템 테마 따르기",
-      "modeThemes": "테마 선택",
-      "lightModeTheme": "라이트 모드 테마",
-      "darkModeTheme": "다크 모드 테마",
-      "customCss": "사용자 정의 CSS",
-      "importCustomThemes": "사용자 정의 테마 가져오기",
-      "importTheme": "테마 가져오기",
-      "openFolder": "폴더 열기",
-      "openThemesFolder": "테마 폴더 열기"
+      "title": "Document theme",
+      "description": "A theme defines document typography. Editing and export use the same theme.",
+      "select": "Theme",
+      "builtins": {
+        "github": "GitHub",
+        "academic": "Academic",
+        "liber": "Liber"
+      },
+      "previewHeading": "Document heading",
+      "previewText": "Clear typography for your writing.",
+      "customTitle": "Custom themes",
+      "importTheme": "Import CSS theme",
+      "importNotes": "Import a self-contained CSS file (up to 1 MB). Use .markdown-body for document styles. @import is not supported. The theme applies to editing and export.",
+      "importError": "Unable to import this theme. Choose a readable CSS file under 1 MB containing styles and no @import.",
+      "remove": "Remove",
+      "exportUsesCurrent": "Export uses the current document theme. Change it in Settings → Document theme.",
+      "typographyNotes": "Document fonts, sizes and line spacing come from the document theme. Select or import a theme to change them."
     },
     "keybindings": {
       "title": "키 바인딩",

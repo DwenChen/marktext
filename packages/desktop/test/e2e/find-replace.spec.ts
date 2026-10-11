@@ -3,6 +3,7 @@ import type { ElectronApplication, Page } from 'playwright'
 import {
   launchWithMarkdown,
   sendIpcToRenderer,
+  acknowledgeTabSave,
   focusEditor,
   setSourceMarkdown,
   enterSourceMode,
@@ -133,7 +134,7 @@ const seedDocClean = async(
     () => document.querySelector('.editor-tabs li.active')?.getAttribute('data-id') ?? null
   )
   if (!tabId) throw new Error('could not resolve the active tab id')
-  await sendIpcToRenderer(app, 'mt::tab-saved', tabId)
+  await acknowledgeTabSave(app, page, tabId!)
   await expect.poll(() => isTabDirty(page)).toBe(false)
 }
 

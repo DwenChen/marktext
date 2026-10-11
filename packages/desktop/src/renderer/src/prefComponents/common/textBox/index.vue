@@ -7,7 +7,7 @@
       class="description"
       style="display: flex; align-items: center"
     >
-      <span>{{ description }}:</span>
+      <span>{{ preferenceLabel(description) }}</span>
       <LinkIcon
         v-if="more"
         :size="14"
@@ -43,6 +43,7 @@
 import { ref, watch } from 'vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PrefControlBaseProps } from '../types'
+import { preferenceLabel } from '../label'
 
 interface TextBoxProps extends PrefControlBaseProps {
   notes?: string

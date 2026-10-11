@@ -143,44 +143,7 @@
       "clearFormat": "Format löschen"
     },
     "theme": {
-      "theme": "Design (&T)",
-      "dark": "Dunkel",
-      "followThemDisabled": "Themenauswahl deaktiviert, wenn dem Systemdesign gefolgt wird",
-      "lightThemes": "— Helle Designs —",
-      "darkThemes": "— Dunkle Designs —",
-      "ayuDark": "Ayu Dunkel",
-      "ayuLight": "Ayu Hell",
-      "ayuMirage": "Ayu Mirage",
-      "cadmiumDark": "Cadmium Dunkel",
-      "cadmiumLight": "Cadmium Hell",
-      "catppuccinLatte": "Catppuccin Latte",
-      "catppuccinMocha": "Catppuccin Mocha",
-      "cyberdream": "cyberdream",
-      "dracula": "Dracula",
-      "everforestDark": "Everforest Dunkel",
-      "everforestLight": "Everforest Hell",
-      "graphiteLight": "Graphit Hell",
-      "gruvboxDark": "Gruvbox Dunkel",
-      "gruvboxLight": "Gruvbox Hell",
-      "horizonDark": "Horizon Dunkel",
-      "kanagawa": "Kanagawa",
-      "materialDark": "Material Dunkel",
-      "monokaiPro": "Monokai Pro",
-      "nightfox": "Nightfox",
-      "nord": "Nord",
-      "oneDark": "One Dark",
-      "oxocarbonDark": "Oxocarbon Dunkel",
-      "palenight": "Palenight",
-      "rosePine": "Rosé Pine",
-      "rosePineDawn": "Rosé Pine Dawn",
-      "rosePineMoon": "Rosé Pine Moon",
-      "solarizedDark": "Solarized Dunkel",
-      "solarizedLight": "Solarized Hell",
-      "synthwave84": "Synthwave '84",
-      "tokyoNight": "Tokyo Night",
-      "tokyoNightLight": "Tokyo Night Hell",
-      "tokyoNightStorm": "Tokyo Night Storm",
-      "ulyssesLight": "Ulysses Hell"
+      "theme": "Document theme"
     }
   },
   "contextMenu": {
@@ -296,11 +259,6 @@
       "fontSize": "Schriftgröße",
       "lineHeight": "Zeilenhöhe"
     },
-    "theme": {
-      "label": "Design",
-      "description": "Sie können das Aussehen des Dokuments ändern, indem Sie ein Design auswählen oder ein benutzerdefiniertes Design erstellen.",
-      "theme": "Design"
-    },
     "headerFooter": {
       "allowStyled": "Gestylten Text erlauben",
       "customizeStyle": "Stil anpassen",
@@ -342,16 +300,35 @@
         "default": "Standard",
         "simple": "Einfach",
         "styled": "Gestylt"
-      },
-      "themes": {
-        "academic": "Akademisch",
-        "default": "GitHub (Standard)",
-        "liber": "Liber"
       }
     },
     "image": {
       "description": "Export the entire document as one continuous PNG image. Images, diagrams and math are included. Choose the image width on the Page tab.",
       "width": "Image width (px)"
+    },
+    "compact": {
+      "title": "Export as {format}",
+      "more": "More settings",
+      "cancel": "Cancel",
+      "print": "Print",
+      "width": "Width",
+      "height": "Height",
+      "top": "Top",
+      "bottom": "Bottom",
+      "left": "Left",
+      "right": "Right",
+      "formats": {
+        "styledHtml": "HTML",
+        "pdf": "PDF",
+        "png": "PNG image",
+        "print": "Print"
+      },
+      "hints": {
+        "styledHtml": "A styled webpage that opens directly in a browser.",
+        "png": "Height adjusts automatically to the document content.",
+        "pdf": "A paginated document, ready to share or print.",
+        "print": "Paper size and orientation are chosen in the system print dialog."
+      }
     }
   },
   "recent": {
@@ -370,7 +347,7 @@
         "general": "Allgemein",
         "editor": "Editor",
         "markdown": "Markdown",
-        "theme": "Theme",
+        "theme": "Document theme",
         "image": "Bild",
         "view": "Ansicht",
         "searcher": "Suche",
@@ -434,10 +411,7 @@
         "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
         "sequenceTheme": "Sequenzdiagramm-Theme",
         "plantumlServer": "PlantUML-Server-URL",
-        "theme": "Das in MarkText verwendete Theme auswählen",
-        "followSystemTheme": "Systemdesign folgen",
-        "lightModeTheme": "Design, das verwendet werden soll, wenn sich das System im hellen Modus befindet",
-        "darkModeTheme": "Design, das verwendet werden soll, wenn sich das System im dunklen Modus befindet",
+        "theme": "Theme",
         "spellcheckerEnabled": "Ob Rechtschreibprüfung aktiviert ist",
         "spellcheckerNoUnderline": "Rechtschreibfehler nicht unterstreichen",
         "spellcheckerLanguage": "Die Rechtschreibprüfungs-Sprache",
@@ -448,7 +422,7 @@
         "fileSortOrder": "Sortierreihenfolge für Dateien in geöffneten Ordnern: aufsteigend oder absteigend.",
         "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen.",
         "showPandocConvert": "Pandoc-Konvertierungsmenü anzeigen. Erfordert eine Pandoc-Installation.",
-        "documentStyle": "Document rendering style"
+        "appearance": "Appearance"
       }
     },
     "categories": {
@@ -456,7 +430,7 @@
       "editor": "Editor",
       "markdown": "Markdown",
       "spelling": "Rechtschreibung",
-      "theme": "Design",
+      "theme": "Document theme",
       "image": "Bild",
       "keybindings": "Tastenkürzel"
     },
@@ -538,6 +512,12 @@
           "turkish": "Türkçe",
           "russian": "Русский"
         }
+      },
+      "appearance": {
+        "label": "Appearance",
+        "system": "Follow system",
+        "light": "Light",
+        "dark": "Dark"
       }
     },
     "editor": {
@@ -549,7 +529,9 @@
         "fontFamily": "Schriftfamilie",
         "maxWidth": "Maximale Breite",
         "maxWidthNotes": "Maximale Breite des Editor-Inhalts. Geben Sie eine Zahl gefolgt von px, ch (Zeichen) oder % ein, z. B. 800px, 80ch oder 60%. Leer lassen, um die Standardbreite zu verwenden.",
-        "maxWidthInvalid": "Geben Sie eine Zahl gefolgt von px, ch oder % ein, z. B. 800px."
+        "maxWidthInvalid": "Geben Sie eine Zahl gefolgt von px, ch oder % ein, z. B. 800px.",
+        "centerTables": "Center tables",
+        "centerTablesDetail": "Center tables in the editor and exports. Turn off to align tables to the left. Cell text alignment stays unchanged."
       },
       "codeBlock": {
         "title": "Code-Block",
@@ -596,14 +578,6 @@
         "autoNormalizeLineEndings": "Zeilenenden beim Öffnen automatisch auf LF normalisieren",
         "wrapCodeBlocks": "Code-Blöcke umbrechen",
         "sourceCodeLineNumbers": "Zeilennummern im Quellcode-Modus anzeigen"
-      },
-      "documentStyle": {
-        "label": "Document rendering style",
-        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
-        "default": "MarkText",
-        "github": "GitHub",
-        "classic": "Classic",
-        "book": "Book"
       },
       "resizeSidebar": "Resize sidebar"
     },
@@ -728,16 +702,23 @@
       }
     },
     "theme": {
-      "title": "Design",
-      "followSystemTheme": "Systemdesign folgen",
-      "modeThemes": "Design-Auswahl",
-      "lightModeTheme": "Helles Modus-Design",
-      "darkModeTheme": "Dunkles Modus-Design",
-      "customCss": "Benutzerdefiniertes CSS",
-      "importCustomThemes": "Benutzerdefinierte Designs importieren",
-      "importTheme": "Design importieren",
-      "openFolder": "Ordner öffnen",
-      "openThemesFolder": "Design-Ordner öffnen"
+      "title": "Document theme",
+      "description": "A theme defines document typography. Editing and export use the same theme.",
+      "select": "Theme",
+      "builtins": {
+        "github": "GitHub",
+        "academic": "Academic",
+        "liber": "Liber"
+      },
+      "previewHeading": "Document heading",
+      "previewText": "Clear typography for your writing.",
+      "customTitle": "Custom themes",
+      "importTheme": "Import CSS theme",
+      "importNotes": "Import a self-contained CSS file (up to 1 MB). Use .markdown-body for document styles. @import is not supported. The theme applies to editing and export.",
+      "importError": "Unable to import this theme. Choose a readable CSS file under 1 MB containing styles and no @import.",
+      "remove": "Remove",
+      "exportUsesCurrent": "Export uses the current document theme. Change it in Settings → Document theme.",
+      "typographyNotes": "Document fonts, sizes and line spacing come from the document theme. Select or import a theme to change them."
     },
     "keybindings": {
       "title": "Tastenkürzel",

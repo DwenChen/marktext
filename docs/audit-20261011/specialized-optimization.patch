@@ -1,0 +1,482 @@
+diff --git a/packages/muya/src/state/index.ts b/packages/muya/src/state/index.ts
+--- a/packages/muya/src/state/index.ts
++++ b/packages/muya/src/state/index.ts
+@@ -17,13 +17,20 @@
+ // document as `TState[]`; bridging the two requires `unknown` casts that
+ // happen at every callsite. Concentrate them here so production code never
+ // writes `as unknown as Doc` itself.
+-export function asDoc(state: TState[] | TState): Doc {
++export function asDoc(state: readonly TState[] | TState): Doc {
+     // eslint-disable-next-line no-restricted-syntax
+     return state as unknown as Doc;
+ }
+ 
+ export function asState(doc: unknown): TState[] {
+     return doc as TState[];
++}
++
++interface IReadonlyChange {
++    op: JSONOp;
++    source: string;
++    prevDoc: readonly TState[];
++    doc: readonly TState[];
+ }
+ 
+ class JSONState {
+@@ -59,6 +66,8 @@
+     private _serializedRevision = -1;
+     private _serializedIndentation: number | string | undefined;
+     private _serializedMarkdown = '';
++    private _markdownGenerator: StateToMarkdown | undefined;
++    private _readonlyChangeListeners = new Set<(change: IReadonlyChange) => void>();
+ 
+     get revision() {
+         return this._revision;
+@@ -68,14 +77,18 @@
+         this.setContent(stateOrMarkdown);
+     }
+ 
+-    private _apply(op: JSONOp) {
++    private _apply(op: JSONOp): JSONOp {
+         // ot-json1's noop is the literal `null`. `json1.type.apply` accepts it
+         // and returns the doc unchanged — short-circuit instead so the rest of
+         // the call site can treat `op` as definitely applied.
+         if (op === null)
+-            return;
+-        this._state = asState(json1.type.apply(asDoc(this._state), op));
++            return null;
++        // JSON1 copies changed paths but retains inserted literals. The DOM tree
++        // owns mutable metadata from those same literals, so isolate the op first.
++        const stateOperation = deepClone(op);
++        this._state = asState(json1.type.apply(asDoc(this._state), stateOperation));
+         this._revision++;
++        return stateOperation;
+     }
+ 
+     setContent(content: TState[] | string) {
+@@ -97,7 +110,7 @@
+     }
+ 
+     private _setState(state: TState[]) {
+-        this._state = state;
++        this._state = deepClone(state);
+     }
+ 
+     private _setMarkdown(markdown: string) {
+@@ -251,16 +264,32 @@
+     }
+ 
+     dispatch(op: JSONOp, source = 'user' /* user, api */, updateTree?: () => void) {
+-        const prevDoc = this.getState();
+-        this._apply(op);
++        const prevDoc = this._state;
++        const stateOperation = this._apply(op);
+         updateTree?.();
++        debug.log(JSON.stringify(op));
++        this._emitChange(op, source, prevDoc, stateOperation);
++    }
++
++    /** @internal Snapshots are shared OT values; listeners must not mutate them. */
++    onReadonlyChange(listener: (change: IReadonlyChange) => void) {
++        this._readonlyChangeListeners.add(listener);
++        return () => this._readonlyChangeListeners.delete(listener);
++    }
++
++    private _emitChange(op: JSONOp, source: string, previousState: TState[], stateOperation: JSONOp) {
+         const currentState = this._state;
++        // Capture both revisions before listeners can dispatch a nested change.
++        const change = { op: stateOperation, source, prevDoc: previousState, doc: currentState };
++        for (const listener of [...this._readonlyChangeListeners])
++            listener(change);
++
++        let prevDoc: TState[] | undefined;
+         let doc: TState[] | undefined;
+-        debug.log(JSON.stringify(op));
+         this._muya.eventCenter.emit('json-change', {
+             op,
+             source,
+-            prevDoc,
++            get prevDoc() { return prevDoc ??= deepClone(previousState); },
+             get doc() { return doc ??= deepClone(currentState); },
+         });
+     }
+@@ -278,7 +307,10 @@
+     getMarkdown() {
+         const indentation = this._muya.options.listIndentation;
+         if (this._serializedRevision !== this._revision || this._serializedIndentation !== indentation) {
+-            this._serializedMarkdown = this.getMarkdownFromState(this._state);
++            if (!this._markdownGenerator || this._serializedIndentation !== indentation) {
++                this._markdownGenerator = new StateToMarkdown({ listIndentation: indentation });
++            }
++            this._serializedMarkdown = this._markdownGenerator.generateIncremental(this._state);
+             this._serializedRevision = this._revision;
+             this._serializedIndentation = indentation;
+         }
+@@ -288,6 +320,8 @@
+     destroy() {
+         this.setContent([]);
+         this._markdownCache.clear();
++        this._readonlyChangeListeners.clear();
++        this._markdownGenerator = undefined;
+     }
+ 
+     getTOC() {
+@@ -341,10 +375,8 @@
+         const op = this._operationCache.reduce(
+             (acc, curr) => json1.type.compose(acc, curr) as JSONOpList,
+         );
+-        const prevDoc = this.getState();
+-        this._apply(op);
+-        const currentState = this._state;
+-        let doc: TState[] | undefined;
++        const prevDoc = this._state;
++        const stateOperation = this._apply(op);
+         // Clear before emitting: a listener that edits synchronously then starts
+         // a fresh batch instead of mutating the one being flushed.
+         this._operationCache = [];
+@@ -352,12 +384,7 @@
+         if (op === null)
+             return;
+ 
+-        this._muya.eventCenter.emit('json-change', {
+-            op,
+-            source: 'user',
+-            prevDoc,
+-            get doc() { return doc ??= deepClone(currentState); },
+-        });
++        this._emitChange(op, 'user', prevDoc, stateOperation);
+     }
+ }
+ 
+diff --git a/packages/muya/src/history/index.ts b/packages/muya/src/history/index.ts
+--- a/packages/muya/src/history/index.ts
++++ b/packages/muya/src/history/index.ts
+@@ -1,6 +1,7 @@
+ import type { JSONOpList } from 'ot-json1';
+ import type { Muya } from '../muya';
+ import type { IAnchorFocusInfo, IHistorySelection } from '../selection/types';
++import type JSONState from '../state';
+ import type { TState } from '../state/types';
+ import type { Nullable } from '../types';
+ import * as json1 from 'ot-json1';
+@@ -118,22 +119,16 @@
+         return this._muya.editor.selection;
+     }
+ 
+-    constructor(private _muya: Muya, private _options: IOptions = DEFAULT_OPTIONS) {
+-        this._listen();
+-    }
+-
+-    private _listen() {
+-        this._muya.eventCenter.on(
+-            'json-change',
++    constructor(private _muya: Muya, private _options: IOptions = DEFAULT_OPTIONS, jsonState = _muya.editor.jsonState) {
++        this._listen(jsonState);
++    }
++
++    private _listen(jsonState: JSONState) {
++        jsonState.onReadonlyChange(
+             ({
+                 op,
+                 source,
+                 prevDoc,
+-            }: {
+-                op: Nullable<JSONOpList>;
+-                source: string;
+-                prevDoc: TState[];
+-                doc: TState[];
+             }) => {
+                 if (this._ignoreChange)
+                     return;
+@@ -159,7 +154,7 @@
+ 
+         const entry = this._stack[source][this._stack[source].length - 1];
+         const { operation, selection, rebuild } = entry;
+-        const previousState = this._muya.editor.jsonState.getState();
++        const previousState = this._muya.editor.jsonState.getReadonlyState();
+         const inverseOperation = json1.type.invertWithDoc(
+             operation,
+             asDoc(previousState),
+@@ -182,7 +177,7 @@
+                 this._muya.editor.updateContents(operation, selection, 'user');
+         }
+         catch (error) {
+-            this._muya.editor.jsonState.setContent(previousState);
++            this._muya.editor.jsonState.setContent([...previousState]);
+             this._muya.editor.rebuildContents(null, inverseEntry.selection, 'api');
+             this._lastRecorded = lastRecorded;
+             this._selectionStack = previousSelectionStack;
+@@ -308,7 +303,7 @@
+         return this._selectionStack.length === 2 ? this._selectionStack[0] : null;
+     }
+ 
+-    private _record(op: JSONOpList, doc: TState[]) {
++    private _record(op: JSONOpList, doc: readonly TState[]) {
+         if (op.length === 0)
+             return;
+ 
+diff --git a/packages/muya/src/state/stateToMarkdown.ts b/packages/muya/src/state/stateToMarkdown.ts
+--- a/packages/muya/src/state/stateToMarkdown.ts
++++ b/packages/muya/src/state/stateToMarkdown.ts
+@@ -46,6 +46,17 @@
+     listIndentation: number | string;
+ }
+ 
++interface IMarkdownFragment {
++    hasPreviousFragment: boolean;
++    parentLoose: boolean;
++    previousListMarker: string;
++    markerOverride?: string;
++    followsTightList: boolean;
++    fragments: string[];
++    listMarker: string;
++    parentLooseAfter: boolean;
++}
++
+ export default class ExportMarkdown {
+     // Stack of currently-open list metas while serializing a tree (push on
+     // descent into bullet/order/task list, pop on ascent). The serializer
+@@ -61,6 +72,7 @@
+     private _isLooseParentList: boolean;
+     private _listIndentation: string;
+     private _listIndentationCount: number;
++    private _rootFragmentCache = new WeakMap<TState, IMarkdownFragment>();
+ 
+     constructor(
+         {
+@@ -91,10 +103,20 @@
+         return this._convertStatesToMarkdown(states);
+     }
+ 
++    // Only immutable snapshots may reuse node identities. Cached root fragments
++    // include their surrounding list/spacing context; changed containers are
++    // serialized together so numbering, column widths and indentation agree.
++    generateIncremental(states: readonly TState[]) {
++        this._listType = [];
++        this._isLooseParentList = true;
++        return this._convertStatesToMarkdown(states, '', '', true);
++    }
++
+     private _convertStatesToMarkdown(
+-        states: TState[],
++        states: readonly TState[],
+         indent = '',
+         listIndent = '',
++        cacheRootFragments = false,
+     ): string {
+         const result: string[] = [];
+         // helper for CommonMark 264
+@@ -110,17 +132,27 @@
+                 lastListBullet = '';
+             }
+ 
+-            if (isAnyListState(state)) {
+-                const markerOverride = !this._isLooseParentList
+-                    && previousState?.name === 'paragraph'
+-                    && previousState.text.trim() !== ''
+-                    && this._startsWithEmptyDashBulletItem(state)
+-                    ? SETEXT_SAFE_BULLET_MARKER
+-                    : undefined;
+-                const followsTightList = previousState !== undefined
+-                    && isAnyListState(previousState)
+-                    && !previousState.meta.loose
+-                    && !state.meta.loose;
++            const listState = isAnyListState(state);
++            const markerOverride = listState ? this._getMarkerOverride(state, previousState) : undefined;
++            const followsTightList = listState ? this._followsTightList(state, previousState) : false;
++            const hasPreviousFragment = result.length > 0;
++            const parentLoose = this._isLooseParentList;
++            const previousListMarker = lastListBullet;
++            const cached = cacheRootFragments
++                ? this._getCachedRootFragment(state, hasPreviousFragment, previousListMarker, markerOverride, followsTightList)
++                : undefined;
++
++            if (cached) {
++                for (const fragment of cached.fragments)
++                    result.push(fragment);
++                lastListBullet = cached.listMarker;
++                this._isLooseParentList = cached.parentLooseAfter;
++                previousState = state;
++                continue;
++            }
++
++            const fragmentStart = result.length;
++            if (listState) {
+                 lastListBullet = this._serializeListBlock(
+                     state,
+                     result,
+@@ -138,10 +170,57 @@
+                 this._serializeSimpleBlock(state, result, indent);
+             }
+ 
++            if (cacheRootFragments) {
++                this._rootFragmentCache.set(state, {
++                    hasPreviousFragment,
++                    parentLoose,
++                    previousListMarker,
++                    markerOverride,
++                    followsTightList,
++                    fragments: result.slice(fragmentStart),
++                    listMarker: lastListBullet,
++                    parentLooseAfter: this._isLooseParentList,
++                });
++            }
++
+             previousState = state;
+         }
+ 
+         return result.join('');
++    }
++
++    private _getMarkerOverride(state: IOrderListState | IBulletListState | ITaskListState, previousState?: TState) {
++        return !this._isLooseParentList
++            && previousState?.name === 'paragraph'
++            && previousState.text.trim() !== ''
++            && this._startsWithEmptyDashBulletItem(state)
++            ? SETEXT_SAFE_BULLET_MARKER
++            : undefined;
++    }
++
++    private _followsTightList(state: IOrderListState | IBulletListState | ITaskListState, previousState?: TState) {
++        return previousState !== undefined
++            && isAnyListState(previousState)
++            && !previousState.meta.loose
++            && !state.meta.loose;
++    }
++
++    private _getCachedRootFragment(
++        state: TState,
++        hasPreviousFragment: boolean,
++        previousListMarker: string,
++        markerOverride: string | undefined,
++        followsTightList: boolean,
++    ) {
++        const cached = this._rootFragmentCache.get(state);
++        if (cached
++            && cached.hasPreviousFragment === hasPreviousFragment
++            && cached.parentLoose === this._isLooseParentList
++            && cached.previousListMarker === previousListMarker
++            && cached.markerOverride === markerOverride
++            && cached.followsTightList === followsTightList) {
++            return cached;
++        }
+     }
+ 
+     private _serializeSimpleBlock(state: TState, result: string[], indent: string) {
+diff --git a/packages/muya/src/utils/index.ts b/packages/muya/src/utils/index.ts
+--- a/packages/muya/src/utils/index.ts
++++ b/packages/muya/src/utils/index.ts
+@@ -253,19 +253,53 @@
+ }
+ 
+ export function wordCount(markdown: string) {
+-    const paragraph = markdown.split(/\n{2,}/).filter(line => line).length;
++    let paragraph = 0;
+     let word = 0;
+     let character = 0;
+-    let all = 0;
+-
+-    const removedChinese = markdown.replace(/[\u4E00-\u9FA5]/g, '');
+-    const tokens = removedChinese.split(/\s+/).filter(t => t);
+-    const chineseWordLength = markdown.length - removedChinese.length;
+-    word += chineseWordLength + tokens.length;
+-    character += tokens.reduce((acc, t) => acc + t.length, 0) + chineseWordLength;
+-    all += markdown.length;
+-
+-    return { word, paragraph, character, all };
++    let inWord = false;
++    let hasParagraphContent = false;
++    let newlines = 0;
++
++    // Keep the existing UTF-16/CJK rules without allocating stripped text or tokens.
++    for (let i = 0; i < markdown.length; i++) {
++        const code = markdown.charCodeAt(i);
++        if (code === 10) {
++            if (++newlines === 2) {
++                paragraph += Number(hasParagraphContent);
++                hasParagraphContent = false;
++            }
++        }
++        else {
++            newlines = 0;
++            hasParagraphContent = true;
++        }
++
++        if (code >= 0x4E00 && code <= 0x9FA5) {
++            word++;
++            character++;
++        }
++        else if (isWordCountWhitespace(code)) {
++            inWord = false;
++        }
++        else {
++            character++;
++            if (!inWord)
++                word++;
++            inWord = true;
++        }
++    }
++
++    paragraph += Number(hasParagraphContent || newlines === 1);
++    return { word, paragraph, character, all: markdown.length };
++}
++
++// ECMAScript \s excludes zero-width space and counts BOM as whitespace.
++function isWordCountWhitespace(code: number): boolean {
++    if (code < 0xA0)
++        return code === 32 || (code >= 9 && code <= 13);
++    return code === 0xA0 || code === 0x1680 || (code >= 0x2000 && code <= 0x200A)
++        || code === 0x2028 || code === 0x2029 || code === 0x202F
++        || code === 0x205F || code === 0x3000 || code === 0xFEFF;
+ }
+ 
+ export function sanitize(html: string, purifyOptions: Config, disableHtml: boolean) {
+diff --git a/packages/muya/src/block/base/linkedList/linkedList.ts b/packages/muya/src/block/base/linkedList/linkedList.ts
+--- a/packages/muya/src/block/base/linkedList/linkedList.ts
++++ b/packages/muya/src/block/base/linkedList/linkedList.ts
+@@ -63,7 +63,13 @@
+     }
+ 
+     offset(node: T) {
+-        return [...this.iterator()].indexOf(node);
++        let index = 0;
++        for (const current of this.iterator()) {
++            if (current === node)
++                return index;
++            index++;
++        }
++        return -1;
+     }
+ 
+     remove(node: T) {
+@@ -88,8 +94,17 @@
+     find(index: number) {
+         if (index < 0 || index >= this.length)
+             return null;
++        if (!Number.isInteger(index))
++            return undefined;
+ 
+-        return [...this.iterator()][index];
++        const fromHead = index < this.length / 2;
++        let node = fromHead ? this.head : this.tail;
++        let remaining = fromHead ? index : this.length - 1 - index;
++        while (remaining > 0 && node) {
++            node = (fromHead ? node.next : node.prev) as T | null;
++            remaining--;
++        }
++        return node ?? undefined;
+     }
+ 
+     forEach(callback: (cur: T, i: number) => void) {
+diff --git a/packages/muya/src/editor/index.ts b/packages/muya/src/editor/index.ts
+--- a/packages/muya/src/editor/index.ts
++++ b/packages/muya/src/editor/index.ts
+@@ -254,7 +254,7 @@
+         this.selection = new Selection(_muya);
+         this.searchModule = new Search(_muya);
+         this.clipboard = Clipboard.create(_muya);
+-        this.history = new History(_muya);
++        this.history = new History(_muya, undefined, this.jsonState);
+     }
+ 
+     get activeContentBlock() {

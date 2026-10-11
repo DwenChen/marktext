@@ -254,7 +254,7 @@ export class Editor {
         this.selection = new Selection(_muya);
         this.searchModule = new Search(_muya);
         this.clipboard = Clipboard.create(_muya);
-        this.history = new History(_muya);
+        this.history = new History(_muya, undefined, this.jsonState);
     }
 
     get activeContentBlock() {
@@ -399,30 +399,24 @@ export class Editor {
 
     updateContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: string) {
         const muya = this._muya;
-        // ot-json1 no-op (`null`) is forwarded to dispatch — JSONState
-        // short-circuits internally so listeners still see a json-change
-        // event for the no-op.
-        this.jsonState.dispatch(operations, source);
+        // Observers may read headings and selection as well as JSON state.
+        this.jsonState.dispatch(operations, source, () => {
+            if (operations === null)
+                return;
+            try {
+                const snapshot = pick(this.scrollPage as BlockNode, operations);
 
-        // Codes bellow are copy from `ot-json1.apply` and modified.
-        if (operations === null)
-            return;
+                drop(snapshot, operations, muya);
 
-        try {
-            const snapshot = pick(this.scrollPage as BlockNode, operations);
-
-            drop(snapshot, operations, muya);
-
-            this._restoreSelection(selection);
-        }
-        catch (error) {
-            // The incremental walk left the live tree half-applied (pick removed
-            // blocks drop never re-inserted). The json state is authoritative and
-            // already up to date — rebuild from it instead of leaving an empty doc.
-            debug.error(`updateContents incremental apply failed; rebuilding from state: ${String(error)}`);
-            this.scrollPage!.updateState(this.jsonState.getState());
-            this._restoreSelection(selection, true);
-        }
+                this._restoreSelection(selection);
+            }
+            catch (error) {
+                // Pick/drop may partly mutate the tree; rebuild from the applied JSON snapshot.
+                debug.error(`updateContents incremental apply failed; rebuilding from state: ${String(error)}`);
+                this.scrollPage!.updateState(this.jsonState.getState());
+                this._restoreSelection(selection, true);
+            }
+        });
     }
 
     private _restoreSelection(selection: Nullable<IHistorySelection>, treeRebuilt = false) {
@@ -484,14 +478,14 @@ export class Editor {
      * DOM from the json state.
      */
     rebuildContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: string) {
-        this.jsonState.dispatch(operations, source);
+        this.jsonState.dispatch(operations, source, () => {
+            const state = this.jsonState.getState();
+            this.scrollPage!.updateState(state);
 
-        const state = this.jsonState.getState();
-        this.scrollPage!.updateState(state);
-
-        // The tree was rebuilt wholesale, so the selection's cached block
-        // references are stale — resolve the caret from paths instead.
-        this._restoreSelection(selection, true);
+            // The tree was rebuilt wholesale, so the selection's cached block
+            // references are stale — resolve the caret from paths instead.
+            this._restoreSelection(selection, true);
+        });
     }
 
     setContent(content: TState[] | string, autoFocus = false) {

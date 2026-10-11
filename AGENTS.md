@@ -14,15 +14,15 @@ MarkText is a WYSIWYG markdown editor built on Electron + Vue 3. It supports Com
 
 | Layer              | Technology                                                 |
 | ------------------ | ---------------------------------------------------------- |
-| Language           | TypeScript 5.9 (strict mode)                               |
+| Language           | TypeScript 6 (strict mode)                               |
 | Desktop shell      | Electron 42                                                |
 | Build system       | electron-vite 5                                            |
 | Packaging          | electron-builder 26                                        |
 | Frontend framework | Vue 3                                                      |
-| State management   | Pinia 3                                                    |
-| Routing            | Vue Router 4                                               |
+| State management   | Pinia 4                                                    |
+| Routing            | Vue Router 5                                               |
 | UI library         | Element Plus                                               |
-| Unit tests         | Vitest 4                                                   |
+| Unit tests         | Vitest 5                                                   |
 | E2E tests          | Playwright                                                 |
 | Package manager    | pnpm >=10 workspace (`packageManager: pnpm@10.33.4`)       |
 | Repo layout        | pnpm monorepo — see Directory Structure                    |
@@ -41,7 +41,7 @@ root holds only shared tooling and CI-facing scripts.
   pnpm-workspace.yaml       `packages: ['packages/*']` plus allowBuilds.
   pnpm-lock.yaml            Single lockfile, shared across all packages.
   eslint.config.js          Root ESLint v9 flat config (covers desktop;
-                            the website has its own ESLint v8 config and is
+                            the website has its own Next.js ESLint config and is
                             ignored here).
   scripts/                  Workspace-level scripts. postinstall.ts,
                             minify-locales.ts, generateThirdPartyLicense.ts,
@@ -111,11 +111,10 @@ root holds only shared tooling and CI-facing scripts.
                             wired in playwright.config.ts but deferred
                             until BACKLOG Phase 3 lands engine-independent
                             specs.
-    website/                marktext-website (Vite + React 18). Standalone
-                            toolchain; depends on @muyajs/core from npm,
-                            not on the local workspace. Not part of desktop
+    website/                marktext-website (Next.js 16 + React 19). Standalone
+                            toolchain; does not consume @muyajs/core. Not part of desktop
                             CI today.
-      src/ / public/ / build/ / vite.config.ts / tsconfig.json
+      src/app/ / public/ / next.config.mjs / tsconfig.json
 ```
 
 The root has no `src/`, `test/`, `static/`, or `build/` of its own anymore — they all live in `packages/desktop/`.
@@ -154,8 +153,8 @@ pnpm run perf:inspect       # attach when ready
 pnpm run perf:inspect-brk   # break on first line
 
 # Website (not yet wired into CI)
-pnpm --filter marktext-website dev      # Vite dev server
-pnpm --filter marktext-website build    # static build → packages/website/build/
+pnpm --filter marktext-website dev      # Next.js dev server on :3000
+pnpm --filter marktext-website build    # Next.js production build → packages/website/.next/
 ```
 
 If you need to invoke a script directly inside a package, use
@@ -221,8 +220,8 @@ main process  (packages/desktop/src/main/)
 
 preload  (packages/desktop/src/preload/)
   ├── Bridge between main and renderer
-  ├── Note: editor and preferences windows use contextIsolation: false +
-  │   nodeIntegration: true (see packages/desktop/src/main/config.js)
+  ├── Editor and preferences windows use contextIsolation: true,
+  │   nodeIntegration: false, sandbox: true (see packages/desktop/src/main/config.ts)
   └── Compiled to CommonJS
 
 renderer  (packages/desktop/src/renderer/)

@@ -143,44 +143,7 @@
       "clearFormat": "Biçimlendirmeyi Temizle"
     },
     "theme": {
-      "theme": "&Tema",
-      "dark": "Koyu",
-      "followThemDisabled": "Sistem temasını takip ederken tema seçimi devre dışı",
-      "lightThemes": "— Açık Temalar —",
-      "darkThemes": "— Koyu Temalar —",
-      "ayuDark": "Ayu Dark",
-      "ayuLight": "Ayu Light",
-      "ayuMirage": "Ayu Mirage",
-      "cadmiumDark": "Cadmium Dark",
-      "cadmiumLight": "Cadmium Light",
-      "catppuccinLatte": "Catppuccin Latte",
-      "catppuccinMocha": "Catppuccin Mocha",
-      "cyberdream": "cyberdream",
-      "dracula": "Dracula",
-      "everforestDark": "Everforest Dark",
-      "everforestLight": "Everforest Light",
-      "graphiteLight": "Graphite Light",
-      "gruvboxDark": "Gruvbox Dark",
-      "gruvboxLight": "Gruvbox Light",
-      "horizonDark": "Horizon Dark",
-      "kanagawa": "Kanagawa",
-      "materialDark": "Material Dark",
-      "monokaiPro": "Monokai Pro",
-      "nightfox": "Nightfox",
-      "nord": "Nord",
-      "oneDark": "One Dark",
-      "oxocarbonDark": "Oxocarbon Dark",
-      "palenight": "Palenight",
-      "rosePine": "Rosé Pine",
-      "rosePineDawn": "Rosé Pine Dawn",
-      "rosePineMoon": "Rosé Pine Moon",
-      "solarizedDark": "Solarized Dark",
-      "solarizedLight": "Solarized Light",
-      "synthwave84": "Synthwave '84",
-      "tokyoNight": "Tokyo Night",
-      "tokyoNightLight": "Tokyo Night Light",
-      "tokyoNightStorm": "Tokyo Night Storm",
-      "ulyssesLight": "Ulysses Light"
+      "theme": "Document theme"
     }
   },
   "contextMenu": {
@@ -296,11 +259,6 @@
       "fontSize": "Yazı tipi boyutu",
       "lineHeight": "Satır yüksekliği"
     },
-    "theme": {
-      "label": "Tema",
-      "description": "Bir tema seçerek veya el yapımı bir tema oluşturarak belge görünümünü değiştirebilirsiniz.",
-      "theme": "Tema"
-    },
     "headerFooter": {
       "allowStyled": "Stilli metne izin ver",
       "customizeStyle": "Stili özelleştir",
@@ -342,16 +300,35 @@
         "default": "Varsayılan",
         "simple": "Basit",
         "styled": "Stilli"
-      },
-      "themes": {
-        "academic": "Akademik",
-        "default": "GitHub (Varsayılan)",
-        "liber": "Liber"
       }
     },
     "image": {
       "description": "Export the entire document as one continuous PNG image. Images, diagrams and math are included. Choose the image width on the Page tab.",
       "width": "Image width (px)"
+    },
+    "compact": {
+      "title": "Export as {format}",
+      "more": "More settings",
+      "cancel": "Cancel",
+      "print": "Print",
+      "width": "Width",
+      "height": "Height",
+      "top": "Top",
+      "bottom": "Bottom",
+      "left": "Left",
+      "right": "Right",
+      "formats": {
+        "styledHtml": "HTML",
+        "pdf": "PDF",
+        "png": "PNG image",
+        "print": "Print"
+      },
+      "hints": {
+        "styledHtml": "A styled webpage that opens directly in a browser.",
+        "png": "Height adjusts automatically to the document content.",
+        "pdf": "A paginated document, ready to share or print.",
+        "print": "Paper size and orientation are chosen in the system print dialog."
+      }
     }
   },
   "recent": {
@@ -370,7 +347,7 @@
         "general": "Genel",
         "editor": "Düzenleyici",
         "markdown": "Markdown",
-        "theme": "Tema",
+        "theme": "Document theme",
         "image": "Görsel",
         "view": "Görünüm",
         "searcher": "Arayıcı",
@@ -432,10 +409,7 @@
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "sequenceTheme": "Dizi diyagramı teması",
-        "theme": "MarkText'te kullanılan temayı seçin",
-        "followSystemTheme": "Sistem Temasını Takip Et",
-        "lightModeTheme": "Sistem açık moddayken kullanılacak tema",
-        "darkModeTheme": "Sistem koyu moddayken kullanılacak tema",
+        "theme": "Theme",
         "spellcheckerEnabled": "Yazım denetiminin etkinleştirilip etkinleştirilmeyeceği",
         "spellcheckerNoUnderline": "Yazım hatalarının altını çizme",
         "spellcheckerLanguage": "Yazım denetleyici dili",
@@ -448,7 +422,7 @@
         "fileSortOrder": "Açık klasörlerdeki dosyaların sıralama düzeni: artan veya azalan.",
         "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği.",
         "showPandocConvert": "Pandoc dönüştürme menüsünü gösterir. Pandoc kurulu olmalıdır.",
-        "documentStyle": "Document rendering style"
+        "appearance": "Appearance"
       }
     },
     "categories": {
@@ -456,7 +430,7 @@
       "editor": "Düzenleyici",
       "markdown": "Markdown",
       "spelling": "Yazım",
-      "theme": "Tema",
+      "theme": "Document theme",
       "image": "Görsel",
       "keybindings": "Kısayol Tuşları"
     },
@@ -538,6 +512,12 @@
           "turkish": "Türkçe",
           "russian": "Русский"
         }
+      },
+      "appearance": {
+        "label": "Appearance",
+        "system": "Follow system",
+        "light": "Light",
+        "dark": "Dark"
       }
     },
     "editor": {
@@ -549,7 +529,9 @@
         "fontFamily": "Yazı tipi ailesi",
         "maxWidth": "Maksimum genişlik",
         "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği. Bir sayının ardından px, ch (karakter) veya % girin, örneğin 800px, 80ch veya 60%. Varsayılan genişliği kullanmak için boş bırakın.",
-        "maxWidthInvalid": "Bir sayının ardından px, ch veya % girin, örneğin 800px."
+        "maxWidthInvalid": "Bir sayının ardından px, ch veya % girin, örneğin 800px.",
+        "centerTables": "Center tables",
+        "centerTablesDetail": "Center tables in the editor and exports. Turn off to align tables to the left. Cell text alignment stays unchanged."
       },
       "codeBlock": {
         "title": "Kod Bloğu",
@@ -596,14 +578,6 @@
         "autoNormalizeLineEndings": "Açılışta satır sonlarını LF'ye otomatik normalleştir",
         "wrapCodeBlocks": "Kod bloklarını kaydır",
         "sourceCodeLineNumbers": "Kaynak kod modunda satır numaralarını göster"
-      },
-      "documentStyle": {
-        "label": "Document rendering style",
-        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
-        "default": "MarkText",
-        "github": "GitHub",
-        "classic": "Classic",
-        "book": "Book"
       },
       "resizeSidebar": "Resize sidebar"
     },
@@ -728,16 +702,23 @@
       }
     },
     "theme": {
-      "title": "Tema",
-      "followSystemTheme": "Sistem Temasını Takip Et",
-      "modeThemes": "Tema Seçimi",
-      "lightModeTheme": "Açık mod teması",
-      "darkModeTheme": "Koyu mod teması",
-      "customCss": "Özel CSS",
-      "importCustomThemes": "Özel temaları içe aktar",
-      "importTheme": "Temayı İçe Aktar",
-      "openFolder": "Klasör Aç",
-      "openThemesFolder": "Temalar klasörünü aç"
+      "title": "Document theme",
+      "description": "A theme defines document typography. Editing and export use the same theme.",
+      "select": "Theme",
+      "builtins": {
+        "github": "GitHub",
+        "academic": "Academic",
+        "liber": "Liber"
+      },
+      "previewHeading": "Document heading",
+      "previewText": "Clear typography for your writing.",
+      "customTitle": "Custom themes",
+      "importTheme": "Import CSS theme",
+      "importNotes": "Import a self-contained CSS file (up to 1 MB). Use .markdown-body for document styles. @import is not supported. The theme applies to editing and export.",
+      "importError": "Unable to import this theme. Choose a readable CSS file under 1 MB containing styles and no @import.",
+      "remove": "Remove",
+      "exportUsesCurrent": "Export uses the current document theme. Change it in Settings → Document theme.",
+      "typographyNotes": "Document fonts, sizes and line spacing come from the document theme. Select or import a theme to change them."
     },
     "keybindings": {
       "title": "Kısayol Tuşları",

@@ -46,6 +46,17 @@ export interface IExportMarkdownOptions {
     listIndentation: number | string;
 }
 
+interface IMarkdownFragment {
+    hasPreviousFragment: boolean;
+    parentLoose: boolean;
+    previousListMarker: string;
+    markerOverride?: string;
+    followsTightList: boolean;
+    fragments: string[];
+    listMarker: string;
+    parentLooseAfter: boolean;
+}
+
 export default class ExportMarkdown {
     // Stack of currently-open list metas while serializing a tree (push on
     // descent into bullet/order/task list, pop on ascent). The serializer
@@ -61,6 +72,7 @@ export default class ExportMarkdown {
     private _isLooseParentList: boolean;
     private _listIndentation: string;
     private _listIndentationCount: number;
+    private _rootFragmentCache = new WeakMap<TState, IMarkdownFragment>();
 
     constructor(
         {
@@ -91,10 +103,20 @@ export default class ExportMarkdown {
         return this._convertStatesToMarkdown(states);
     }
 
+    // Only immutable snapshots may reuse node identities. Cached root fragments
+    // include their surrounding list/spacing context; changed containers are
+    // serialized together so numbering, column widths and indentation agree.
+    generateIncremental(states: readonly TState[]) {
+        this._listType = [];
+        this._isLooseParentList = true;
+        return this._convertStatesToMarkdown(states, '', '', true);
+    }
+
     private _convertStatesToMarkdown(
-        states: TState[],
+        states: readonly TState[],
         indent = '',
         listIndent = '',
+        cacheRootFragments = false,
     ): string {
         const result: string[] = [];
         // helper for CommonMark 264
@@ -110,17 +132,27 @@ export default class ExportMarkdown {
                 lastListBullet = '';
             }
 
-            if (isAnyListState(state)) {
-                const markerOverride = !this._isLooseParentList
-                    && previousState?.name === 'paragraph'
-                    && previousState.text.trim() !== ''
-                    && this._startsWithEmptyDashBulletItem(state)
-                    ? SETEXT_SAFE_BULLET_MARKER
-                    : undefined;
-                const followsTightList = previousState !== undefined
-                    && isAnyListState(previousState)
-                    && !previousState.meta.loose
-                    && !state.meta.loose;
+            const listState = isAnyListState(state);
+            const markerOverride = listState ? this._getMarkerOverride(state, previousState) : undefined;
+            const followsTightList = listState ? this._followsTightList(state, previousState) : false;
+            const hasPreviousFragment = result.length > 0;
+            const parentLoose = this._isLooseParentList;
+            const previousListMarker = lastListBullet;
+            const cached = cacheRootFragments
+                ? this._getCachedRootFragment(state, hasPreviousFragment, previousListMarker, markerOverride, followsTightList)
+                : undefined;
+
+            if (cached) {
+                for (const fragment of cached.fragments)
+                    result.push(fragment);
+                lastListBullet = cached.listMarker;
+                this._isLooseParentList = cached.parentLooseAfter;
+                previousState = state;
+                continue;
+            }
+
+            const fragmentStart = result.length;
+            if (listState) {
                 lastListBullet = this._serializeListBlock(
                     state,
                     result,
@@ -138,10 +170,57 @@ export default class ExportMarkdown {
                 this._serializeSimpleBlock(state, result, indent);
             }
 
+            if (cacheRootFragments) {
+                this._rootFragmentCache.set(state, {
+                    hasPreviousFragment,
+                    parentLoose,
+                    previousListMarker,
+                    markerOverride,
+                    followsTightList,
+                    fragments: result.slice(fragmentStart),
+                    listMarker: lastListBullet,
+                    parentLooseAfter: this._isLooseParentList,
+                });
+            }
+
             previousState = state;
         }
 
         return result.join('');
+    }
+
+    private _getMarkerOverride(state: IOrderListState | IBulletListState | ITaskListState, previousState?: TState) {
+        return !this._isLooseParentList
+            && previousState?.name === 'paragraph'
+            && previousState.text.trim() !== ''
+            && this._startsWithEmptyDashBulletItem(state)
+            ? SETEXT_SAFE_BULLET_MARKER
+            : undefined;
+    }
+
+    private _followsTightList(state: IOrderListState | IBulletListState | ITaskListState, previousState?: TState) {
+        return previousState !== undefined
+            && isAnyListState(previousState)
+            && !previousState.meta.loose
+            && !state.meta.loose;
+    }
+
+    private _getCachedRootFragment(
+        state: TState,
+        hasPreviousFragment: boolean,
+        previousListMarker: string,
+        markerOverride: string | undefined,
+        followsTightList: boolean,
+    ) {
+        const cached = this._rootFragmentCache.get(state);
+        if (cached
+            && cached.hasPreviousFragment === hasPreviousFragment
+            && cached.parentLoose === this._isLooseParentList
+            && cached.previousListMarker === previousListMarker
+            && cached.markerOverride === markerOverride
+            && cached.followsTightList === followsTightList) {
+            return cached;
+        }
     }
 
     private _serializeSimpleBlock(state: TState, result: string[], indent: string) {

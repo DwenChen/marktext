@@ -143,44 +143,7 @@
       "clearFormat": "清除格式"
     },
     "theme": {
-      "theme": "主题(&T)",
-      "dark": "深色",
-      "followThemDisabled": "跟随系统主题时无法选择主题",
-      "lightThemes": "— 浅色主题 —",
-      "darkThemes": "— 深色主题 —",
-      "ayuDark": "Ayu 深色",
-      "ayuLight": "Ayu 浅色",
-      "ayuMirage": "Ayu Mirage",
-      "cadmiumDark": "Cadmium 深色",
-      "cadmiumLight": "Cadmium 浅色",
-      "catppuccinLatte": "Catppuccin Latte",
-      "catppuccinMocha": "Catppuccin Mocha",
-      "cyberdream": "cyberdream",
-      "dracula": "Dracula",
-      "everforestDark": "Everforest 深色",
-      "everforestLight": "Everforest 浅色",
-      "graphiteLight": "Graphite 浅色",
-      "gruvboxDark": "Gruvbox 深色",
-      "gruvboxLight": "Gruvbox 浅色",
-      "horizonDark": "Horizon 深色",
-      "kanagawa": "Kanagawa",
-      "materialDark": "Material 深色",
-      "monokaiPro": "Monokai Pro",
-      "nightfox": "Nightfox",
-      "nord": "Nord",
-      "oneDark": "One Dark",
-      "oxocarbonDark": "Oxocarbon 深色",
-      "palenight": "Palenight",
-      "rosePine": "Rosé Pine",
-      "rosePineDawn": "Rosé Pine Dawn",
-      "rosePineMoon": "Rosé Pine Moon",
-      "solarizedDark": "Solarized 深色",
-      "solarizedLight": "Solarized 浅色",
-      "synthwave84": "Synthwave '84",
-      "tokyoNight": "Tokyo Night",
-      "tokyoNightLight": "Tokyo Night 浅色",
-      "tokyoNightStorm": "Tokyo Night Storm",
-      "ulyssesLight": "Ulysses 浅色"
+      "theme": "文档主题"
     }
   },
   "contextMenu": {
@@ -294,11 +257,6 @@
       "fontSize": "字体大小",
       "lineHeight": "行高"
     },
-    "theme": {
-      "label": "主题",
-      "description": "您可以通过选择主题或创建手工制作的主题来更改文档外观。",
-      "theme": "主题"
-    },
     "headerFooter": {
       "label": "页眉和页脚",
       "description": "如果定义了页眉和/或页脚，文本将出现在所有页面上。",
@@ -342,16 +300,35 @@
         "default": "默认",
         "simple": "简单",
         "styled": "样式化"
-      },
-      "themes": {
-        "academic": "学术",
-        "default": "GitHub (默认)",
-        "liber": "Liber"
       }
     },
     "image": {
       "description": "将整篇文档导出为一张连续的 PNG 长图片，包含图片、图表和公式。可在“页面”选项卡设置图片宽度。",
       "width": "图片宽度（像素）"
+    },
+    "compact": {
+      "title": "导出为 {format}",
+      "more": "更多设置",
+      "cancel": "取消",
+      "print": "打印",
+      "width": "宽度",
+      "height": "高度",
+      "top": "上",
+      "bottom": "下",
+      "left": "左",
+      "right": "右",
+      "formats": {
+        "styledHtml": "HTML",
+        "pdf": "PDF",
+        "png": "PNG 图片",
+        "print": "打印"
+      },
+      "hints": {
+        "styledHtml": "生成带有文档样式的网页，可直接在浏览器中打开。",
+        "png": "图片高度随文档内容自动调整。",
+        "pdf": "按纸张尺寸分页，适合分享或打印。",
+        "print": "纸张尺寸与方向在系统打印窗口中选择。"
+      }
     }
   },
   "recent": {
@@ -370,7 +347,7 @@
         "general": "通用",
         "editor": "编辑器",
         "markdown": "Markdown",
-        "theme": "主题",
+        "theme": "文档主题",
         "image": "图片",
         "view": "视图",
         "searcher": "搜索器",
@@ -434,10 +411,7 @@
         "softNewlineAsSpace": "将软换行符视为空格",
         "sequenceTheme": "序列图主题",
         "plantumlServer": "PlantUML 服务器 URL",
-        "theme": "选择 MarkText 中使用的主题",
-        "followSystemTheme": "跟随系统主题",
-        "lightModeTheme": "系统处于浅色模式时使用的主题",
-        "darkModeTheme": "系统处于深色模式时使用的主题",
+        "theme": "主题",
         "spellcheckerEnabled": "是否启用拼写检查",
         "spellcheckerNoUnderline": "不要为拼写错误添加下划线",
         "spellcheckerLanguage": "拼写检查器语言",
@@ -448,7 +422,7 @@
         "fileSortOrder": "打开文件夹中文件的排序顺序：升序或降序",
         "openedFilesInSidebar": "是否在侧边栏中显示已打开文件",
         "showPandocConvert": "显示 Pandoc 转换菜单。需要先安装 Pandoc。",
-        "documentStyle": "正文渲染风格"
+        "appearance": "界面外观"
       }
     },
     "categories": {
@@ -456,7 +430,7 @@
       "editor": "编辑器",
       "markdown": "Markdown",
       "spelling": "拼写",
-      "theme": "主题",
+      "theme": "文档主题",
       "image": "图片",
       "keybindings": "快捷键"
     },
@@ -538,6 +512,12 @@
           "turkish": "Türkçe",
           "russian": "Русский"
         }
+      },
+      "appearance": {
+        "label": "界面外观",
+        "system": "跟随系统（默认）",
+        "light": "浅色",
+        "dark": "深色"
       }
     },
     "editor": {
@@ -549,7 +529,9 @@
         "fontFamily": "字体系列",
         "maxWidth": "最大宽度",
         "maxWidthNotes": "编辑器内容的最大宽度。数字后需带单位 px、ch（字符数）或 %，例如 800px、80ch、60%。留空则使用默认宽度。",
-        "maxWidthInvalid": "请输入数字并带上单位 px、ch 或 %，例如 800px。"
+        "maxWidthInvalid": "请输入数字并带上单位 px、ch 或 %，例如 800px。",
+        "centerTables": "表格居中",
+        "centerTablesDetail": "在编辑区和导出文档中居中显示表格；关闭后靠左显示。不改变单元格内文字的对齐方式。"
       },
       "codeBlock": {
         "title": "代码块",
@@ -596,14 +578,6 @@
         "autoNormalizeLineEndings": "打开时自动将行尾规范化为 LF",
         "wrapCodeBlocks": "换行代码块",
         "sourceCodeLineNumbers": "在源码模式中显示行号"
-      },
-      "documentStyle": {
-        "label": "正文渲染风格",
-        "notes": "独立于界面主题选择正文排版，不改变 Markdown 语法。",
-        "default": "MarkText 原生",
-        "github": "GitHub",
-        "classic": "经典",
-        "book": "书籍"
       },
       "resizeSidebar": "调整侧边栏宽度"
     },
@@ -728,16 +702,23 @@
       }
     },
     "theme": {
-      "title": "主题",
-      "followSystemTheme": "跟随系统主题",
-      "modeThemes": "主题选择",
-      "lightModeTheme": "浅色模式主题",
-      "darkModeTheme": "深色模式主题",
-      "customCss": "自定义 CSS",
-      "importCustomThemes": "导入自定义主题",
-      "importTheme": "导入主题",
-      "openFolder": "打开文件夹",
-      "openThemesFolder": "打开主题文件夹"
+      "title": "文档主题",
+      "description": "主题用于定义文档的排版样式，编辑与导出使用同一主题。",
+      "select": "主题",
+      "builtins": {
+        "github": "GitHub（默认）",
+        "academic": "学术",
+        "liber": "Liber"
+      },
+      "previewHeading": "文档标题",
+      "previewText": "为写作选择清晰、舒适的排版。",
+      "customTitle": "自定义主题",
+      "importTheme": "导入 CSS 主题",
+      "importNotes": "导入独立 CSS 文件（最大 1 MB），使用 .markdown-body 编写文档样式。暂不支持 @import。导入后可用于编辑与导出。",
+      "importError": "无法导入此主题。请选择可读取、包含样式、大小不超过 1 MB 且不含 @import 的 CSS 文件。",
+      "remove": "移除",
+      "exportUsesCurrent": "导出使用当前文档主题，可在“设置 → 文档主题”中切换。",
+      "typographyNotes": "正文的字体、字号和行距由文档主题决定，可切换主题或导入 CSS 调整。"
     },
     "keybindings": {
       "title": "快捷键",

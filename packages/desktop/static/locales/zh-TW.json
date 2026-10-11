@@ -143,44 +143,7 @@
       "clearFormat": "清除格式"
     },
     "theme": {
-      "theme": "主題(&T)",
-      "dark": "深色",
-      "followThemDisabled": "跟隨系統主題時無法選擇主題",
-      "lightThemes": "— 淺色主題 —",
-      "darkThemes": "— 深色主題 —",
-      "ayuDark": "Ayu 深色",
-      "ayuLight": "Ayu 淺色",
-      "ayuMirage": "Ayu Mirage",
-      "cadmiumDark": "Cadmium 深色",
-      "cadmiumLight": "Cadmium 淺色",
-      "catppuccinLatte": "Catppuccin Latte",
-      "catppuccinMocha": "Catppuccin Mocha",
-      "cyberdream": "cyberdream",
-      "dracula": "Dracula",
-      "everforestDark": "Everforest 深色",
-      "everforestLight": "Everforest 淺色",
-      "graphiteLight": "Graphite 淺色",
-      "gruvboxDark": "Gruvbox 深色",
-      "gruvboxLight": "Gruvbox 淺色",
-      "horizonDark": "Horizon 深色",
-      "kanagawa": "Kanagawa",
-      "materialDark": "Material 深色",
-      "monokaiPro": "Monokai Pro",
-      "nightfox": "Nightfox",
-      "nord": "Nord",
-      "oneDark": "One Dark",
-      "oxocarbonDark": "Oxocarbon 深色",
-      "palenight": "Palenight",
-      "rosePine": "Rosé Pine",
-      "rosePineDawn": "Rosé Pine Dawn",
-      "rosePineMoon": "Rosé Pine Moon",
-      "solarizedDark": "Solarized 深色",
-      "solarizedLight": "Solarized 淺色",
-      "synthwave84": "Synthwave '84",
-      "tokyoNight": "Tokyo Night",
-      "tokyoNightLight": "Tokyo Night 淺色",
-      "tokyoNightStorm": "Tokyo Night Storm",
-      "ulyssesLight": "Ulysses 淺色"
+      "theme": "文件主題"
     }
   },
   "contextMenu": {
@@ -296,11 +259,6 @@
       "fontSize": "字型大小",
       "lineHeight": "行高"
     },
-    "theme": {
-      "label": "主題",
-      "description": "您可以透過選擇主題或建立手工製作的主題來變更文件外觀。",
-      "theme": "主題"
-    },
     "headerFooter": {
       "allowStyled": "允許樣式文字",
       "customizeStyle": "自訂樣式",
@@ -342,16 +300,35 @@
         "default": "預設",
         "simple": "簡單",
         "styled": "樣式"
-      },
-      "themes": {
-        "academic": "學術",
-        "default": "GitHub（預設）",
-        "liber": "Liber"
       }
     },
     "image": {
       "description": "將整篇文件匯出為一張連續的 PNG 長圖片，包含圖片、圖表和公式。可在「頁面」分頁設定圖片寬度。",
       "width": "圖片寬度（像素）"
+    },
+    "compact": {
+      "title": "匯出為 {format}",
+      "more": "更多設定",
+      "cancel": "取消",
+      "print": "列印",
+      "width": "寬度",
+      "height": "高度",
+      "top": "上",
+      "bottom": "下",
+      "left": "左",
+      "right": "右",
+      "formats": {
+        "styledHtml": "HTML",
+        "pdf": "PDF",
+        "png": "PNG 圖片",
+        "print": "列印"
+      },
+      "hints": {
+        "styledHtml": "產生帶有文件樣式的網頁，可直接在瀏覽器中開啟。",
+        "png": "圖片高度隨文件內容自動調整。",
+        "pdf": "依紙張尺寸分頁，適合分享或列印。",
+        "print": "紙張尺寸與方向在系統列印視窗中選擇。"
+      }
     }
   },
   "recent": {
@@ -370,7 +347,7 @@
         "general": "一般",
         "editor": "編輯器",
         "markdown": "Markdown",
-        "theme": "主題",
+        "theme": "文件主題",
         "image": "圖片",
         "view": "檢視",
         "searcher": "搜尋器",
@@ -434,10 +411,7 @@
         "softNewlineAsSpace": "將軟換行視為空格",
         "sequenceTheme": "序列圖主題",
         "plantumlServer": "PlantUML 伺服器 URL",
-        "theme": "選擇 MarkText 中使用的主題",
-        "followSystemTheme": "跟隨系統主題",
-        "lightModeTheme": "系統處於淺色模式時使用的主題",
-        "darkModeTheme": "系統處於深色模式時使用的主題",
+        "theme": "主題",
         "spellcheckerEnabled": "是否啟用拼字檢查",
         "spellcheckerNoUnderline": "不要為拼字錯誤加上底線",
         "spellcheckerLanguage": "拼字檢查器語言",
@@ -448,7 +422,7 @@
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
         "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
         "showPandocConvert": "顯示 Pandoc 轉換選單。需要先安裝 Pandoc。",
-        "documentStyle": "內文渲染風格"
+        "appearance": "介面外觀"
       }
     },
     "categories": {
@@ -456,7 +430,7 @@
       "editor": "編輯器",
       "markdown": "Markdown",
       "spelling": "拼字",
-      "theme": "主題",
+      "theme": "文件主題",
       "image": "圖片",
       "keybindings": "按鍵綁定"
     },
@@ -538,6 +512,12 @@
           "turkish": "Türkçe",
           "russian": "Русский"
         }
+      },
+      "appearance": {
+        "label": "介面外觀",
+        "system": "跟隨系統（預設）",
+        "light": "淺色",
+        "dark": "深色"
       }
     },
     "editor": {
@@ -549,7 +529,9 @@
         "fontFamily": "字型系列",
         "maxWidth": "最大寬度",
         "maxWidthNotes": "編輯器內容的最大寬度。數字後需帶單位 px、ch（字元數）或 %，例如 800px、80ch、60%。留空則使用預設寬度。",
-        "maxWidthInvalid": "請輸入數字並帶上單位 px、ch 或 %，例如 800px。"
+        "maxWidthInvalid": "請輸入數字並帶上單位 px、ch 或 %，例如 800px。",
+        "centerTables": "表格置中",
+        "centerTablesDetail": "在編輯區和匯出文件中置中顯示表格；關閉後靠左顯示。不改變儲存格文字的對齊方式。"
       },
       "codeBlock": {
         "title": "程式碼區塊",
@@ -596,14 +578,6 @@
         "autoNormalizeLineEndings": "開啟時自動將行尾標準化為 LF",
         "wrapCodeBlocks": "換行程式碼區塊",
         "sourceCodeLineNumbers": "在原始碼模式中顯示行號"
-      },
-      "documentStyle": {
-        "label": "內文渲染風格",
-        "notes": "獨立於介面主題選擇內文排版，不改變 Markdown 語法。",
-        "default": "MarkText 原生",
-        "github": "GitHub",
-        "classic": "經典",
-        "book": "書籍"
       },
       "resizeSidebar": "調整側邊欄寬度"
     },
@@ -728,16 +702,23 @@
       }
     },
     "theme": {
-      "title": "主題",
-      "followSystemTheme": "跟隨系統主題",
-      "modeThemes": "主題選擇",
-      "lightModeTheme": "淺色模式主題",
-      "darkModeTheme": "深色模式主題",
-      "customCss": "自訂 CSS",
-      "importCustomThemes": "匯入自訂主題",
-      "importTheme": "匯入主題",
-      "openFolder": "開啟資料夾",
-      "openThemesFolder": "開啟主題資料夾"
+      "title": "文件主題",
+      "description": "主題定義文件的排版樣式，編輯與匯出使用同一主題。",
+      "select": "主題",
+      "builtins": {
+        "github": "GitHub（預設）",
+        "academic": "學術",
+        "liber": "Liber"
+      },
+      "previewHeading": "文件標題",
+      "previewText": "為寫作選擇清晰、舒適的排版。",
+      "customTitle": "自訂主題",
+      "importTheme": "匯入 CSS 主題",
+      "importNotes": "匯入獨立 CSS 檔案（最大 1 MB），使用 .markdown-body 編寫文件樣式。暫不支援 @import。匯入後可用於編輯與匯出。",
+      "importError": "無法匯入此主題。請選擇可讀取、包含樣式、大小不超過 1 MB 且不含 @import 的 CSS 檔案。",
+      "remove": "移除",
+      "exportUsesCurrent": "匯出使用目前的文件主題，可在「設定 → 文件主題」切換。",
+      "typographyNotes": "正文的字型、字級和行距由文件主題決定，可切換主題或匯入 CSS 調整。"
     },
     "keybindings": {
       "title": "按鍵綁定",

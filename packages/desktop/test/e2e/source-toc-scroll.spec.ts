@@ -2,11 +2,7 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import { launchWithMarkdown, waitForEditor, enterSourceMode, clickMenuById } from './helpers'
 
-// marktext #3580: clicking a TOC entry in SOURCE CODE mode must scroll the
-// editor to that heading and place it near the TOP of the viewport. The editor
-// runs CodeMirror with viewportMargin: Infinity, so the OUTER `.source-code`
-// container is the scrollable element — neither cm.scrollTo nor cm.scrollIntoView
-// moves it.
+// TOC navigation must reveal virtualized source lines near the top of the viewport.
 const HEADING_COUNT = 20
 const buildLongDoc = (): string => {
   const parts: string[] = []
@@ -19,15 +15,15 @@ const buildLongDoc = (): string => {
 
 const srcScrollTop = (page: Page): Promise<number> =>
   page.evaluate(() => {
-    const el = document.querySelector('.source-code') as HTMLElement | null
+    const el = document.querySelector('.source-code .CodeMirror-scroll') as HTMLElement | null
     return el ? Math.round(el.scrollTop) : -1
   })
 
 // Distance of the `# Heading Number N` source line from the top of the
-// `.source-code` viewport (CodeMirror renders all lines, so the line is in the DOM).
+// CodeMirror viewport; the target enters the DOM when scrolling reveals it.
 const headingLineTopInViewport = (page: Page, text: string): Promise<number | null> =>
   page.evaluate((needle) => {
-    const container = document.querySelector('.source-code') as HTMLElement | null
+    const container = document.querySelector('.source-code .CodeMirror-scroll') as HTMLElement | null
     const lines = Array.from(document.querySelectorAll('.source-code .CodeMirror-line'))
     const target = lines.find((l) => (l.textContent || '').includes(needle)) as HTMLElement | undefined
     if (!container || !target) return null
@@ -64,7 +60,7 @@ test.describe('Source Code mode: TOC click scrolls to the heading at the top', (
 
   test('clicking a deep heading scrolls down and lands it near the top', async() => {
     await page.evaluate(() => {
-      const el = document.querySelector('.source-code') as HTMLElement | null
+      const el = document.querySelector('.source-code .CodeMirror-scroll') as HTMLElement | null
       if (el) el.scrollTop = 0
     })
     await expect.poll(() => srcScrollTop(page)).toBe(0)

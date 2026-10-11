@@ -6,10 +6,7 @@
     ]"
     :dir="textDirection"
   >
-    <div
-      ref="editorRef"
-      class="editor-component"
-    />
+    <div ref="editorRef" class="editor-component" />
     <media-viewer ref="mediaViewer" @open-change="viewerOpen = $event" />
     <el-dialog
       v-model="dialogTableVisible"
@@ -115,7 +112,7 @@ import { isMac, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
-import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
+import { getCssForOptions, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
 import {
   getTocHeadingScrollTop,
   resolveTocHeadingElement,
@@ -130,12 +127,9 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { SyntheticHistory, type IFileHistoryLike } from './syntheticHistory'
 
-// Importing the engine entrypoint auto-injects its editor CSS (the muya.ts
-// module imports its stylesheets at load time). Desktop themes still target the
-// legacy `ag-*` DOM (theme migration is a separate phase), so minor visual
-// differences against the new `mu-*` DOM are expected.
+// The engine supplies editing controls; documentTheme adapts the shared export
+// styles to the live Muya document without styling the surrounding interface.
 import '@muyajs/core'
-import '@/assets/themes/codemirror/one-dark.css'
 import { type InputNumberInstance } from 'element-plus'
 
 const { t } = useI18n()
@@ -221,7 +215,7 @@ const {
   imageRelativeDirectoryBase,
   imageRelativeDirectoryName,
   imageFolderPath,
-  theme,
+  resolvedAppearance,
   sequenceTheme,
   hideScrollbar,
   spellcheckerEnabled,
@@ -466,8 +460,12 @@ const updateViewportPadding = (): void => {
   // Pixel padding avoids invalidating every descendant through an inherited var.
   const mount = editor.value?.domNode
   if (!mount) return
-  mount.style.paddingTop = typewriter.value ? `${Math.max(0, props.viewportHeight / 2 - 136)}px` : ''
-  mount.style.paddingBottom = typewriter.value ? `${Math.max(0, props.viewportHeight / 2 - 54)}px` : ''
+  mount.style.paddingTop = typewriter.value
+    ? `${Math.max(0, props.viewportHeight / 2 - 136)}px`
+    : ''
+  mount.style.paddingBottom = typewriter.value
+    ? `${Math.max(0, props.viewportHeight / 2 - 54)}px`
+    : ''
   const document = mount.querySelector<HTMLElement>('.mu-container')
   if (document) document.style.paddingBottom = `${props.viewportHeight}px`
 }
@@ -545,10 +543,10 @@ watch(tabSize, (value, oldValue) => {
   }
 })
 
-watch(theme, (value, oldValue) => {
+watch(resolvedAppearance, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     // Agreement：Any black series theme needs to contain dark `word`.
-    if (/dark/i.test(value)) {
+    if (value === 'dark') {
       editor.value.setOptions(
         {
           mermaidTheme: 'dark',
@@ -595,8 +593,7 @@ watch(frontmatterType, (value, oldValue) => {
   }
 })
 
-// `setOptions(..., true)` re-renders headings in place without emitting
-// `json-change`, so nothing else refreshes the outline after a toggle.
+// Inline-only option changes can alter heading labels without a JSON mutation.
 const applyOutlineAffectingOption = (options: Partial<IMuyaOptions>): void => {
   const muya = editor.value
   if (!muya) return
@@ -852,7 +849,7 @@ interface ImagePathSuggestion {
   [key: string]: unknown
 }
 
-const imagePathAutoComplete = async (src: string) => {
+const imagePathAutoComplete = async(src: string) => {
   const files = (await editorStore.ASK_FOR_IMAGE_AUTO_PATH(src)) as unknown as ImagePathSuggestion[]
   return files.map((f) => {
     const iconClass = f.type === 'directory' ? 'icon-folder' : 'icon-image'
@@ -860,7 +857,7 @@ const imagePathAutoComplete = async (src: string) => {
   })
 }
 
-const imageAction = async (
+const imageAction = async(
   image: string | File,
   id: string | null,
   alt: string = ''
@@ -1231,6 +1228,13 @@ const rebuildHeadingCache = (): void => {
 // caret sits in as the heading above it.
 const updateActiveHeading = (viewportY: number): void => {
   if (headingElementCache.length === 0) return
+  // Font metrics can place the caret rect above its containing heading's box.
+  const focusNode = window.getSelection()?.focusNode
+  const focusedHeading = focusNode && headingElementCache.find(({ el }) => el.contains(focusNode))
+  if (focusedHeading) {
+    editorStore.SET_ACTIVE_HEADING(focusedHeading.slug)
+    return
+  }
   const positions: HeadingPosition[] = headingElementCache.map(({ slug, el }) => ({
     slug,
     top: el.getBoundingClientRect().top
@@ -1320,7 +1324,7 @@ interface ExportOptions {
   [key: string]: unknown
 }
 
-const handleExport = async (options: unknown) => {
+const handleExport = async(options: unknown) => {
   const opts = options as ExportOptions
   const { type, headerFooterStyled, htmlTitle } = opts
 
@@ -1332,11 +1336,16 @@ const handleExport = async (options: unknown) => {
   if (!muya) return
   editorStore.flushActiveEditor()
 
-  const extraCss = await getCssForOptions(opts as unknown as PdfCssOptions)
-  const htmlToc = getHtmlToc(muya.getTOC(), opts as unknown as HtmlTocOptions)
   const markdown = sourceCode.value
     ? (currentFile.value?.markdown ?? muya.getMarkdown())
     : muya.getMarkdown()
+
+  const extraCss = await getCssForOptions({
+    ...(opts as unknown as PdfCssOptions),
+    theme: preferencesStore.theme,
+    customThemes: preferencesStore.customThemes,
+    centerTables: preferencesStore.centerTables
+  })
   const header = (opts.header ?? null) as HeaderFooterPart | null
   const footer = (opts.footer ?? null) as HeaderFooterPart | null
 
@@ -1348,7 +1357,7 @@ const handleExport = async (options: unknown) => {
           title: htmlTitle || '',
           printOptimization: false,
           extraCss,
-          toc: htmlToc,
+          tocOptions: opts as HtmlTocOptions,
           dir: props.textDirection
         })
         editorStore.EXPORT({
@@ -1382,7 +1391,7 @@ const handleExport = async (options: unknown) => {
           title: '',
           printOptimization: true,
           extraCss,
-          toc: htmlToc,
+          tocOptions: opts as HtmlTocOptions,
           header,
           footer,
           headerFooterStyled: headerFooterStyled as boolean | undefined,
@@ -1408,7 +1417,7 @@ const handleExport = async (options: unknown) => {
           title: '',
           printOptimization: true,
           extraCss,
-          toc: htmlToc,
+          tocOptions: opts as HtmlTocOptions,
           header,
           footer,
           headerFooterStyled: headerFooterStyled as boolean | undefined,
@@ -1847,7 +1856,7 @@ onMounted(() => {
     getPathForFile: (file: File) => window.electron.webUtils.getPathForFile(file)
   }
 
-  if (/dark/i.test(theme.value)) {
+  if (resolvedAppearance.value === 'dark') {
     Object.assign(options, {
       mermaidTheme: 'dark',
       vegaTheme: 'dark'
@@ -1941,7 +1950,7 @@ onMounted(() => {
   editor.value.on('json-change', () => {
     // There is a chance that this event is fired AFTER the tab is switched. If we purely rely on this.currentFile later on
     // it can cause invalid updates. Hence, we need the id to identify changes as part of each tab
-    if (!currentFile.value || !editor.value) return
+    if (sourceCode.value || !currentFile.value || !editor.value) return
     const { id } = currentFile.value
     if (!id) return
     const markdown = editor.value.getMarkdown()
@@ -2016,6 +2025,7 @@ onMounted(() => {
   })
 
   editor.value.on('selection-change', (changes: MuyaChange) => {
+    if (sourceCode.value) return
     const y = (changes.cursorCoords?.y ?? null) as number | null
     if (y != null) {
       // Before the scrolling below: a 0-duration `animatedScrollTo` assigns

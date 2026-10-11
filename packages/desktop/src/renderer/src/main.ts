@@ -13,7 +13,7 @@ import en from 'element-plus/es/locale/lang/en'
 // I18n translation system
 import i18nPlugin, { languageReady, setLanguage } from './i18n'
 import { usePreferencesStore } from './store/preferences'
-import { addThemeStyle } from './util/theme'
+import { addAppearanceStyle } from './util/theme'
 
 // something is wrong here! \/
 import services from './services/index'
@@ -68,7 +68,7 @@ const mountRenderer = async(): Promise<void> => {
   ])
   preferences.SET_USER_PREFERENCE(initialPreferences)
   await setLanguage(preferences.language)
-  addThemeStyle(preferences.theme)
+  addAppearanceStyle(preferences.resolvedAppearance)
   await router.isReady()
   app.mount('#app')
 }

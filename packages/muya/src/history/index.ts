@@ -1,6 +1,7 @@
 import type { JSONOpList } from 'ot-json1';
 import type { Muya } from '../muya';
 import type { IAnchorFocusInfo, IHistorySelection } from '../selection/types';
+import type JSONState from '../state';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import * as json1 from 'ot-json1';
@@ -118,22 +119,16 @@ class History {
         return this._muya.editor.selection;
     }
 
-    constructor(private _muya: Muya, private _options: IOptions = DEFAULT_OPTIONS) {
-        this._listen();
+    constructor(private _muya: Muya, private _options: IOptions = DEFAULT_OPTIONS, jsonState = _muya.editor.jsonState) {
+        this._listen(jsonState);
     }
 
-    private _listen() {
-        this._muya.eventCenter.on(
-            'json-change',
+    private _listen(jsonState: JSONState) {
+        jsonState.onReadonlyChange(
             ({
                 op,
                 source,
                 prevDoc,
-            }: {
-                op: Nullable<JSONOpList>;
-                source: string;
-                prevDoc: TState[];
-                doc: TState[];
             }) => {
                 if (this._ignoreChange)
                     return;
@@ -157,18 +152,22 @@ class History {
         if (this._stack[source].length === 0)
             return;
 
-        const { operation, selection, rebuild } = this._stack[source].pop()!;
+        const entry = this._stack[source][this._stack[source].length - 1];
+        const { operation, selection, rebuild } = entry;
+        const previousState = this._muya.editor.jsonState.getReadonlyState();
         const inverseOperation = json1.type.invertWithDoc(
             operation,
-            asDoc(this._muya.editor.jsonState.getState()),
+            asDoc(previousState),
         );
 
-        this._stack[dest].push({
+        const inverseEntry = {
             operation: inverseOperation as JSONOpList,
             selection: this._selection.getSelection(),
             rebuild,
-        });
+        };
 
+        const lastRecorded = this._lastRecorded;
+        const previousSelectionStack = [...this._selectionStack];
         this._lastRecorded = 0;
         this._ignoreChange = true;
         try {
@@ -177,9 +176,19 @@ class History {
             else
                 this._muya.editor.updateContents(operation, selection, 'user');
         }
+        catch (error) {
+            this._muya.editor.jsonState.setContent([...previousState]);
+            this._muya.editor.rebuildContents(null, inverseEntry.selection, 'api');
+            this._lastRecorded = lastRecorded;
+            this._selectionStack = previousSelectionStack;
+            throw error;
+        }
         finally {
             this._ignoreChange = false;
         }
+
+        this._stack[source].pop();
+        this._stack[dest].push(inverseEntry);
 
         this._getLastSelection();
     }
@@ -294,7 +303,7 @@ class History {
         return this._selectionStack.length === 2 ? this._selectionStack[0] : null;
     }
 
-    private _record(op: JSONOpList, doc: TState[]) {
+    private _record(op: JSONOpList, doc: readonly TState[]) {
         if (op.length === 0)
             return;
 

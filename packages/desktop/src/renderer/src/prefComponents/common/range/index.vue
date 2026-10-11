@@ -7,7 +7,7 @@
       class="description"
       style="display: flex; align-items: center; justify-content: space-between"
     >
-      <span>{{ description }}:</span>
+      <span>{{ preferenceLabel(description) }}</span>
       <div style="display: flex; align-items: center">
         <span
           v-if="selectValue"
@@ -37,6 +37,7 @@
 import { ref, watch } from 'vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PrefControlBaseProps } from '../types'
+import { preferenceLabel } from '../label'
 
 interface RangeProps extends PrefControlBaseProps {
   value: number

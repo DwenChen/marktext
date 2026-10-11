@@ -1,0 +1,308 @@
+{
+  "recordedAt": "2026-10-11T11:49:19.668Z",
+  "browser": "155.0.4283.45",
+  "errors": [],
+  "tocEvents": [
+    {
+      "markdown": "# After\n\nbody\n",
+      "toc": [
+        {
+          "content": "Before",
+          "contentHtml": "Before",
+          "lvl": 1,
+          "slug": "mu-4",
+          "githubSlug": "before"
+        }
+      ]
+    },
+    {
+      "markdown": "# Before\n\nbody\n",
+      "toc": [
+        {
+          "content": "After",
+          "contentHtml": "After",
+          "lvl": 1,
+          "slug": "mu-5",
+          "githubSlug": "after"
+        }
+      ]
+    }
+  ],
+  "afterReplacement": [
+    {
+      "content": "After",
+      "contentHtml": "After",
+      "lvl": 1,
+      "slug": "mu-5",
+      "githubSlug": "after"
+    }
+  ],
+  "afterUndo": [
+    {
+      "content": "Before",
+      "contentHtml": "Before",
+      "lvl": 1,
+      "slug": "mu-6",
+      "githubSlug": "before"
+    }
+  ],
+  "parseOptionUndo": {
+    "beforeToggle": "```math\nxy\n```\n",
+    "afterToggle": "```math\nxy\n```\n",
+    "historyBeforeToggle": {
+      "stack": {
+        "undo": [
+          {
+            "operation": [
+              0,
+              "text",
+              {
+                "es": [
+                  1,
+                  {
+                    "d": "y"
+                  }
+                ]
+              }
+            ],
+            "selection": null
+          }
+        ],
+        "redo": []
+      },
+      "lastRecorded": 1791719332799,
+      "selectionStack": [
+        null
+      ]
+    },
+    "undoError": null,
+    "afterToggleUndo": "```math\nx\n```\n"
+  },
+  "footnoteUndo": {
+    "beforeFootnoteToggle": [
+      {
+        "name": "paragraph",
+        "text": "[^f]: note!"
+      }
+    ],
+    "afterFootnoteToggle": [
+      {
+        "name": "footnote",
+        "meta": {
+          "identifier": "f"
+        },
+        "children": [
+          {
+            "name": "paragraph",
+            "text": "note!"
+          }
+        ]
+      }
+    ],
+    "footnoteUndoError": "Invalid document snapshot: undefined",
+    "markdown": "[^f]: note!\n"
+  },
+  "pendingCases": [
+    {
+      "options": {
+        "superSubScript": true
+      },
+      "markdown": "alpha!\n",
+      "dom": "alpha"
+    },
+    {
+      "options": {
+        "footnote": false
+      },
+      "markdown": "alpha\n",
+      "dom": "alpha"
+    }
+  ],
+  "inputSamples": [
+    {
+      "blocks": 1001,
+      "characters": 43817,
+      "synchronousEditMedianMs": 7.199999988079071,
+      "samplesMs": [
+        6.200000047683716,
+        7,
+        7.199999988079071,
+        7.899999976158142,
+        9.099999964237213
+      ],
+      "derived": [
+        {
+          "serialization": 0.3999999761581421,
+          "wordCount": 0.800000011920929,
+          "hash": 0.30000001192092896,
+          "toc": 2.099999964237213,
+          "derivedTotal": 3.599999964237213
+        },
+        {
+          "serialization": 0.30000001192092896,
+          "wordCount": 0.5,
+          "hash": 0.30000001192092896,
+          "toc": 1.300000011920929,
+          "derivedTotal": 2.400000035762787
+        },
+        {
+          "serialization": 0.40000003576278687,
+          "wordCount": 0.3999999761581421,
+          "hash": 0.30000001192092896,
+          "toc": 1.0999999642372131,
+          "derivedTotal": 2.199999988079071
+        },
+        {
+          "serialization": 0.30000001192092896,
+          "wordCount": 0.3999999761581421,
+          "hash": 0.30000001192092896,
+          "toc": 1.0999999642372131,
+          "derivedTotal": 2.099999964237213
+        },
+        {
+          "serialization": 0.800000011920929,
+          "wordCount": 0.30000001192092896,
+          "hash": 0.2999999523162842,
+          "toc": 1.100000023841858,
+          "derivedTotal": 2.5
+        }
+      ]
+    },
+    {
+      "blocks": 3001,
+      "characters": 133617,
+      "synchronousEditMedianMs": 16.400000035762787,
+      "samplesMs": [
+        15.400000035762787,
+        16,
+        16.400000035762787,
+        19.19999998807907,
+        29.69999998807907
+      ],
+      "derived": [
+        {
+          "serialization": 1.300000011920929,
+          "wordCount": 1.5,
+          "hash": 0.800000011920929,
+          "toc": 4.799999952316284,
+          "derivedTotal": 8.399999976158142
+        },
+        {
+          "serialization": 0.800000011920929,
+          "wordCount": 1.199999988079071,
+          "hash": 0.800000011920929,
+          "toc": 4.300000011920929,
+          "derivedTotal": 7.100000023841858
+        },
+        {
+          "serialization": 1.100000023841858,
+          "wordCount": 1.0999999642372131,
+          "hash": 0.800000011920929,
+          "toc": 3.5,
+          "derivedTotal": 6.5
+        },
+        {
+          "serialization": 1.300000011920929,
+          "wordCount": 1.199999988079071,
+          "hash": 0.800000011920929,
+          "toc": 3.699999988079071,
+          "derivedTotal": 7
+        },
+        {
+          "serialization": 1.199999988079071,
+          "wordCount": 1,
+          "hash": 0.9000000357627869,
+          "toc": 3.199999988079071,
+          "derivedTotal": 6.300000011920929
+        }
+      ]
+    },
+    {
+      "blocks": 10001,
+      "characters": 447917,
+      "synchronousEditMedianMs": 44.40000003576279,
+      "samplesMs": [
+        43.69999998807907,
+        43.80000001192093,
+        44.40000003576279,
+        46.5,
+        90.10000002384186
+      ],
+      "derived": [
+        {
+          "serialization": 4.599999964237213,
+          "wordCount": 5,
+          "hash": 2.300000011920929,
+          "toc": 13.600000023841858,
+          "derivedTotal": 25.5
+        },
+        {
+          "serialization": 1.800000011920929,
+          "wordCount": 3.600000023841858,
+          "hash": 2.299999952316284,
+          "toc": 11,
+          "derivedTotal": 18.69999998807907
+        },
+        {
+          "serialization": 2.099999964237213,
+          "wordCount": 4,
+          "hash": 2.300000011920929,
+          "toc": 10.100000023841858,
+          "derivedTotal": 18.5
+        },
+        {
+          "serialization": 1.899999976158142,
+          "wordCount": 3.600000023841858,
+          "hash": 2.299999952316284,
+          "toc": 10.200000047683716,
+          "derivedTotal": 18
+        },
+        {
+          "serialization": 1.699999988079071,
+          "wordCount": 3.400000035762787,
+          "hash": 2.399999976158142,
+          "toc": 10,
+          "derivedTotal": 17.5
+        }
+      ]
+    }
+  ],
+  "sourceCaretSamples": [
+    {
+      "lines": 1000,
+      "characters": 42889,
+      "getValueAndCountMedianMs": 0.699999988079071,
+      "samplesMs": [
+        0.5999999642372131,
+        0.6000000238418579,
+        0.699999988079071,
+        0.7000000476837158,
+        0.7999999523162842
+      ]
+    },
+    {
+      "lines": 10000,
+      "characters": 438889,
+      "getValueAndCountMedianMs": 4.5,
+      "samplesMs": [
+        4.300000011920929,
+        4.400000035762787,
+        4.5,
+        4.799999952316284,
+        5.5
+      ]
+    },
+    {
+      "lines": 100000,
+      "characters": 4488889,
+      "getValueAndCountMedianMs": 70.60000002384186,
+      "samplesMs": [
+        45.89999997615814,
+        53.60000002384186,
+        70.60000002384186,
+        73.59999996423721,
+        317.9000000357628
+      ]
+    }
+  ]
+}

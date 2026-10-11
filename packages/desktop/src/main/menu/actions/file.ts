@@ -11,7 +11,11 @@ import {
 } from 'electron'
 import log from 'electron-log'
 import { isDirectory, isFile, exists } from 'common/filesystem'
-import { MARKDOWN_EXTENSIONS, isDangerousExecutableFile, isMarkdownFile } from 'common/filesystem/paths'
+import {
+  MARKDOWN_EXTENSIONS,
+  isDangerousExecutableFile,
+  isMarkdownFile
+} from 'common/filesystem/paths'
 import { checkUpdates, userSetting } from './marktext'
 import { showTabBar } from './view'
 import { COMMANDS } from '../../commands'
@@ -30,7 +34,12 @@ import pandoc, {
   shouldMirrorMedia
 } from '../../utils/pandoc'
 import { t, getCurrentLanguage } from '../../i18n'
-import type { PandocExportPayload, TabOptions, UnsavedFile } from '@shared/types/files'
+import type {
+  PandocExportPayload,
+  TabOptions,
+  UnsavedFile,
+  SaveSnapshot
+} from '@shared/types/files'
 import { renderLongImage } from '../../utils/exportImage'
 
 type Win = BrowserWindow | null | undefined
@@ -286,14 +295,16 @@ const handleResponseForPrint = async(e: IpcMainEvent): Promise<void> => {
   })
 }
 
-const handleResponseForSave = async(
+const performSave = async(
   e: IpcMainEvent,
   id: string,
   filename: string,
   pathname: string | undefined,
   markdown: string,
   options: UnsavedFile['options'],
-  defaultPath?: string
+  defaultPath?: string,
+  snapshot?: SaveSnapshot,
+  saveAs = false
 ): Promise<string | void> => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (!win) {
@@ -309,11 +320,13 @@ const handleResponseForSave = async(
   // on disk nevertheless but is already tracked by MarkText.
   const alreadyExistOnDisk = !!pathname
 
-  let filePath = pathname
+  let filePath = saveAs ? undefined : pathname
 
   if (!filePath) {
     const { filePath: dialogPath, canceled } = await dialog.showSaveDialog(win, {
-      defaultPath: path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
+      defaultPath:
+        (saveAs && pathname) ||
+        path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
     })
 
     if (dialogPath && !canceled) {
@@ -342,18 +355,46 @@ const handleResponseForSave = async(
         ipcMain.emit('menu-add-recently-used', filePath)
 
         const newFilename = path.basename(filePath!)
-        win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename: newFilename })
+        win.webContents.send('mt::set-pathname', {
+          id,
+          pathname: filePath,
+          filename: newFilename,
+          snapshot
+        })
+      } else if (pathname !== filePath) {
+        ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
+        win.webContents.send('mt::set-pathname', {
+          id,
+          pathname: filePath,
+          filename: path.basename(filePath!),
+          snapshot
+        })
       } else {
         ipcMain.emit('window-file-saved', win.id, filePath)
-        win.webContents.send('mt::tab-saved', id)
+        win.webContents.send('mt::tab-saved', id, snapshot)
       }
       return id
     })
     .catch((err: unknown) => {
       log.error('Error while saving:', err)
       const msg = err instanceof Error ? err.message : String(err)
-      win.webContents.send('mt::tab-save-failure', id, msg)
+      win.webContents.send('mt::tab-save-failure', id, msg, snapshot)
     })
+}
+
+// Serialize each tab's requests, including Save As dialogs, so receipts and
+// disk contents follow the same order even when writes finish at different speeds.
+const saveQueues = new Map<string, Promise<string | void>>()
+const handleResponseForSave = (...args: Parameters<typeof performSave>): Promise<string | void> => {
+  const key = `${args[0].sender.id}:${args[1]}`
+  const previous = saveQueues.get(key) ?? Promise.resolve()
+  const next = previous.catch(() => {}).then(() => performSave(...args))
+  saveQueues.set(key, next)
+  const cleanup = () => {
+    if (saveQueues.get(key) === next) saveQueues.delete(key)
+  }
+  next.then(cleanup, cleanup)
+  return next
 }
 
 const showUnsavedFilesMessage = async(
@@ -423,7 +464,8 @@ ipcMain.on('mt::save-tabs', (e, unsavedFiles: UnsavedFile[]) => {
         file.pathname,
         file.markdown,
         file.options,
-        file.defaultPath
+        file.defaultPath,
+        file.snapshot
       )
     )
   ).catch(log.error)
@@ -450,13 +492,14 @@ ipcMain.on('mt::save-and-close-tabs', async(e, unsavedFiles: UnsavedFile[]) => {
           file.pathname,
           file.markdown,
           file.options,
-          file.defaultPath
+          file.defaultPath,
+          file.snapshot
         )
       )
     )
       .then((arr) => {
         const tabIds = arr.filter((id): id is string => id != null)
-        win.webContents.send('mt::force-close-tabs-by-id', tabIds)
+        win.webContents.send('mt::force-close-tabs-by-id', tabIds, true)
       })
       .catch((err: unknown) => {
         log.error('Error while save all:', err)
@@ -469,70 +512,18 @@ ipcMain.on('mt::save-and-close-tabs', async(e, unsavedFiles: UnsavedFile[]) => {
 
 ipcMain.on(
   'mt::response-file-save-as',
-  async(
-    e: IpcMainEvent,
-    id: string,
-    filename: string,
-    pathname: string | undefined,
-    markdown: string,
-    options: UnsavedFile['options'],
-    defaultPath?: string
-  ) => {
-    const win = BrowserWindow.fromWebContents(e.sender)
-    if (!win) {
-      return
-    }
-    let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
-    if (!recommendFilename) {
-      recommendFilename = filename || 'Untitled'
-    }
-
-    // If the file doesn't exist on disk add it to the recently used documents later
-    // and execute file from filesystem watcher for a short time. The file may exists
-    // on disk nevertheless but is already tracked by MarkText.
-    const alreadyExistOnDisk = !!pathname
-
-    const { filePath: dialogFilePath, canceled } = await dialog.showSaveDialog(win, {
-      defaultPath:
-        pathname || path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
-    })
-    let filePath = dialogFilePath
-
-    if (filePath && !canceled) {
-      filePath = path.resolve(filePath)
-      writeMarkdownFile(filePath, markdown, options as Parameters<typeof writeMarkdownFile>[2])
-        .then(() => {
-          if (!alreadyExistOnDisk) {
-            ipcMain.emit('window-add-file-path', win.id, filePath)
-            ipcMain.emit('menu-add-recently-used', filePath)
-
-            const newFilename = path.basename(filePath!)
-            win.webContents.send('mt::set-pathname', {
-              id,
-              pathname: filePath,
-              filename: newFilename
-            })
-          } else if (pathname !== filePath) {
-            // Update window file list and watcher.
-            ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
-
-            const newFilename = path.basename(filePath!)
-            win.webContents.send('mt::set-pathname', {
-              id,
-              pathname: filePath,
-              filename: newFilename
-            })
-          } else {
-            ipcMain.emit('window-file-saved', win.id, filePath)
-            win.webContents.send('mt::tab-saved', id)
-          }
-        })
-        .catch((err: unknown) => {
-          log.error('Error while save as:', err)
-          const msg = err instanceof Error ? err.message : String(err)
-          win.webContents.send('mt::tab-save-failure', id, msg)
-        })
-    }
+  (e, id, filename, pathname, markdown, options, defaultPath, snapshot) => {
+    handleResponseForSave(
+      e,
+      id,
+      filename,
+      pathname,
+      markdown,
+      options,
+      defaultPath,
+      snapshot,
+      true
+    ).catch(log.error)
   }
 )
 
@@ -557,12 +548,13 @@ ipcMain.on('mt::close-window-confirm', async(e, unsavedFiles: UnsavedFile[]) => 
           file.pathname,
           file.markdown,
           file.options,
-          file.defaultPath
+          file.defaultPath,
+          file.snapshot
         )
       )
     )
-      .then(() => {
-        ipcMain.emit('window-close-by-id', win.id)
+      .then((savedIds) => {
+        if (savedIds.every((id) => id != null)) win.webContents.send('mt::ask-for-close')
       })
       .catch((err: unknown) => {
         log.error('Error while saving before quit:', err)

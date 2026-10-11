@@ -1,6 +1,13 @@
 <template>
   <div class="pref-general">
     <h4>{{ t('preferences.general.title') }}</h4>
+    <cur-select
+      class="appearance-select"
+      :description="t('preferences.general.appearance.label')"
+      :value="appearance"
+      :options="appearanceOptions"
+      :on-change="(value) => onSelectChange('appearance', value)"
+    />
     <compound>
       <template #head>
         <h6 class="title">
@@ -241,9 +248,16 @@ import {
 } from './config'
 
 const { t } = useI18n()
+const appearanceOptions = computed(() =>
+  ['system', 'light', 'dark'].map((value) => ({
+    value,
+    label: t(`preferences.general.appearance.${value}`)
+  }))
+)
 const preferenceStore = usePreferencesStore()
 
 const {
+  appearance,
   autoSave,
   autoSaveDelay,
   titleBarStyle,

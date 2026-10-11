@@ -398,3 +398,20 @@ export const sendIpcToRenderer = async(
     { channel, args }
   )
 }
+
+// Simulate a receipt for a frozen renderer snapshot in tests without a disk save.
+export const acknowledgeTabSave = async(app: ElectronApplication, page: Page, tabId: string): Promise<void> => {
+  const snapshot = await page.evaluate((id) => {
+    const root = document.querySelector('#app') as Element & {
+      __vue_app__: { config: { globalProperties: { $pinia: { _s: Map<string, {
+        tabs: Array<{ id: string }>
+        flushActiveEditor(): void
+        createSaveSnapshot(tab: unknown): unknown
+      }> } } } }
+    }
+    const store = root.__vue_app__.config.globalProperties.$pinia._s.get('editor')!
+    store.flushActiveEditor()
+    return store.createSaveSnapshot(store.tabs.find(tab => tab.id === id))
+  }, tabId)
+  await sendIpcToRenderer(app, 'mt::tab-saved', tabId, snapshot)
+}

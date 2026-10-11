@@ -7,6 +7,7 @@ import {
   exitSourceMode,
   setSourceMarkdown,
   sendIpcToRenderer,
+  acknowledgeTabSave,
   getMarkdownContent,
   typeIntoEditor,
   placeCaretInEditor
@@ -184,7 +185,7 @@ test.describe('Parity PG15 — undo back to on-disk content restores the saved i
       () => document.querySelector('.editor-tabs li.active')?.getAttribute('data-id') ?? null
     )
     expect(tabId).toBeTruthy()
-    await sendIpcToRenderer(app, 'mt::tab-saved', tabId)
+    await acknowledgeTabSave(app, page, tabId!)
     await expect
       .poll(() => page.evaluate(() => !!document.querySelector('.editor-tabs li.unsaved')))
       .toBe(false)
@@ -327,7 +328,7 @@ test.describe('Item 256 — save -> clean -> edit -> dirty -> undo-to-saved cycl
     //    records the current synthetic id as lastSavedHistoryId and clears dirty.
     const tabId = await activeTabId(page)
     expect(tabId).toBeTruthy()
-    await sendIpcToRenderer(app, 'mt::tab-saved', tabId)
+    await acknowledgeTabSave(app, page, tabId!)
     await expect.poll(() => isTabDirty(page)).toBe(false)
 
     // 3) A fresh edit past the saved state re-marks the tab dirty.

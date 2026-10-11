@@ -8,9 +8,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 vi.hoisted(() => {
   const w = globalThis as unknown as {
     window?: {
-      path?: { sep: string, join: (...parts: string[]) => string }
+      path?: { sep: string; join: (...parts: string[]) => string }
       marktext?: { paths: { userDataPath: string } }
-      fileUtils?: { isFile: (p: string) => Promise<boolean>, readFile: (p: string) => Promise<unknown> }
+      fileUtils?: {
+        isFile: (p: string) => Promise<boolean>
+        readFile: (p: string) => Promise<unknown>
+      }
     }
   }
   w.window ??= {}
@@ -37,7 +40,10 @@ describe('getCssForOptions', () => {
     const w = globalThis as unknown as {
       window: {
         marktext: { paths: { userDataPath: string } }
-        fileUtils: { isFile: (p: string) => Promise<boolean>, readFile: (p: string) => Promise<unknown> }
+        fileUtils: {
+          isFile: (p: string) => Promise<boolean>
+          readFile: (p: string) => Promise<unknown>
+        }
       }
     }
     w.window.marktext = { paths: { userDataPath: '/userData' } }
@@ -69,44 +75,13 @@ describe('getCssForOptions', () => {
     expect(def).toContain('.markdown-body{')
   })
 
-  it('reads a custom theme name from disk via window.fileUtils', async() => {
-    const isFile = vi.fn(async() => true)
-    const readFile = vi.fn(async() => '.custom{}')
-    const w = globalThis as unknown as {
-      window: { fileUtils: { isFile: typeof isFile, readFile: typeof readFile } }
-    }
-    w.window.fileUtils = { isFile, readFile }
-
+  it('uses imported CSS without reading an export-only directory', async() => {
     const { getCssForOptions } = await loadPdf()
-    const css = await getCssForOptions({ theme: 'mytheme' })
-
-    expect(css).toContain('.custom{}')
-    expect(isFile).toHaveBeenCalledWith('/userData/themes/export/mytheme')
-  })
-
-  it('omits the disk theme CSS when the theme file is absent', async() => {
-    const w = globalThis as unknown as {
-      window: { fileUtils: { isFile: () => Promise<boolean>, readFile: () => Promise<unknown> } }
-    }
-    w.window.fileUtils = { isFile: async() => false, readFile: async() => '.custom{}' }
-
-    const { getCssForOptions } = await loadPdf()
-    const css = await getCssForOptions({ theme: 'mytheme' })
-
-    expect(css).not.toContain('.custom{}')
-  })
-
-  it('round-trips a disk theme containing CSS child-combinator (>) selectors', async() => {
-    // The whole stylesheet is escapeHTML → sanitize → unescapeHTML'd, so a `>`
-    // in a theme selector must survive the round-trip unmangled.
-    const w = globalThis as unknown as {
-      window: { fileUtils: { isFile: () => Promise<boolean>, readFile: () => Promise<string> } }
-    }
-    w.window.fileUtils = { isFile: async() => true, readFile: async() => '.a > .b{color:red}' }
-
-    const { getCssForOptions } = await loadPdf()
-    const css = await getCssForOptions({ theme: 'mytheme' })
-
+    const css = await getCssForOptions({
+      type: 'styledHtml',
+      theme: 'custom:test',
+      customThemes: [{ id: 'custom:test', name: 'Test', css: '.a > .b{color:red}' }]
+    })
     expect(css).toContain('.a > .b{color:red}')
   })
 
@@ -128,7 +103,7 @@ describe('getCssForOptions', () => {
     // AFTER the theme block (same specificity → later wins), otherwise the theme
     // silently clobbers the user's font size / line height / family.
     const w = globalThis as unknown as {
-      window: { fileUtils: { isFile: () => Promise<boolean>, readFile: () => Promise<string> } }
+      window: { fileUtils: { isFile: () => Promise<boolean>; readFile: () => Promise<string> } }
     }
     w.window.fileUtils = {
       isFile: async() => true,
@@ -137,7 +112,14 @@ describe('getCssForOptions', () => {
 
     const { getCssForOptions } = await loadPdf()
     const css = await getCssForOptions({
-      theme: 'mytheme',
+      theme: 'custom:test',
+      customThemes: [
+        {
+          id: 'custom:test',
+          name: 'Test',
+          css: '.markdown-body{font-size:99px;line-height:9;font-family:"Theme";}'
+        }
+      ],
       fontFamily: 'Foo',
       fontSize: 14,
       lineHeight: 1.6
@@ -246,10 +228,9 @@ describe('getHtmlToc', () => {
 
   it('renders the engine `contentHtml` for entries when present (#3110)', async() => {
     const { getHtmlToc } = await loadPdf()
-    const html = getHtmlToc(
-      [{ lvl: 2, content: 'Sub', contentHtml: '<strong>Sub</strong>' }],
-      { tocIncludeTopHeading: true }
-    )
+    const html = getHtmlToc([{ lvl: 2, content: 'Sub', contentHtml: '<strong>Sub</strong>' }], {
+      tocIncludeTopHeading: true
+    })
 
     expect(html).toContain('<strong>Sub</strong>')
   })

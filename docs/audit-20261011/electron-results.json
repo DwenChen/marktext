@@ -1,0 +1,93 @@
+{
+  "beforeUndo": {
+    "markdown": "# After\n\n[TOC]\n\nbody",
+    "isSaved": false,
+    "toc": [
+      {
+        "content": "After",
+        "contentHtml": "After",
+        "lvl": 1,
+        "slug": "mu-5",
+        "githubSlug": "after"
+      }
+    ],
+    "headings": [
+      "# After"
+    ]
+  },
+  "afterUndo": {
+    "markdown": "# Before\n\n[TOC]\n\nbody",
+    "isSaved": true,
+    "toc": [
+      {
+        "content": "After",
+        "contentHtml": "After",
+        "lvl": 1,
+        "slug": "mu-6",
+        "githubSlug": "after"
+      }
+    ],
+    "headings": [
+      "# Before"
+    ]
+  },
+  "inSource": {
+    "markdown": "# Saved in source\n\n[TOC]\n\nbody",
+    "isSaved": false,
+    "toc": [
+      {
+        "content": "After",
+        "contentHtml": "After",
+        "lvl": 1,
+        "slug": "mu-6",
+        "githubSlug": "after"
+      }
+    ],
+    "headings": [
+      "# Before"
+    ]
+  },
+  "exportOutline": {
+    "headingIds": [
+      "saved-in-source"
+    ],
+    "anchors": [
+      "#before"
+    ]
+  },
+  "savedInSource": {
+    "markdown": "# Saved in source\n\n[TOC]\n\nbody",
+    "isSaved": true,
+    "toc": [
+      {
+        "content": "After",
+        "contentHtml": "After",
+        "lvl": 1,
+        "slug": "mu-6",
+        "githubSlug": "after"
+      }
+    ],
+    "headings": [
+      "# Before"
+    ]
+  },
+  "afterSourceExit": {
+    "markdown": "# Saved in source\n\n[TOC]\n\nbody",
+    "isSaved": false,
+    "toc": [
+      {
+        "content": "Saved in source",
+        "contentHtml": "Saved in source",
+        "lvl": 1,
+        "slug": "mu-8",
+        "githubSlug": "saved-in-source"
+      }
+    ],
+    "headings": [
+      "# Saved in source"
+    ]
+  },
+  "savedDiskMarkdown": "# Saved in source\n\n[TOC]\n\nbody",
+  "listenerCountBeforeSearch": 1,
+  "listenerCountAfterSearch": 13
+}

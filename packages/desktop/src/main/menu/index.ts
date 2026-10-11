@@ -37,7 +37,6 @@ interface AddEditorMenuOptions {
 
 interface ThemeMenuChange {
   theme?: string
-  followSystemTheme?: boolean
 }
 
 class AppMenu {
@@ -54,11 +53,7 @@ class AppMenu {
    * @param keybindings The keybindings instances.
    * @param userDataPath The user data path.
    */
-  constructor(
-    preferences: Preference,
-    keybindings: Keybindings,
-    userDataPath: string
-  ) {
+  constructor(preferences: Preference, keybindings: Keybindings, userDataPath: string) {
     this._preferences = preferences
     this._keybindings = keybindings
     this._userDataPath = userDataPath
@@ -383,7 +378,7 @@ class AppMenu {
   /**
    * Update theme menu state across editor menus.
    */
-  updateThemeMenu = ({ theme, followSystemTheme }: ThemeMenuChange = {}): void => {
+  updateThemeMenu = ({ theme }: ThemeMenuChange = {}): void => {
     this.windowMenus.forEach((value) => {
       const { menu, type } = value
       if (type !== MenuType.EDITOR || !menu) {
@@ -396,14 +391,6 @@ class AppMenu {
       }
 
       themeMenus.submenu.items.forEach((item) => {
-        if (item.type === 'radio' && typeof followSystemTheme !== 'undefined') {
-          item.enabled = !followSystemTheme
-        }
-
-        if (item.id === 'follow-system-theme' && typeof followSystemTheme !== 'undefined') {
-          item.checked = followSystemTheme
-        }
-
         if (item.type === 'radio' && typeof theme !== 'undefined') {
           item.checked = item.id === theme
         } else if (item.id && item.id === theme) {
@@ -570,7 +557,7 @@ class AppMenu {
     })
 
     onInternalChannel('broadcast-preferences-changed', async(prefs: Partial<IUserPreferences>) => {
-      if (prefs.theme !== undefined || prefs.followSystemTheme !== undefined) {
+      if (prefs.theme !== undefined || prefs.customThemes !== undefined) {
         this.updateAppMenu()
       }
       if (prefs.autoSave !== undefined) {

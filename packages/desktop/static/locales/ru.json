@@ -143,44 +143,7 @@
       "clearFormat": "Очистить форматирование"
     },
     "theme": {
-      "theme": "&Тема",
-      "dark": "Тёмная",
-      "followThemDisabled": "Выбор темы отключён при следовании системной теме",
-      "lightThemes": "— Светлые темы —",
-      "darkThemes": "— Тёмные темы —",
-      "ayuDark": "Ayu Dark",
-      "ayuLight": "Ayu Light",
-      "ayuMirage": "Ayu Mirage",
-      "cadmiumDark": "Cadmium Dark",
-      "cadmiumLight": "Cadmium Light",
-      "catppuccinLatte": "Catppuccin Latte",
-      "catppuccinMocha": "Catppuccin Mocha",
-      "cyberdream": "cyberdream",
-      "dracula": "Dracula",
-      "everforestDark": "Everforest Dark",
-      "everforestLight": "Everforest Light",
-      "graphiteLight": "Graphite Light",
-      "gruvboxDark": "Gruvbox Dark",
-      "gruvboxLight": "Gruvbox Light",
-      "horizonDark": "Horizon Dark",
-      "kanagawa": "Kanagawa",
-      "materialDark": "Material Dark",
-      "monokaiPro": "Monokai Pro",
-      "nightfox": "Nightfox",
-      "nord": "Nord",
-      "oneDark": "One Dark",
-      "oxocarbonDark": "Oxocarbon Dark",
-      "palenight": "Palenight",
-      "rosePine": "Rosé Pine",
-      "rosePineDawn": "Rosé Pine Dawn",
-      "rosePineMoon": "Rosé Pine Moon",
-      "solarizedDark": "Solarized Dark",
-      "solarizedLight": "Solarized Light",
-      "synthwave84": "Synthwave '84",
-      "tokyoNight": "Tokyo Night",
-      "tokyoNightLight": "Tokyo Night Light",
-      "tokyoNightStorm": "Tokyo Night Storm",
-      "ulyssesLight": "Ulysses Light"
+      "theme": "Document theme"
     }
   },
   "contextMenu": {
@@ -296,11 +259,6 @@
       "fontSize": "Размер шрифта",
       "lineHeight": "Высота строки"
     },
-    "theme": {
-      "label": "Тема",
-      "description": "Вы можете изменить внешний вид документа, выбрав тему или создав собственную.",
-      "theme": "Тема"
-    },
     "headerFooter": {
       "allowStyled": "Разрешить форматированный текст",
       "customizeStyle": "Настроить стиль",
@@ -342,16 +300,35 @@
         "default": "По умолчанию",
         "simple": "Простой",
         "styled": "Стилизованный"
-      },
-      "themes": {
-        "academic": "Академическая",
-        "default": "GitHub (по умолчанию)",
-        "liber": "Liber"
       }
     },
     "image": {
       "description": "Export the entire document as one continuous PNG image. Images, diagrams and math are included. Choose the image width on the Page tab.",
       "width": "Image width (px)"
+    },
+    "compact": {
+      "title": "Export as {format}",
+      "more": "More settings",
+      "cancel": "Cancel",
+      "print": "Print",
+      "width": "Width",
+      "height": "Height",
+      "top": "Top",
+      "bottom": "Bottom",
+      "left": "Left",
+      "right": "Right",
+      "formats": {
+        "styledHtml": "HTML",
+        "pdf": "PDF",
+        "png": "PNG image",
+        "print": "Print"
+      },
+      "hints": {
+        "styledHtml": "A styled webpage that opens directly in a browser.",
+        "png": "Height adjusts automatically to the document content.",
+        "pdf": "A paginated document, ready to share or print.",
+        "print": "Paper size and orientation are chosen in the system print dialog."
+      }
     }
   },
   "recent": {
@@ -370,7 +347,7 @@
         "general": "Общие",
         "editor": "Редактор",
         "markdown": "Markdown",
-        "theme": "Тема",
+        "theme": "Document theme",
         "image": "Изображения",
         "view": "Вид",
         "searcher": "Поиск",
@@ -433,10 +410,7 @@
         "softNewlineAsSpace": "Считать мягкие переносы строк пробелами",
         "sequenceTheme": "Тема диаграмм последовательностей",
         "plantumlServer": "URL сервера PlantUML",
-        "theme": "Выберите тему, используемую в MarkText",
-        "followSystemTheme": "Следовать системной теме",
-        "lightModeTheme": "Тема для светлого режима системы",
-        "darkModeTheme": "Тема для тёмного режима системы",
+        "theme": "Theme",
         "spellcheckerEnabled": "Включена ли проверка орфографии",
         "spellcheckerNoUnderline": "Не подчёркивать орфографические ошибки",
         "spellcheckerLanguage": "Язык проверки орфографии",
@@ -448,7 +422,7 @@
         "fileSortOrder": "Порядок сортировки файлов в открытых папках: по возрастанию или убыванию.",
         "openedFilesInSidebar": "Показывать открытые файлы на боковой панели.",
         "showPandocConvert": "Показывать меню конвертации Pandoc. Требуется установленный Pandoc.",
-        "documentStyle": "Document rendering style"
+        "appearance": "Appearance"
       }
     },
     "categories": {
@@ -456,7 +430,7 @@
       "editor": "Редактор",
       "markdown": "Markdown",
       "spelling": "Орфография",
-      "theme": "Тема",
+      "theme": "Document theme",
       "image": "Изображения",
       "keybindings": "Горячие клавиши"
     },
@@ -538,6 +512,12 @@
           "turkish": "Türkçe",
           "russian": "Русский"
         }
+      },
+      "appearance": {
+        "label": "Appearance",
+        "system": "Follow system",
+        "light": "Light",
+        "dark": "Dark"
       }
     },
     "editor": {
@@ -549,7 +529,9 @@
         "fontFamily": "Семейство шрифтов",
         "maxWidth": "Макс. ширина",
         "maxWidthNotes": "Максимальная ширина содержимого редактора. Введите число с суффиксом px, ch (символы) или %, например 800px, 80ch или 60%. Оставьте пустым для ширины по умолчанию.",
-        "maxWidthInvalid": "Введите число с суффиксом px, ch или %, например 800px."
+        "maxWidthInvalid": "Введите число с суффиксом px, ch или %, например 800px.",
+        "centerTables": "Center tables",
+        "centerTablesDetail": "Center tables in the editor and exports. Turn off to align tables to the left. Cell text alignment stays unchanged."
       },
       "codeBlock": {
         "title": "Блок кода",
@@ -596,14 +578,6 @@
         "autoNormalizeLineEndings": "Автонормализация концов строк в LF при открытии",
         "wrapCodeBlocks": "Переносить блоки кода",
         "sourceCodeLineNumbers": "Показывать номера строк в режиме исходного кода"
-      },
-      "documentStyle": {
-        "label": "Document rendering style",
-        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
-        "default": "MarkText",
-        "github": "GitHub",
-        "classic": "Classic",
-        "book": "Book"
       },
       "resizeSidebar": "Resize sidebar"
     },
@@ -728,16 +702,23 @@
       }
     },
     "theme": {
-      "title": "Тема",
-      "followSystemTheme": "Следовать системной теме",
-      "modeThemes": "Выбор темы",
-      "lightModeTheme": "Тема светлого режима",
-      "darkModeTheme": "Тема тёмного режима",
-      "customCss": "Пользовательский CSS",
-      "importCustomThemes": "Импорт пользовательских тем",
-      "importTheme": "Импортировать тему",
-      "openFolder": "Открыть папку",
-      "openThemesFolder": "Открыть папку тем"
+      "title": "Document theme",
+      "description": "A theme defines document typography. Editing and export use the same theme.",
+      "select": "Theme",
+      "builtins": {
+        "github": "GitHub",
+        "academic": "Academic",
+        "liber": "Liber"
+      },
+      "previewHeading": "Document heading",
+      "previewText": "Clear typography for your writing.",
+      "customTitle": "Custom themes",
+      "importTheme": "Import CSS theme",
+      "importNotes": "Import a self-contained CSS file (up to 1 MB). Use .markdown-body for document styles. @import is not supported. The theme applies to editing and export.",
+      "importError": "Unable to import this theme. Choose a readable CSS file under 1 MB containing styles and no @import.",
+      "remove": "Remove",
+      "exportUsesCurrent": "Export uses the current document theme. Change it in Settings → Document theme.",
+      "typographyNotes": "Document fonts, sizes and line spacing come from the document theme. Select or import a theme to change them."
     },
     "keybindings": {
       "title": "Горячие клавиши",

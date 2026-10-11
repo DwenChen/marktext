@@ -332,6 +332,9 @@ export class Muya {
     }
 
     setOptions(options: Partial<IMuyaOptions>, forceRender = false) {
+        // Commit under the old parser options before rebuilding this document.
+        if (forceRender)
+            this.flush();
         Object.assign(this.options, options);
 
         if ('spellcheckEnabled' in options)
@@ -357,8 +360,7 @@ export class Muya {
             return;
 
         if (Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions))) {
-            const { jsonState } = this.editor;
-            jsonState.setContent(jsonState.markdownToState(this.getMarkdown()));
+            this.replaceContent(this.getMarkdown());
         }
 
         this._forceRender();
@@ -373,7 +375,7 @@ export class Muya {
         if (selection && selection.isSelectionInSameBlock) {
             const begin = Math.min(selection.anchor.offset, selection.focus.offset);
             const end = Math.max(selection.anchor.offset, selection.focus.offset);
-            const cursorBlock = this.editor.scrollPage?.queryBlock(selection.anchor.path);
+            const cursorBlock = this.editor.scrollPage?.queryBlock([...selection.anchor.path]);
             if (cursorBlock && cursorBlock.isContent())
                 cursorBlock.setCursor(begin, end, true);
         }

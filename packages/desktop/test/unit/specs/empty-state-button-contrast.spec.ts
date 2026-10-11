@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const RENDERER = resolve(__dirname, '../../../src/renderer/src')
-const THEME_DIR = resolve(RENDERER, 'assets/themes')
+const THEME_DIR = resolve(RENDERER, 'assets/appearance')
 const BASE_CSS = resolve(RENDERER, 'assets/styles/index.css')
 
 type Rgb = [number, number, number]
@@ -32,9 +32,7 @@ const resolveVar = (value: string, vars: Record<string, string>): string => {
   let v = value
   let guard = 0
   while (/var\(/.test(v) && guard++ < 20) {
-    v = v
-      .replace(/var\(\s*(--[\w-]+)\s*(?:,[^)]*)?\)/g, (_, name) => vars[name] ?? '')
-      .trim()
+    v = v.replace(/var\(\s*(--[\w-]+)\s*(?:,[^)]*)?\)/g, (_, name) => vars[name] ?? '').trim()
   }
   return v
 }
@@ -44,12 +42,7 @@ const toRgba = (raw: string): Rgba | null => {
   let m: RegExpMatchArray | null
   if ((m = str.match(/^#([0-9a-fA-F]{3})$/))) {
     const h = m[1]
-    return [
-      parseInt(h[0] + h[0], 16),
-      parseInt(h[1] + h[1], 16),
-      parseInt(h[2] + h[2], 16),
-      1
-    ]
+    return [parseInt(h[0] + h[0], 16), parseInt(h[1] + h[1], 16), parseInt(h[2] + h[2], 16), 1]
   }
   if ((m = str.match(/^#([0-9a-fA-F]{6})$/))) {
     const h = m[1]
@@ -76,11 +69,7 @@ const toRgba = (raw: string): Rgba | null => {
 // Composite a translucent colour over an opaque backdrop.
 const over = (fg: Rgba, bg: Rgb): Rgb => {
   const a = fg[3]
-  return [
-    fg[0] * a + bg[0] * (1 - a),
-    fg[1] * a + bg[1] * (1 - a),
-    fg[2] * a + bg[2] * (1 - a)
-  ]
+  return [fg[0] * a + bg[0] * (1 - a), fg[1] * a + bg[1] * (1 - a), fg[2] * a + bg[2] * (1 - a)]
 }
 
 const relLuminance = ([r, g, b]: Rgb): number => {
@@ -113,16 +102,14 @@ const pairContrast = (
   const bgRaw = toRgba(resolveVar(`var(${bgVar})`, vars))
   const fgRaw = toRgba(resolveVar(`var(${fgVar})`, vars))
   if (!bgRaw || !fgRaw) throw new Error(`unresolved colour ${fgVar}/${bgVar}`)
-  const bg = bgRaw[3] < 1 ? over(bgRaw, surfaceRgb) : [bgRaw[0], bgRaw[1], bgRaw[2]] as Rgb
-  const fg = fgRaw[3] < 1 ? over(fgRaw, bg) : [fgRaw[0], fgRaw[1], fgRaw[2]] as Rgb
+  const bg = bgRaw[3] < 1 ? over(bgRaw, surfaceRgb) : ([bgRaw[0], bgRaw[1], bgRaw[2]] as Rgb)
+  const fg = fgRaw[3] < 1 ? over(fgRaw, bg) : ([fgRaw[0], fgRaw[1], fgRaw[2]] as Rgb)
   return contrast(fg, bg)
 }
 
 // Pull the foreground (color) and background-color custom-property names the
 // empty-state button rule assigns, straight from the component's scoped CSS.
-const extractButtonVars = (
-  componentPath: string
-): { fgVar: string; bgVar: string } => {
+const extractButtonVars = (componentPath: string): { fgVar: string; bgVar: string } => {
   const css = readFileSync(componentPath, 'utf8')
   const ruleRe = /([^{}]+)\{([^{}]*)\}/g
   let m: RegExpExecArray | null
@@ -139,7 +126,7 @@ const extractButtonVars = (
 }
 
 const baseVars = parseVars(readFileSync(BASE_CSS, 'utf8'))
-const themeFiles = readdirSync(THEME_DIR).filter((f) => f.endsWith('.theme.css'))
+const themeFiles = readdirSync(THEME_DIR).filter((f) => f === 'dark.css')
 
 const COMPONENTS = [
   {
@@ -161,7 +148,7 @@ const COMPONENTS = [
 
 describe('empty-state button readability (#4774)', () => {
   it('found theme files and base variables to test against', () => {
-    expect(themeFiles.length).toBeGreaterThan(20)
+    expect(themeFiles.length).toBe(1)
     expect(baseVars['--buttonPrimaryFontColor']).toBeTruthy()
     expect(baseVars['--buttonPrimaryBgColor']).toBeTruthy()
   })

@@ -15,9 +15,10 @@ export default [
   {
     ignores: [
       '.claude/**',
+      'temp/**',
       '**/out/**',
       '**/dist/**',
-      // The website ships with its own ESLint v8 config (React conventions).
+      // The website ships with its own Next.js ESLint config.
       // The root config here is desktop-focused; mixing the two surfaces
       // pre-existing website style errors into desktop CI.
       'packages/website/**',

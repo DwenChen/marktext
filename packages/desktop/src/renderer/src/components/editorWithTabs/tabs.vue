@@ -1,7 +1,16 @@
 <template>
-  <div class="editor-tabs">
-    <div ref="tabContainer" class="scrollable-tabs">
-      <ul ref="tabDropContainer" class="tabs-container">
+  <div
+    ref="tabBar"
+    class="editor-tabs"
+  >
+    <div
+      ref="tabContainer"
+      class="scrollable-tabs"
+    >
+      <ul
+        ref="tabDropContainer"
+        class="tabs-container"
+      >
         <li
           v-for="file of tabs"
           :key="file.id"
@@ -14,13 +23,20 @@
         >
           <span>{{ file.filename }}</span>
           <span class="unsaved-dot" />
-          <el-icon class="close-icon" :size="12" @click.stop="removeFileInTab(file)">
+          <el-icon
+            class="close-icon"
+            :size="12"
+            @click.stop="removeFileInTab(file)"
+          >
             <Close />
           </el-icon>
         </li>
       </ul>
     </div>
-    <div class="new-file" @click.stop="newFile()">
+    <div
+      class="new-file"
+      @click.stop="newFile()"
+    >
       <el-icon :size="16">
         <Plus />
       </el-icon>
@@ -55,6 +71,7 @@ interface AutoScroller {
 // little slack for trackpad drift.
 const DRAG_THRESHOLD_PX = 5
 
+const tabBar = ref<HTMLElement | null>(null)
 const tabContainer = ref<HTMLElement | null>(null)
 const tabDropContainer = ref<HTMLElement | null>(null)
 let autoScroller: AutoScroller | null = null
@@ -62,6 +79,8 @@ let drake: dragula.Drake | null = null
 const pendingTabId = ref<string | null>(null)
 const selectedTabId = computed(() => pendingTabId.value || currentFile.value?.id)
 let switchFrame = 0
+let visibilityFrame = 0
+let tabResizeObserver: ResizeObserver | undefined
 
 // Computed properties
 
@@ -110,6 +129,19 @@ const scrollActiveTabIntoView = () => {
   } else if (tabRect.right > containerRect.right) {
     container.scrollLeft += tabRect.right - containerRect.right
   }
+}
+
+const scheduleActiveTabVisibility = () => {
+  cancelAnimationFrame(visibilityFrame)
+  visibilityFrame = requestAnimationFrame(() => {
+    visibilityFrame = 0
+    const container = tabContainer.value
+    const availableWidth = (tabBar.value?.clientWidth ?? 0) - 28
+    if (!container || availableWidth <= 0) return
+    // A long filename must fit even when a wide sidebar leaves a narrow strip.
+    container.style.setProperty('--tab-max-width', `${Math.min(280, availableWidth)}px`)
+    scrollActiveTabIntoView()
+  })
 }
 
 const handleTabScroll = (event: WheelEvent) => {
@@ -183,7 +215,7 @@ watch(
   () => {
     cancelAnimationFrame(switchFrame)
     pendingTabId.value = null
-    nextTick(scrollActiveTabIntoView)
+    nextTick(scheduleActiveTabVisibility)
   }
 )
 
@@ -202,6 +234,11 @@ onMounted(() => {
 
   // Allow to scroll through the tabs by mouse wheel or touchpad.
   tabsEl.addEventListener('wheel', handleTabScroll)
+  // Track the lightweight tab strip independently of the document's cached
+  // viewport, including sidebar drags and showing the previously hidden bar.
+  tabResizeObserver = new ResizeObserver(scheduleActiveTabVisibility)
+  if (tabBar.value) tabResizeObserver.observe(tabBar.value)
+  scheduleActiveTabVisibility()
 
   // Allow tab drag and drop to reorder tabs.
   drake = dragula([tabDropContainer.value], {
@@ -247,6 +284,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(switchFrame)
+  cancelAnimationFrame(visibilityFrame)
+  tabResizeObserver?.disconnect()
   const tabsEl = tabContainer.value
   if (tabsEl) {
     tabsEl.removeEventListener('wheel', handleTabScroll)
@@ -287,6 +326,10 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: row;
   height: 28px;
+  /* The frozen document can exceed the live viewport during a resize. Reserve
+     the controls' row instead of letting flexbox squeeze it to zero. */
+  flex: 0 0 28px;
+  min-width: 0;
   user-select: none;
   box-shadow: 0px 0px 9px 2px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -296,6 +339,7 @@ onBeforeUnmount(() => {
 }
 .scrollable-tabs {
   flex: 0 1 auto;
+  min-width: 0;
   height: 28px;
   overflow: hidden;
 }
@@ -324,7 +368,8 @@ onBeforeUnmount(() => {
     font-size: 12px;
     line-height: 28px;
     height: 28px;
-    max-width: 280px;
+    box-sizing: border-box;
+    max-width: var(--tab-max-width, 280px);
     display: flex;
     align-items: center;
     &::after {

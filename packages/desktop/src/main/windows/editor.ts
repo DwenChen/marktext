@@ -110,7 +110,7 @@ class EditorWindow extends BaseWindow {
 
     const {
       titleBarStyle,
-      theme,
+      resolvedAppearance,
       sideBarVisibility,
       restoreLayoutState,
       tabBarVisibility,
@@ -128,7 +128,7 @@ class EditorWindow extends BaseWindow {
       }
     }
 
-    winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
+    winOptions.backgroundColor = this._getPreferredBackgroundColor(resolvedAppearance)
     if (env.disableSpellcheck) {
       // winOptions.webPreferences is set by editorWinOptions spread above
       ;(winOptions.webPreferences as { spellcheck: boolean }).spellcheck = false

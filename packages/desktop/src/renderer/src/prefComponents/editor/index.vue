@@ -8,36 +8,9 @@
         </h6>
       </template>
       <template #children>
-        <cur-select
-          class="document-style-select"
-          :description="t('preferences.editor.documentStyle.label')"
-          :notes="t('preferences.editor.documentStyle.notes')"
-          :value="documentStyle"
-          :options="documentStyleOptions"
-          :on-change="(value) => onSelectChange('documentStyle', value)"
-        />
-        <range
-          :description="t('preferences.editor.textEditor.fontSize')"
-          :value="fontSize"
-          :min="12"
-          :max="32"
-          unit="px"
-          :step="1"
-          :on-change="(value) => onSelectChange('fontSize', value)"
-        />
-        <range
-          :description="t('preferences.editor.textEditor.lineHeight')"
-          :value="lineHeight"
-          :min="1.2"
-          :max="2.0"
-          :step="0.1"
-          :on-change="(value) => onSelectChange('lineHeight', value)"
-        />
-        <font-text-box
-          :description="t('preferences.editor.textEditor.fontFamily')"
-          :value="editorFontFamily"
-          :on-change="(value) => onSelectChange('editorFontFamily', value)"
-        />
+        <p class="notes">
+          {{ t('preferences.theme.typographyNotes') }}
+        </p>
         <text-box
           :description="t('preferences.editor.textEditor.maxWidth')"
           :notes="t('preferences.editor.textEditor.maxWidthNotes')"
@@ -46,6 +19,13 @@
           :regex-validator="/^(?:$|[0-9]+(?:ch|px|%)$)/"
           :error-message="t('preferences.editor.textEditor.maxWidthInvalid')"
           :on-change="(value) => onSelectChange('editorLineWidth', value)"
+        />
+        <bool
+          class="center-tables-setting"
+          :description="t('preferences.editor.textEditor.centerTables')"
+          :detailed-description="t('preferences.editor.textEditor.centerTablesDetail')"
+          :bool="centerTables"
+          :on-change="(value) => onSelectChange('centerTables', value)"
         />
       </template>
     </compound>
@@ -198,7 +178,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
@@ -221,18 +200,8 @@ const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
 
 const defaultEncodingOptions = getDefaultEncodingOptions()
-const documentStyleOptions = computed(() =>
-  ['default', 'github', 'classic', 'book'].map((value) => ({
-    value,
-    label: t(`preferences.editor.documentStyle.${value}`)
-  }))
-)
 
 const {
-  documentStyle,
-  fontSize,
-  editorFontFamily,
-  lineHeight,
   autoPairBracket,
   autoPairMarkdownSyntax,
   autoPairQuote,
@@ -250,6 +219,7 @@ const {
   autoNormalizeLineEndings,
   wrapCodeBlocks,
   editorLineWidth,
+  centerTables,
   defaultEncoding,
   autoGuessEncoding,
   trimTrailingNewline

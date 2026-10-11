@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="sourceCodeContainer"
-    class="source-code"
-  />
+  <div ref="sourceCodeContainer" class="source-code" />
 </template>
 
 <script setup lang="ts">
@@ -16,7 +13,6 @@ import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMi
 import { wordCount as getWordCount } from '@muyajs/core'
 import { adjustCursor } from '../../util'
 import bus from '../../bus'
-import { oneDarkThemes, railscastsThemes } from '@/config'
 
 interface MuyaIndexCursorLike {
   anchor: CodeMirror.Position
@@ -35,12 +31,11 @@ const preferencesStore = usePreferencesStore()
 const sourceCodeContainer = ref<HTMLDivElement | null>(null)
 
 const editor = shallowRef<CodeMirror.Editor | null>(null)
-const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 
 const {
-  theme,
+  resolvedAppearance,
   sourceCode,
   sourceCodeLineNumbers,
   texMathDollars,
@@ -82,11 +77,10 @@ watch([texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslas
   editor.value?.setOption('mode', markdownMathMode())
 })
 
-const getMarkdownAndCursor = (cm: CodeMirror.Editor) => {
+const getCursor = (cm: CodeMirror.Editor) => {
   let focus = cm.getCursor('head')
   let anchor = cm.getCursor('anchor')
 
-  const markdown: string = cm.getValue()
   const convertToMuyaCursor = (cursor: CodeMirror.Position) => {
     const line = cm.getLine(cursor.line)
     const preLine = cm.getLine(cursor.line - 1)
@@ -113,15 +107,19 @@ const getMarkdownAndCursor = (cm: CodeMirror.Editor) => {
     focus = anchor
     anchor = tmpCursor
   }
-  return { cursor: { focus, anchor }, markdown }
+  return { focus, anchor }
 }
+
+const getMarkdownAndCursor = (cm: CodeMirror.Editor) => ({
+  cursor: getCursor(cm),
+  markdown: cm.getValue()
+})
 
 /**
  * This is to write the OLD content of the editor before switching to another tab
  * @param id
  */
 const prepareTabSwitch = () => {
-  if (commitTimer.value) clearTimeout(commitTimer.value)
   if (tabId.value && editor.value) {
     const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
     editorStore.LISTEN_FOR_CONTENT_CHANGE({
@@ -143,15 +141,8 @@ const handleFileChange = (payload: unknown) => {
   const { id, markdown: newMarkdown, muyaIndexCursor } = payload as FileChangePayloadLike
   if (!editor.value) return
 
-  // On same-tab reload (external file change), preserve scroll across
-  // setValue. Snapshot every plausible scroll element (the outer
-  // .source-code div, CodeMirror's own scroller, and the nearest scrollable
-  // ancestor) and restore each, since which one is actually active depends
-  // on CodeMirror's height:auto + outer overflow:auto interplay. Re-apply
-  // on nextTick and the next animation frame to outlast layout side-effects
-  // from sibling handlers: muya editor.vue also listens for file-changed.
-  // A cross-tab switch must instead commit the outgoing tab's state; the
-  // fresh markdown from disk would otherwise overwrite uncommitted edits.
+  // A reload must not commit stale source over the new disk contents. Preserve
+  // the scroller through setValue and the sibling Muya handler's layout update.
   const isSameTabReload = tabId.value && tabId.value === id
   const scrollTargets: Array<{ el: HTMLElement; top: number }> = []
   if (isSameTabReload) {
@@ -303,6 +294,7 @@ const handleImageAction = (payload: unknown) => {
 // `cursorActivity` fires per drag step, so key the dedup on the ranges rather
 // than on `getSelection()`, which copies the whole selection.
 let lastSelectionKey = ''
+let lastContentGeneration: number | undefined
 
 const selectionKey = (cm: CodeMirror.Editor): string =>
   cm
@@ -323,6 +315,7 @@ const updateSelectionWordCount = (cm: CodeMirror.Editor) => {
 }
 
 const saveContent = (cm: CodeMirror.Editor) => {
+  if (lastContentGeneration !== undefined && cm.isClean(lastContentGeneration)) return
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
   // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
   const wordCount = getWordCount(newMarkdown)
@@ -335,6 +328,7 @@ const saveContent = (cm: CodeMirror.Editor) => {
         wordCount,
         muyaIndexCursor: cursor
       })
+      lastContentGeneration = cm.changeGeneration()
     } else {
       // This may occur during tab switching but should not occur otherwise.
       console.warn('LISTEN_FOR_CONTENT_CHANGE: Cannot commit changes because not tab id was set!')
@@ -343,10 +337,19 @@ const saveContent = (cm: CodeMirror.Editor) => {
 }
 
 const listenChange = (cm: CodeMirror.Editor) => {
-  cm.on('cursorActivity', (instance: CodeMirror.Editor) => {
+  cm.on('changes', (instance: CodeMirror.Editor) => {
     saveContent(instance)
+    lastSelectionKey = ''
     updateSelectionWordCount(instance)
   })
+  cm.on('cursorActivity', (instance: CodeMirror.Editor) => {
+    if (currentTab.value?.id === tabId.value) currentTab.value.muyaIndexCursor = getCursor(instance)
+    updateSelectionWordCount(instance)
+  })
+}
+
+const flushSourceEditor = () => {
+  if (editor.value) saveContent(editor.value)
 }
 
 // #3580: in Source Code mode the WYSIWYG container is hidden, so the
@@ -354,13 +357,11 @@ const listenChange = (cm: CodeMirror.Editor) => {
 // CodeMirror instead. Resolve the TOC entry to its heading line in the source.
 const handleScrollToHeader = (slug: unknown) => {
   if (!editor.value) return
-  const index = editorStore.listToc.findIndex(item => item.slug === slug)
+  const index = editorStore.listToc.findIndex((item) => item.slug === slug)
   if (index < 0) return
   const line = findMarkdownHeadingLine(editor.value.getValue(), index)
   if (line < 0) return
-  // `.source-code` is the scroll container (CodeMirror renders full-height with
-  // viewportMargin: Infinity, so its own scroller never scrolls).
-  scrollSourceEditorToLine(editor.value, line, sourceCodeContainer.value)
+  scrollSourceEditorToLine(editor.value, line, editor.value.getScrollerElement())
 }
 
 onMounted(() => {
@@ -382,14 +383,10 @@ onMounted(() => {
     lineWrapping: true,
     styleActiveLine: true,
     direction: textDirection,
-    viewportMargin: Infinity
+    viewportMargin: 10
   }
 
-  if (railscastsThemes.includes(theme.value)) {
-    codeMirrorConfig.theme = 'railscasts'
-  } else if (oneDarkThemes.includes(theme.value)) {
-    codeMirrorConfig.theme = 'one-dark'
-  }
+  codeMirrorConfig.theme = resolvedAppearance.value === 'dark' ? 'railscasts' : 'default'
 
   bus.on('file-loaded', handleFileChange)
   bus.on('file-changed', handleFileChange)
@@ -398,6 +395,7 @@ onMounted(() => {
   bus.on('redo', handleRedo)
   bus.on('image-action', handleImageAction)
   bus.on('scroll-to-header', handleScrollToHeader)
+  bus.on('flush-active-editor', flushSourceEditor)
 
   // CodeMirror's line tree relies on object identity and must not be proxied by Vue.
   const codeMirrorInstance = markRaw(codeMirror(container, codeMirrorConfig))
@@ -419,6 +417,7 @@ onMounted(() => {
 
   editor.value = codeMirrorInstance
   tabId.value = id
+  lastContentGeneration = codeMirrorInstance.changeGeneration()
   updateSelectionWordCount(codeMirrorInstance)
 
   listenChange(codeMirrorInstance)
@@ -426,7 +425,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   viewDestroyed.value = true
-  if (commitTimer.value) clearTimeout(commitTimer.value)
 
   bus.off('file-loaded', handleFileChange)
   bus.off('file-changed', handleFileChange)
@@ -437,6 +435,7 @@ onBeforeUnmount(() => {
   editorStore.SET_SELECTION_WORD_COUNT(null)
   lastSelectionKey = ''
   bus.off('scroll-to-header', handleScrollToHeader)
+  bus.off('flush-active-editor', flushSourceEditor)
 
   if (editor.value) {
     const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
@@ -454,13 +453,16 @@ onBeforeUnmount(() => {
 .source-code {
   height: 100%;
   box-sizing: border-box;
-  overflow: auto;
+  overflow: hidden;
 }
 .source-code .CodeMirror {
-  height: auto;
-  margin: 50px auto;
+  height: 100%;
+  margin: 0 auto;
   max-width: var(--editorAreaWidth);
   background: transparent;
+}
+.source-code .CodeMirror-lines {
+  padding: 50px 0;
 }
 .source-code .CodeMirror-gutters {
   border-right: none;

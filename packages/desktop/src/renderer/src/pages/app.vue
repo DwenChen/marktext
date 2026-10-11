@@ -4,7 +4,7 @@
 
     <div
       class="editor-middle"
-      :data-document-style="documentStyle"
+      :data-document-theme="theme"
     >
       <title-bar
         :project="projectTree"
@@ -48,12 +48,12 @@
 import { computed, watch, nextTick, onMounted, ref } from 'vue'
 import { useMainStore } from '@/store'
 import { storeToRefs } from 'pinia'
-import { addStyles, addThemeStyle, addCustomStyle, type AddStylesOptions } from '@/util/theme'
+import { addStyles, addAppearanceStyle, type AddStylesOptions } from '@/util/theme'
 import Recent from '@/components/recent/index.vue'
 import EditorWithTabs from '@/components/editorWithTabs/index.vue'
 import TitleBar from '@/components/titleBar/index.vue'
 import StatusBar from '@/components/statusBar/index.vue'
-import '@/assets/styles/documentStyles.css'
+import { applyDocumentTheme } from '@/util/documentTheme'
 import SideBar from '@/components/sideBar/index.vue'
 import AboutDialog from '@/components/about/index.vue'
 import CommandPalette from '@/components/commandPalette/index.vue'
@@ -85,7 +85,7 @@ const timer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const { windowActive, platform, init } = storeToRefs(mainStore)
 const { showTabBar } = storeToRefs(layoutStore)
-const { sourceCode, theme, documentStyle, customCss, textDirection, zoom } =
+const { sourceCode, theme, resolvedAppearance, customThemes, centerTables, textDirection, zoom } =
   storeToRefs(preferencesStore)
 const { projectTree } = storeToRefs(projectStore)
 const { currentFile, selectionWordCount } = storeToRefs(editorStore)
@@ -111,19 +111,19 @@ const hasCurrentFile = computed<boolean>(() => {
 })
 
 // Watchers
-watch(theme, (value, oldValue) => {
-  if (value !== oldValue) {
-    addThemeStyle(value)
-  }
-})
-
-watch(customCss, (value, oldValue) => {
-  if (value !== oldValue) {
-    addCustomStyle({
-      customCss: value
-    })
-  }
-})
+watch(resolvedAppearance, (value) => addAppearanceStyle(value))
+watch(
+  [theme, customThemes, resolvedAppearance, centerTables],
+  () => {
+    applyDocumentTheme(
+      theme.value,
+      customThemes.value,
+      resolvedAppearance.value,
+      centerTables.value
+    )
+  },
+  { immediate: true, deep: true }
+)
 
 watch(zoom, (zoomValue) => {
   bus.emit('mt::window-zoom', zoomValue)
@@ -216,11 +216,11 @@ onMounted(async () => {
 
   nextTick(() => {
     // `initialState` from bootstrap carries nullable URL params (string|null);
-    // `addStyles` requires non-null `theme` / `codeFontFamily` strings.
+    // Coalesce font settings; appearance is resolved by the main process.
     // Coalesce against DEFAULT_STYLE for every nullable field.
     const init = window.marktext?.initialState
     const style: AddStylesOptions = {
-      theme: init?.theme ?? DEFAULT_STYLE.theme,
+      resolvedAppearance: resolvedAppearance.value,
       codeFontFamily: init?.codeFontFamily ?? DEFAULT_STYLE.codeFontFamily,
       codeFontSize: init?.codeFontSize ?? DEFAULT_STYLE.codeFontSize,
       hideScrollbar: init?.hideScrollbar ?? DEFAULT_STYLE.hideScrollbar

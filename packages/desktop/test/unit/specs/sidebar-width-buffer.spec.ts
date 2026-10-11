@@ -33,7 +33,7 @@ describe('sidebar width persistence', () => {
       ],
       layout: { sideBarWidth: 280, rightColumn: 'toc', showSideBar: true }
     }
-    store.writeBufferStoreFile(filePath, snapshot)
+    await store.writeBufferStoreFile(filePath, snapshot)
     const original = readFileSync(filePath, 'utf8')
 
     expect(await store.updateSidebarWidth(event, 410)).toBe(true)
@@ -47,7 +47,7 @@ describe('sidebar width persistence', () => {
 
   it('keeps the most recent width after consecutive asynchronous writes', async() => {
     const { store, filePath } = createStore()
-    store.writeBufferStoreFile(filePath, { tabs: [], layout: { sideBarWidth: 280 } })
+    await store.writeBufferStoreFile(filePath, { tabs: [], layout: { sideBarWidth: 280 } })
 
     await Promise.all([store.updateSidebarWidth(event, 300), store.updateSidebarWidth(event, 450)])
 
@@ -61,10 +61,10 @@ describe('sidebar width persistence', () => {
     expect(readdirSync(dir)).toEqual([])
   })
 
-  it('restores an older snapshot when width metadata is missing or corrupt', () => {
+  it('restores an older snapshot when width metadata is missing or corrupt', async() => {
     const { store, filePath } = createStore()
     const snapshot = { tabs: [], layout: { sideBarWidth: 320 } }
-    store.writeBufferStoreFile(filePath, snapshot)
+    await store.writeBufferStoreFile(filePath, snapshot)
 
     expect(store.readBufferStoreFile(filePath)).toEqual(snapshot)
     writeFileSync(`${filePath}.sidebar-width.json`, 'broken')
@@ -73,7 +73,7 @@ describe('sidebar width persistence', () => {
 
   it('removes width metadata when deleting a saved recovery buffer', async() => {
     const { store, filePath, dir } = createStore()
-    store.writeBufferStoreFile(filePath, { tabs: [{ isSaved: true }] })
+    await store.writeBufferStoreFile(filePath, { tabs: [{ isSaved: true }] })
     await store.updateSidebarWidth(event, 300)
 
     store.clearBufferStoresWithAllSaved()

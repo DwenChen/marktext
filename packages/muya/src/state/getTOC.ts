@@ -18,6 +18,7 @@ interface IHeadingBlock extends Parent {
 }
 
 const slugCache = new WeakMap<Parent, string>();
+const headingCache = new WeakMap<Parent, { text: string; optionsKey: string; labels: unknown; item: ITocItem }>();
 
 export function stableSlug(block: Parent): string {
     let slug = slugCache.get(block);
@@ -37,6 +38,9 @@ export function getTOC(muya: Muya): ITocItem[] {
     // definitions a heading may link to (`[text][ref]`) have to be collected
     // here instead of from the block's own inline renderer.
     const labels = muya.editor.inlineRenderer.collectReferenceDefinitions();
+    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = muya.options;
+    const options = { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff };
+    const optionsKey = JSON.stringify(options);
 
     const items: ITocItem[] = [];
 
@@ -48,6 +52,11 @@ export function getTOC(muya: Muya): ITocItem[] {
         const block = node as IHeadingBlock;
         const head = block.children.head as Content | null;
         const text = head?.text ?? '';
+        const cached = headingCache.get(block);
+        if (cached?.text === text && cached.optionsKey === optionsKey && cached.labels === labels && cached.item.lvl === block.meta.level) {
+            items.push({ ...cached.item });
+            continue;
+        }
 
         const source = blockName === 'setext-heading'
             ? text.trim()
@@ -56,23 +65,24 @@ export function getTOC(muya: Muya): ITocItem[] {
         // One token pass feeds both serializations so the outline's shown text
         // and its slug stay in step; `githubSlug` has to match the anchor id the
         // HTML export injects from `heading.textContent`.
-        const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = muya.options;
         const tokens = tokenizer(source, {
             hasBeginRules: false,
             labels,
-            options: { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
+            options,
         });
 
         const content = tokensToPlainText(tokens).trim();
         const contentHtml = tokensToInlineHtml(tokens).trim();
 
-        items.push({
+        const item = {
             content,
             contentHtml,
             lvl: block.meta.level,
             slug: stableSlug(block),
             githubSlug: generateGithubSlug(content),
-        });
+        };
+        headingCache.set(block, { text, optionsKey, labels, item });
+        items.push({ ...item });
     }
 
     return items;

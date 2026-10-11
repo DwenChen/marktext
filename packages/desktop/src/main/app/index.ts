@@ -13,7 +13,6 @@ import { normalizeAndResolvePath } from '../filesystem'
 import { normalizeMarkdownPath } from '../filesystem/markdown'
 import { confirmAndTrashItem } from '../filesystem/trash'
 import { registerKeyboardListeners } from '../keyboard'
-import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
 import registerSpellcheckerListeners from '../spellchecker'
 import { watchers } from '../utils/imagePathAutoComplement'
@@ -23,7 +22,7 @@ import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { setLanguage } from '../i18n'
 import { matchSupportedLanguage } from 'common/i18n'
-import { getNativeThemeSource, isDarkApplicationTheme } from './nativeTheme'
+import { getNativeThemeSource } from './nativeTheme'
 import type Accessor from './accessor'
 import type WindowManager from './windowManager'
 
@@ -193,11 +192,8 @@ class App {
 
     // Initialize language settings (detects the system language on first start)
     this._initializeLanguage()
-    const { startUpAction, defaultDirectoryToOpen, theme } = preferences.getAll()
-    const followSystemTheme = preferences.getItem<boolean>('followSystemTheme')
+    const { startUpAction, defaultDirectoryToOpen } = preferences.getAll()
     const lastOpenedFolder = preferences.getItem<string>('lastOpenedFolder')
-    const lightModeTheme = preferences.getItem<string>('lightModeTheme')
-    const darkModeTheme = preferences.getItem<string>('darkModeTheme')
 
     if (args._.length) {
       for (const pathname of args._) {
@@ -232,90 +228,20 @@ class App {
       }
     }
 
-    nativeTheme.themeSource = getNativeThemeSource({ followSystemTheme, theme })
-
-    // Apply theme at startup if "Follow system theme" is enabled
-    const isDarkTheme = isDarkApplicationTheme(theme)
-    const systemIsDark = nativeTheme.shouldUseDarkColors
-
-    if (followSystemTheme && isDarkTheme !== systemIsDark) {
-      const newTheme = systemIsDark ? darkModeTheme : lightModeTheme
-      log.info(
-        `Following system theme at startup: ${newTheme} (system ${systemIsDark ? 'dark' : 'light'})`
-      )
-      selectTheme(newTheme)
-    }
-
-    onInternalChannel(
-      'broadcast-preferences-changed',
-      (change: Partial<IUserPreferences>) => {
-        const nextPreferences = {
-          ...preferences.getAll(),
-          ...change
-        }
-        nativeTheme.themeSource = getNativeThemeSource(nextPreferences)
-
-      // When followSystemTheme is enabled, immediately switch to match system
-        if (change.followSystemTheme === true) {
-          const systemIsDark = nativeTheme.shouldUseDarkColors
-          const lightModeTheme = preferences.getItem<string>('lightModeTheme')
-          const darkModeTheme = preferences.getItem<string>('darkModeTheme')
-          const newTheme = systemIsDark ? darkModeTheme : lightModeTheme
-
-          log.info(
-            `followSystemTheme enabled, switching to: ${newTheme} (system ${systemIsDark ? 'dark' : 'light'})`
-          )
-          selectTheme(newTheme)
-          preferences.setItem('theme', newTheme)
-        }
-      // When light/dark mode theme preferences change, apply immediately if following system
-        if (
-          preferences.getItem<boolean>('followSystemTheme') &&
-        (change.lightModeTheme || change.darkModeTheme)
-        ) {
-          const systemIsDark = nativeTheme.shouldUseDarkColors
-
-        // Get current values, but prefer the NEW values from the change event
-          let lightModeTheme = preferences.getItem<string>('lightModeTheme')
-          let darkModeTheme = preferences.getItem<string>('darkModeTheme')
-
-        // If these preferences were just changed, use the new values from the change object
-          if (change.lightModeTheme !== undefined) {
-            lightModeTheme = change.lightModeTheme
-          }
-          if (change.darkModeTheme !== undefined) {
-            darkModeTheme = change.darkModeTheme
-          }
-
-          const newTheme = systemIsDark ? darkModeTheme : lightModeTheme
-
-          log.info(`Theme preference changed, applying: ${newTheme}`)
-          selectTheme(newTheme)
-          preferences.setItem('theme', newTheme)
-        }
-      })
-
-    // Listen for system theme changes and auto-switch if enabled
+    nativeTheme.themeSource = getNativeThemeSource(preferences.getAll())
+    onInternalChannel('broadcast-preferences-changed', (change: Partial<IUserPreferences>) => {
+      if (change.appearance !== undefined) {
+        nativeTheme.themeSource = getNativeThemeSource(preferences.getAll())
+        ipcMain.emit('broadcast-preferences-changed', {
+          resolvedAppearance: nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+        })
+      }
+    })
     if (!this._themeListenerRegistered) {
       nativeTheme.on('updated', () => {
-        const followSystemTheme = preferences.getItem<boolean>('followSystemTheme')
-        const lightModeTheme = preferences.getItem<string>('lightModeTheme')
-        const darkModeTheme = preferences.getItem<string>('darkModeTheme')
-
-        if (followSystemTheme) {
-          const systemIsDark = nativeTheme.shouldUseDarkColors
-          const newTheme = systemIsDark ? darkModeTheme : lightModeTheme
-          const currentTheme = preferences.getItem<string>('theme')
-
-          // Only switch if the theme actually needs to change
-          if (newTheme !== currentTheme) {
-            log.info(
-              `System theme changed, switching to: ${newTheme} (system ${systemIsDark ? 'dark' : 'light'})`
-            )
-            selectTheme(newTheme)
-            preferences.setItem('theme', newTheme)
-          }
-        }
+        ipcMain.emit('broadcast-preferences-changed', {
+          resolvedAppearance: nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+        })
       })
       this._themeListenerRegistered = true
     }
@@ -686,7 +612,8 @@ class App {
       }
     )
     onInternalChannel('app-open-files-by-id', (windowId: number, fileList: string[]) => {
-      const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
+      const openFilesInNewWindow =
+        this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, fileList)
       } else {
@@ -703,7 +630,8 @@ class App {
     })
 
     onInternalChannel('app-open-markdown-by-id', (windowId: number, data: string) => {
-      const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
+      const openFilesInNewWindow =
+        this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [], [data])
       } else {
@@ -737,7 +665,8 @@ class App {
 
     ipcMain.on('mt::open-file-by-window-id', (_e, windowId: number, filePath: string) => {
       const resolvedPath = normalizeAndResolvePath(filePath)
-      const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
+      const openFilesInNewWindow =
+        this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [resolvedPath])
       } else {

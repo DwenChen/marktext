@@ -4,7 +4,7 @@
     :class="{ 'ag-underdevelop': disable }"
   >
     <div class="description">
-      <span>{{ description }}:</span>
+      <span>{{ preferenceLabel(description) }}</span>
       <LinkIcon
         v-if="more"
         :size="14"
@@ -43,6 +43,7 @@ import { ArrowDown } from '@element-plus/icons-vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import { useI18n } from 'vue-i18n'
 import type { PrefControlProps } from '../types'
+import { preferenceLabel } from '../label'
 import { withBundledFonts } from './bundledFonts'
 
 const { t } = useI18n()

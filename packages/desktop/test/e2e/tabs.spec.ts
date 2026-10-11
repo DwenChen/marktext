@@ -5,6 +5,7 @@ import {
   launchWithMarkdown,
   placeCaretInEditor,
   sendIpcToRenderer,
+  acknowledgeTabSave,
   typeIntoEditor
 } from './helpers'
 
@@ -389,7 +390,7 @@ test.describe('Tab management', () => {
           await cPage.waitForTimeout(150)
         }
         const ids = await readTabIds(cPage)
-        for (const id of ids) await sendIpcToRenderer(cApp, 'mt::tab-saved', id)
+        for (const id of ids) await acknowledgeTabSave(cApp, cPage, id)
         await expect
           .poll(
             () => cPage.evaluate(() => !!document.querySelector('.tabs-container > li.unsaved')),

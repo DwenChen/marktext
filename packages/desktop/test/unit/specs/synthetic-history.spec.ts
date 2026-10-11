@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { SyntheticHistory } from '@/components/editorWithTabs/syntheticHistory'
+import { contentSignature } from 'common/contentSignature'
 
 // Mirror of the store's PG15 dirty/clean decision (store/editor.ts): a tab is
 // clean iff the current synthetic history entry id equals the saved id. We feed
@@ -17,9 +18,17 @@ describe('SyntheticHistory (saved/clean indicator id allocator)', () => {
       expected ^= BigInt(normalized.charCodeAt(i))
       expected = (expected * 0x100000001b3n) & 0xffffffffffffffffn
     }
-    const history = new SyntheticHistory(content)
-    const signatures = Reflect.get(history, 'idByContent') as Map<bigint, number>
-    expect([...signatures.keys()]).toEqual([expected])
+    expect(contentSignature(content)).toBe(expected.toString(16).padStart(16, '0'))
+  })
+  it('bounds retained signatures while keeping the initial content reachable', () => {
+    const history = new SyntheticHistory('baseline')
+    for (let i = 0; i < 1000; i++) history.idFor(`edit ${i}`)
+    expect((Reflect.get(history, 'idByContent') as Map<string, number>).size).toBeLessThanOrEqual(
+      256
+    )
+    expect(history.idFor('baseline')).toBe(0)
+    const savedSignature = contentSignature('edit 1')
+    expect(history.build('edit 1').stack[0].contentSignature).toBe(savedSignature)
   })
   it('seeds the loaded/baseline content to id 0', () => {
     const h = new SyntheticHistory('A\n')

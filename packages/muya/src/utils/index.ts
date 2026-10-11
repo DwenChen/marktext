@@ -253,19 +253,53 @@ export function escapeInBlockHtml(html: string) {
 }
 
 export function wordCount(markdown: string) {
-    const paragraph = markdown.split(/\n{2,}/).filter(line => line).length;
+    let paragraph = 0;
     let word = 0;
     let character = 0;
-    let all = 0;
+    let inWord = false;
+    let hasParagraphContent = false;
+    let newlines = 0;
 
-    const removedChinese = markdown.replace(/[\u4E00-\u9FA5]/g, '');
-    const tokens = removedChinese.split(/\s+/).filter(t => t);
-    const chineseWordLength = markdown.length - removedChinese.length;
-    word += chineseWordLength + tokens.length;
-    character += tokens.reduce((acc, t) => acc + t.length, 0) + chineseWordLength;
-    all += markdown.length;
+    // Keep the existing UTF-16/CJK rules without allocating stripped text or tokens.
+    for (let i = 0; i < markdown.length; i++) {
+        const code = markdown.charCodeAt(i);
+        if (code === 10) {
+            if (++newlines === 2) {
+                paragraph += Number(hasParagraphContent);
+                hasParagraphContent = false;
+            }
+        }
+        else {
+            newlines = 0;
+            hasParagraphContent = true;
+        }
 
-    return { word, paragraph, character, all };
+        if (code >= 0x4E00 && code <= 0x9FA5) {
+            word++;
+            character++;
+        }
+        else if (isWordCountWhitespace(code)) {
+            inWord = false;
+        }
+        else {
+            character++;
+            if (!inWord)
+                word++;
+            inWord = true;
+        }
+    }
+
+    paragraph += Number(hasParagraphContent || newlines === 1);
+    return { word, paragraph, character, all: markdown.length };
+}
+
+// ECMAScript \s excludes zero-width space and counts BOM as whitespace.
+function isWordCountWhitespace(code: number): boolean {
+    if (code < 0xA0)
+        return code === 32 || (code >= 9 && code <= 13);
+    return code === 0xA0 || code === 0x1680 || (code >= 0x2000 && code <= 0x200A)
+        || code === 0x2028 || code === 0x2029 || code === 0x202F
+        || code === 0x205F || code === 0x3000 || code === 0xFEFF;
 }
 
 export function sanitize(html: string, purifyOptions: Config, disableHtml: boolean) {

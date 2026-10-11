@@ -1,10 +1,16 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import {
   clickMenuById,
   enterSourceMode,
   expectNoRendererErrors,
-  launchWithMarkdown
+  launchWithMarkdown,
+  launchElectron,
+  sendIpcToRenderer,
+  waitForEditor
 } from './helpers'
 
 const viewportSize = (page: Page) =>
@@ -25,6 +31,23 @@ const availableSize = (page: Page) =>
   page.locator('.editor-with-tabs').evaluate((el) => {
     const content = el.querySelector<HTMLElement>('.container')!
     return { width: el.clientWidth, height: el.clientHeight - content.offsetTop }
+  })
+
+const tabBarFits = (page: Page) =>
+  page.evaluate(() => {
+    const host = document.querySelector('.editor-with-tabs')!.getBoundingClientRect()
+    const bar = document.querySelector('.editor-tabs')!.getBoundingClientRect()
+    const strip = document.querySelector('.scrollable-tabs')!.getBoundingClientRect()
+    const active = document.querySelector('.tabs-container > li.active')!.getBoundingClientRect()
+    const add = document.querySelector('.editor-tabs .new-file')!.getBoundingClientRect()
+    const close = document.querySelector('.tabs-container > li.active .close-icon')!
+    const closeRect = close.getBoundingClientRect()
+    const hit = document.elementFromPoint(closeRect.left + closeRect.width / 2, closeRect.top + closeRect.height / 2)
+    return bar.height === 28 && bar.top === host.top && bar.bottom <= host.bottom &&
+      bar.left >= host.left && bar.right <= host.right + 1 &&
+      active.height === 28 && active.left >= strip.left - 1 && active.right <= strip.right + 1 &&
+      add.left >= strip.right - 1 && add.right <= bar.right + 1 &&
+      (hit === close || close.contains(hit))
   })
 
 const resizeWindow = (app: ElectronApplication, width: number, height: number, edge: string) =>
@@ -78,6 +101,8 @@ test('native corner and edge drags keep document layout stable until release', a
         .poll(() => page.evaluate((target) => Math.abs(innerWidth - target), 1100 - index * 55))
         .toBeLessThan(10)
       expect(await viewportSize(page)).toEqual(before)
+      // The document remains frozen, but the controls must fit the live window.
+      await expect.poll(() => tabBarFits(page)).toBe(true)
     }
     await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].emit('resized'))
     await expect.poll(async() => (await viewportSize(page)).width).toBeLessThan(before.width - 200)
@@ -87,6 +112,7 @@ test('native corner and edge drags keep document layout stable until release', a
     await expect
       .poll(async() => (await viewportSize(page)).documentHeight)
       .toBeGreaterThan(before.documentHeight)
+    await expect.poll(() => tabBarFits(page)).toBe(true)
 
     // A cancelled native drag must not leave the editor pinned at its old size.
     await resizeWindow(app, 950, 720, 'bottom-right')
@@ -105,6 +131,70 @@ test('native corner and edge drags keep document layout stable until release', a
     await expectNoRendererErrors(app)
   } finally {
     await app.close()
+  }
+})
+
+test('active tabs remain fully visible through narrow layouts, sidebar drags and maximize cycles', async() => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'marktext-tab-resize-'))
+  const files = Array.from({ length: 5 }, (_, index) => {
+    const filename = `窗口缩放_长文档名称_${index}_`.repeat(3) + '.md'
+    const file = path.join(directory, filename)
+    writeFileSync(file, `# Document ${index}\n\nSmall document.\n`)
+    return file
+  })
+  const { app, page } = await launchElectron(files, {
+    suppressErrorDialog: true,
+    preferences: { tabBarVisibility: true, sideBarVisibility: true }
+  })
+  try {
+    await waitForEditor(page)
+    await expect(page.locator('.tabs-container > li')).toHaveCount(5)
+    await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 4)
+    await expect(page.locator('.mu-container h1')).toContainText('Document 4')
+    const activeId = await page.locator('.tabs-container > li.active').getAttribute('data-id')
+
+    for (const [width, height] of [[1200, 800], [720, 500], [550, 350], [1250, 750]]) {
+      await app.evaluate(({ BrowserWindow }, size) => {
+        BrowserWindow.getAllWindows()[0].setContentSize(size.width, size.height)
+      }, { width, height })
+      await expect.poll(() => tabBarFits(page)).toBe(true)
+      expect(await page.locator('.tabs-container > li.active').getAttribute('data-id')).toBe(activeId)
+    }
+    // A long tab expands again after the narrow window (no stale width cap).
+    await expect.poll(() => page.locator('.tabs-container > li.active').evaluate(el => el.getBoundingClientRect().width)).toBe(280)
+
+    const handle = await page.locator('.side-bar .drag-bar').boundingBox()
+    expect(handle).not.toBeNull()
+    await page.mouse.move(handle!.x + handle!.width / 2, handle!.y + 90)
+    await page.mouse.down()
+    await page.mouse.move(900, handle!.y + 90, { steps: 15 })
+    await expect.poll(() => tabBarFits(page)).toBe(true)
+    await page.mouse.up()
+    await expect.poll(() => tabBarFits(page)).toBe(true)
+    await clickMenuById(app, 'sideBarMenuItem')
+    await expect(page.locator('.side-bar')).toBeHidden()
+    await expect.poll(() => tabBarFits(page)).toBe(true)
+    await clickMenuById(app, 'sideBarMenuItem')
+    await expect(page.locator('.side-bar')).toBeVisible()
+    await expect.poll(() => tabBarFits(page)).toBe(true)
+
+    await enterSourceMode(page, app)
+    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setContentSize(1100, 450))
+    await expect.poll(() => tabBarFits(page)).toBe(true)
+    await clickMenuById(app, 'tabBarMenuItem')
+    await expect(page.locator('.editor-tabs')).toBeHidden()
+    await clickMenuById(app, 'tabBarMenuItem')
+    await expect.poll(() => tabBarFits(page)).toBe(true)
+    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].maximize())
+    await expect.poll(() => tabBarFits(page)).toBe(true)
+    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].unmaximize())
+    await expect.poll(() => tabBarFits(page)).toBe(true)
+    await expect(page.locator('.mu-container h1')).toContainText('Document 4')
+    await page.screenshot({ path: 'test-results/tabs-resize-narrow.png' })
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+    rmSync(directory, { recursive: true, force: true })
   }
 })
 

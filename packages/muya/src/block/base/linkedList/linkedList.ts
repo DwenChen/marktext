@@ -63,7 +63,13 @@ export class LinkedList<T extends ILinkedNode> {
     }
 
     offset(node: T) {
-        return [...this.iterator()].indexOf(node);
+        let index = 0;
+        for (const current of this.iterator()) {
+            if (current === node)
+                return index;
+            index++;
+        }
+        return -1;
     }
 
     remove(node: T) {
@@ -88,8 +94,17 @@ export class LinkedList<T extends ILinkedNode> {
     find(index: number) {
         if (index < 0 || index >= this.length)
             return null;
+        if (!Number.isInteger(index))
+            return undefined;
 
-        return [...this.iterator()][index];
+        const fromHead = index < this.length / 2;
+        let node = fromHead ? this.head : this.tail;
+        let remaining = fromHead ? index : this.length - 1 - index;
+        while (remaining > 0 && node) {
+            node = (fromHead ? node.next : node.prev) as T | null;
+            remaining--;
+        }
+        return node ?? undefined;
     }
 
     forEach(callback: (cur: T, i: number) => void) {

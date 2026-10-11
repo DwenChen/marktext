@@ -6,8 +6,8 @@
 // algorithm, with the SAME `-N` document-order dedup the engine uses, so the
 // in-document TOC links resolve.
 import { escapeHTML, unescapeHTML, generateGithubSlug } from '@muyajs/core'
-import academicTheme from '@/assets/themes/export/academic.theme.css?inline'
-import liberTheme from '@/assets/themes/export/liber.theme.css?inline'
+import { getDocumentThemeCss, getTableAlignmentCss } from './documentTheme'
+import type { CustomDocumentTheme } from '../../../common/theme'
 import { deepClone } from '../util'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from '../util/dompurify'
 
@@ -23,6 +23,8 @@ export interface PdfCssOptions {
   autoNumberingHeadings?: boolean
   showFrontMatter?: boolean
   theme?: string
+  customThemes?: CustomDocumentTheme[]
+  centerTables?: boolean
   headerFooterFontSize?: number
   [key: string]: unknown
 }
@@ -63,27 +65,8 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
     output += 'pre.front-matter{display:none!important;}'
   }
 
-  if (theme) {
-    if (theme === 'academic') {
-      output += academicTheme
-    } else if (theme === 'liber') {
-      output += liberTheme
-    } else {
-      // Read theme from disk
-      const { userDataPath } = window.marktext!.paths as { userDataPath: string }
-      const themePath = window.path.join(userDataPath, 'themes/export', theme)
-      if (await window.fileUtils.isFile(themePath)) {
-        try {
-          const buf = await window.fileUtils.readFile(themePath)
-          const themeCSS =
-            buf instanceof Uint8Array ? new TextDecoder('utf-8').decode(buf) : String(buf)
-          output += themeCSS
-        } catch (_) {
-          // No-op
-        }
-      }
-    }
-  }
+  output += getDocumentThemeCss(theme || 'github', options.customThemes)
+  output += getTableAlignmentCss(options.centerTables)
 
   // Font options. Emitted AFTER the theme CSS so the "Overwrite theme font"
   // settings win the cascade: a selected export theme also sets `.markdown-body`
@@ -125,6 +108,7 @@ export interface TocEntry {
 }
 
 export interface HtmlTocOptions {
+  useHeadingIds?: boolean
   tocIncludeTopHeading?: boolean
   tocTitle?: string
   [key: string]: unknown
@@ -185,7 +169,7 @@ const generateHtmlToc = (
 
 export const getHtmlToc = (toc: TocEntry[], options: HtmlTocOptions = {}): string => {
   const list = deepClone(toc)
-  assignHeadingSlugs(list)
+  if (!options.useHeadingIds) assignHeadingSlugs(list)
   const tocList = generateHtmlToc(list, 0, options)
   if (!tocList) {
     return ''

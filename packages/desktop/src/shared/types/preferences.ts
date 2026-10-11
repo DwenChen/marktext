@@ -6,7 +6,7 @@
 // Kept intentionally open with `[key: string]: unknown` until the schema
 // is mechanically derived from schema.json in a follow-up.
 
-export type DocumentStyle = 'default' | 'github' | 'classic' | 'book'
+import type { Appearance, ResolvedAppearance, CustomDocumentTheme } from '../../common/theme'
 
 export interface IUserPreferences {
   autoSave?: boolean
@@ -24,6 +24,7 @@ export interface IUserPreferences {
   editorFontFamily?: string
   fontSize?: number
   lineHeight?: number
+  centerTables?: boolean
   codeFontSize?: number
   codeFontFamily?: string
   hideQuickInsertHint?: boolean
@@ -57,7 +58,9 @@ export interface IUserPreferences {
   isHtmlEnabled?: boolean
   softNewlineAsSpace?: boolean
   theme?: string
-  documentStyle?: DocumentStyle
+  appearance?: Appearance
+  resolvedAppearance?: ResolvedAppearance
+  customThemes?: CustomDocumentTheme[]
   spellcheckerEnabled?: boolean
   spellcheckerNoUnderline?: boolean
   spellcheckerLanguage?: string
@@ -73,9 +76,6 @@ export interface IUserPreferences {
   searchIncludeHidden?: boolean
   searchNoIgnore?: boolean
   searchFollowSymlinks?: boolean
-  followSystemTheme?: boolean
-  lightModeTheme?: string
-  darkModeTheme?: string
   lastOpenedFolder?: string
   autoNormalizeLineEndings?: boolean
   watcherUsePolling?: boolean

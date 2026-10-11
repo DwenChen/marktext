@@ -1,6 +1,7 @@
 import type { IFileState } from '@shared/types/files'
 import { wordCount as getWordCount } from '@muyajs/core'
 import { getUniqueId, deepClone } from '../util'
+import { contentSignature } from 'common/contentSignature'
 
 // Helper module (NOT a Pinia store): defaults and factories for the editor
 // document state objects.
@@ -58,7 +59,10 @@ const defaultFileStateWithoutId = {
 export const defaultFileState: Omit<IFileState, 'id'> = defaultFileStateWithoutId
 
 export const getOptionsFromState = (
-  file: IFileState
+  file: Pick<
+    IFileState,
+    'encoding' | 'lineEnding' | 'adjustLineEndingOnSave' | 'trimTrailingNewline'
+  >
 ): {
   encoding: IFileState['encoding']
   lineEnding: IFileState['lineEnding']
@@ -84,7 +88,9 @@ const documentStateKeys = [
   'searchMatches',
   'scrollTop',
   'muyaIndexCursor',
-  'notifications'
+  'notifications',
+  'lastSavedContentSignature',
+  'lastSavedOptionsSignature'
 ] as const satisfies ReadonlyArray<keyof IFileState>
 
 export const getBlankFileState = (
@@ -121,12 +127,16 @@ export const getBlankFileState = (
     filename: `${defaultFilenamePrefix}-${untitleId + 1}`,
     markdown,
     wordCount: getWordCount(markdown),
-    // The freshly-loaded document IS its on-disk/clean baseline. The engine
-    // clears its undo history on `setContent`, so the baseline undo-stack depth
-    // (the synthetic save-tracking id) is 0. Seeding `lastSavedHistoryId` to 0
-    // (not -1) lets the dirty indicator clear again when an edit is undone back
-    // to this baseline, even before the document has ever been saved.
-    lastSavedHistoryId: 0
+    // Empty buffers can return to a clean baseline before their first save.
+    lastSavedHistoryId: 0,
+    lastSavedContentSignature: contentSignature(markdown),
+    lastSavedOptionsSignature: JSON.stringify(
+      getOptionsFromState({
+        ...fileState,
+        lineEnding,
+        adjustLineEndingOnSave: lineEnding.toLowerCase() === 'crlf'
+      })
+    )
   }) as IFileState
 }
 
@@ -153,9 +163,14 @@ export const createDocumentState = (
     // Read `src`: `docState.wordCount` defaults to a zeroed object, not a
     // sentinel, so it cannot say whether the caller supplied one.
     wordCount: src.wordCount ?? getWordCount(docState.markdown),
-    // See `getBlankFileState`: the loaded document is its own clean baseline and
-    // the engine's baseline undo-stack depth (the synthetic id) is 0.
-    lastSavedHistoryId: 0
+    // Restored dirty tabs retain their persisted save baseline.
+    lastSavedHistoryId: 0,
+    lastSavedContentSignature:
+      src.lastSavedContentSignature ??
+      (docState.isSaved ? contentSignature(docState.markdown) : undefined),
+    lastSavedOptionsSignature:
+      src.lastSavedOptionsSignature ??
+      (docState.isSaved ? JSON.stringify(getOptionsFromState(docState)) : undefined)
   }) as IFileState
 }
 

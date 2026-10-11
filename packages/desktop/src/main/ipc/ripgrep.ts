@@ -15,6 +15,7 @@ interface ActiveSearch {
 }
 
 const activeSearches = new Map<string, ActiveSearch>()
+const observedSenders = new WeakSet<WebContents>()
 
 const sendIfAlive = (
   sender: WebContents | null | undefined,
@@ -29,7 +30,8 @@ const sendIfAlive = (
 }
 
 const cleanupAtSenderDestroy = (sender: WebContents | null | undefined): void => {
-  if (!sender) return
+  if (!sender || observedSenders.has(sender)) return
+  observedSenders.add(sender)
   const handler = (): void => {
     for (const [id, entry] of activeSearches.entries()) {
       if (entry.sender === sender) {
@@ -238,10 +240,18 @@ const startTextSearch = (
     if (options.maxFileSize) args.push('--max-filesize', options.maxFileSize + '')
     if (options.includeHidden) args.push('--hidden')
     if (options.noIgnore) args.push('--no-ignore')
-    if (options.leadingContextLineCount) { args.push('--before-context', String(options.leadingContextLineCount)) }
-    if (options.trailingContextLineCount) { args.push('--after-context', String(options.trailingContextLineCount)) }
-    for (const inclusion of prepareGlobs(options.inclusions, directoryPath)) { args.push('--iglob', inclusion) }
-    for (const exclusion of prepareGlobs(options.exclusions, directoryPath)) { args.push('--iglob', '!' + exclusion) }
+    if (options.leadingContextLineCount) {
+      args.push('--before-context', String(options.leadingContextLineCount))
+    }
+    if (options.trailingContextLineCount) {
+      args.push('--after-context', String(options.trailingContextLineCount))
+    }
+    for (const inclusion of prepareGlobs(options.inclusions, directoryPath)) {
+      args.push('--iglob', inclusion)
+    }
+    for (const exclusion of prepareGlobs(options.exclusions, directoryPath)) {
+      args.push('--iglob', '!' + exclusion)
+    }
     args.push('--')
     if (textPattern) args.push(textPattern)
     args.push(directoryPath)
@@ -380,7 +390,9 @@ const startFileSearch = (
     if (options.followSymlinks) args.push('--follow')
     if (options.includeHidden) args.push('--hidden')
     if (options.noIgnore) args.push('--no-ignore')
-    for (const inclusion of prepareGlobs(options.inclusions, directoryPath)) { args.push('--iglob', inclusion) }
+    for (const inclusion of prepareGlobs(options.inclusions, directoryPath)) {
+      args.push('--iglob', inclusion)
+    }
     args.push('--')
     args.push(directoryPath)
 

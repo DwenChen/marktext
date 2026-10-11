@@ -143,44 +143,7 @@
       "clearFormat": "Effacer le format"
     },
     "theme": {
-      "theme": "Thème (&T)",
-      "dark": "Sombre",
-      "followThemDisabled": "Sélection du thème désactivée lorsque le thème du système est suivi",
-      "lightThemes": "— Thèmes Clairs —",
-      "darkThemes": "— Thèmes Sombres —",
-      "ayuDark": "Ayu Sombre",
-      "ayuLight": "Ayu Clair",
-      "ayuMirage": "Ayu Mirage",
-      "cadmiumDark": "Cadmium Sombre",
-      "cadmiumLight": "Cadmium Clair",
-      "catppuccinLatte": "Catppuccin Latte",
-      "catppuccinMocha": "Catppuccin Mocha",
-      "cyberdream": "cyberdream",
-      "dracula": "Dracula",
-      "everforestDark": "Everforest Sombre",
-      "everforestLight": "Everforest Clair",
-      "graphiteLight": "Graphite Clair",
-      "gruvboxDark": "Gruvbox Sombre",
-      "gruvboxLight": "Gruvbox Clair",
-      "horizonDark": "Horizon Sombre",
-      "kanagawa": "Kanagawa",
-      "materialDark": "Material Sombre",
-      "monokaiPro": "Monokai Pro",
-      "nightfox": "Nightfox",
-      "nord": "Nord",
-      "oneDark": "One Dark",
-      "oxocarbonDark": "Oxocarbon Sombre",
-      "palenight": "Palenight",
-      "rosePine": "Rosé Pine",
-      "rosePineDawn": "Rosé Pine Dawn",
-      "rosePineMoon": "Rosé Pine Moon",
-      "solarizedDark": "Solarized Sombre",
-      "solarizedLight": "Solarized Clair",
-      "synthwave84": "Synthwave '84",
-      "tokyoNight": "Tokyo Night",
-      "tokyoNightLight": "Tokyo Night Clair",
-      "tokyoNightStorm": "Tokyo Night Storm",
-      "ulyssesLight": "Ulysses Clair"
+      "theme": "Document theme"
     }
   },
   "contextMenu": {
@@ -296,11 +259,6 @@
       "fontSize": "Taille de police",
       "lineHeight": "Hauteur de ligne"
     },
-    "theme": {
-      "label": "Thème",
-      "description": "Vous pouvez changer l'apparence du document en sélectionnant un thème ou en créant un thème personnalisé.",
-      "theme": "Thème"
-    },
     "headerFooter": {
       "allowStyled": "Autoriser le texte stylé",
       "customizeStyle": "Personnaliser le style",
@@ -342,16 +300,35 @@
         "default": "Par défaut",
         "simple": "Simple",
         "styled": "Stylé"
-      },
-      "themes": {
-        "academic": "Académique",
-        "default": "GitHub (par défaut)",
-        "liber": "Liber"
       }
     },
     "image": {
       "description": "Export the entire document as one continuous PNG image. Images, diagrams and math are included. Choose the image width on the Page tab.",
       "width": "Image width (px)"
+    },
+    "compact": {
+      "title": "Export as {format}",
+      "more": "More settings",
+      "cancel": "Cancel",
+      "print": "Print",
+      "width": "Width",
+      "height": "Height",
+      "top": "Top",
+      "bottom": "Bottom",
+      "left": "Left",
+      "right": "Right",
+      "formats": {
+        "styledHtml": "HTML",
+        "pdf": "PDF",
+        "png": "PNG image",
+        "print": "Print"
+      },
+      "hints": {
+        "styledHtml": "A styled webpage that opens directly in a browser.",
+        "png": "Height adjusts automatically to the document content.",
+        "pdf": "A paginated document, ready to share or print.",
+        "print": "Paper size and orientation are chosen in the system print dialog."
+      }
     }
   },
   "recent": {
@@ -370,7 +347,7 @@
         "general": "Général",
         "editor": "Éditeur",
         "markdown": "Markdown",
-        "theme": "Thème",
+        "theme": "Document theme",
         "image": "Image",
         "view": "Affichage",
         "searcher": "Recherche",
@@ -434,10 +411,7 @@
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "sequenceTheme": "Thème du diagramme de séquence",
         "plantumlServer": "URL du serveur PlantUML",
-        "theme": "Sélectionner le thème utilisé dans MarkText",
-        "followSystemTheme": "Suivre le thème du système",
-        "lightModeTheme": "Thème à utiliser lorsque le système est en mode clair",
-        "darkModeTheme": "Thème à utiliser lorsque le système est en mode sombre",
+        "theme": "Theme",
         "spellcheckerEnabled": "La vérification orthographique est-elle activée",
         "spellcheckerNoUnderline": "Ne pas souligner les erreurs d'orthographe",
         "spellcheckerLanguage": "La langue du vérificateur orthographique",
@@ -448,7 +422,7 @@
         "fileSortOrder": "Ordre de tri des fichiers dans les dossiers ouverts : croissant ou décroissant.",
         "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale.",
         "showPandocConvert": "Afficher le menu de conversion Pandoc. Nécessite l'installation de Pandoc.",
-        "documentStyle": "Document rendering style"
+        "appearance": "Appearance"
       }
     },
     "categories": {
@@ -456,7 +430,7 @@
       "editor": "Éditeur",
       "markdown": "Markdown",
       "spelling": "Orthographe",
-      "theme": "Thème",
+      "theme": "Document theme",
       "image": "Image",
       "keybindings": "Raccourcis clavier"
     },
@@ -538,6 +512,12 @@
           "turkish": "Türkçe",
           "russian": "Русский"
         }
+      },
+      "appearance": {
+        "label": "Appearance",
+        "system": "Follow system",
+        "light": "Light",
+        "dark": "Dark"
       }
     },
     "editor": {
@@ -549,7 +529,9 @@
         "fontFamily": "Famille de police",
         "maxWidth": "Largeur maximale",
         "maxWidthNotes": "Largeur maximale du contenu de l'éditeur. Saisissez un nombre suivi de px, ch (caractères) ou %, par exemple 800px, 80ch ou 60%. Laissez vide pour utiliser la largeur par défaut.",
-        "maxWidthInvalid": "Saisissez un nombre suivi de px, ch ou %, par exemple 800px."
+        "maxWidthInvalid": "Saisissez un nombre suivi de px, ch ou %, par exemple 800px.",
+        "centerTables": "Center tables",
+        "centerTablesDetail": "Center tables in the editor and exports. Turn off to align tables to the left. Cell text alignment stays unchanged."
       },
       "codeBlock": {
         "title": "Bloc de code",
@@ -596,14 +578,6 @@
         "autoNormalizeLineEndings": "Normaliser automatiquement les fins de ligne en LF à l'ouverture",
         "wrapCodeBlocks": "Retour à la ligne des blocs de code",
         "sourceCodeLineNumbers": "Afficher les numéros de ligne en mode code source"
-      },
-      "documentStyle": {
-        "label": "Document rendering style",
-        "notes": "Choose document typography independently of the interface theme. Markdown syntax is unchanged.",
-        "default": "MarkText",
-        "github": "GitHub",
-        "classic": "Classic",
-        "book": "Book"
       },
       "resizeSidebar": "Resize sidebar"
     },
@@ -728,16 +702,23 @@
       }
     },
     "theme": {
-      "title": "Thème",
-      "followSystemTheme": "Suivre le thème du système",
-      "modeThemes": "Sélection du thème",
-      "lightModeTheme": "Thème en mode clair",
-      "darkModeTheme": "Thème en mode sombre",
-      "customCss": "CSS personnalisé",
-      "importCustomThemes": "Importer des thèmes personnalisés",
-      "importTheme": "Importer un thème",
-      "openFolder": "Ouvrir le dossier",
-      "openThemesFolder": "Ouvrir le dossier des thèmes"
+      "title": "Document theme",
+      "description": "A theme defines document typography. Editing and export use the same theme.",
+      "select": "Theme",
+      "builtins": {
+        "github": "GitHub",
+        "academic": "Academic",
+        "liber": "Liber"
+      },
+      "previewHeading": "Document heading",
+      "previewText": "Clear typography for your writing.",
+      "customTitle": "Custom themes",
+      "importTheme": "Import CSS theme",
+      "importNotes": "Import a self-contained CSS file (up to 1 MB). Use .markdown-body for document styles. @import is not supported. The theme applies to editing and export.",
+      "importError": "Unable to import this theme. Choose a readable CSS file under 1 MB containing styles and no @import.",
+      "remove": "Remove",
+      "exportUsesCurrent": "Export uses the current document theme. Change it in Settings → Document theme.",
+      "typographyNotes": "Document fonts, sizes and line spacing come from the document theme. Select or import a theme to change them."
     },
     "keybindings": {
       "title": "Raccourcis clavier",

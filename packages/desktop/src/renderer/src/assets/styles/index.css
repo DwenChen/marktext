@@ -34,6 +34,9 @@
   --codeBlockBgColor: rgba(0, 0, 0, 0.03);
   --footnoteBgColor: rgba(0, 0, 0, 0.03);
   --inputBgColor: rgba(0, 0, 0, 0.06);
+  --switchOffTrack: #d5dbe2;
+  --switchOffBorder: #bac3cd;
+  --switchOffThumb: #5e6873;
   --focusColor: var(--themeColor);
 
   --buttonFontColor: var(--editorColor);

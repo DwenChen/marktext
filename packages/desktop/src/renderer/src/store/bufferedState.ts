@@ -49,8 +49,12 @@ export const sendBufferedState = (): Promise<unknown> => {
   return Promise.resolve(false)
 }
 
-export const debouncedSendBufferedState = debounce(() => {
-  sendBufferedState().catch((err) => {
-    console.error('Failed to update buffered state', err)
-  })
-}, BUFFERED_STATE_DEBOUNCE_MS)
+export const debouncedSendBufferedState = debounce(
+  () => {
+    sendBufferedState().catch((err) => {
+      console.error('Failed to update buffered state', err)
+    })
+  },
+  BUFFERED_STATE_DEBOUNCE_MS,
+  { maxWait: 5000 }
+)

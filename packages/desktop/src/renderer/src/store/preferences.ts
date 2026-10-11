@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import bus from '../bus'
 import { setLanguage } from '../i18n'
-import type { DocumentStyle } from '@shared/types/preferences'
+import type { Appearance, ResolvedAppearance, CustomDocumentTheme } from '../../../common/theme'
 
 // Finite-value unions where the runtime currently constrains the field.
 // We keep these as plain strings everywhere else to avoid forcing prematurely
@@ -51,6 +51,7 @@ export interface PreferencesState {
   trimUnnecessaryCodeBlockEmptyLines: boolean
   wrapCodeBlocks: boolean
   editorLineWidth: string
+  centerTables: boolean
 
   // ----- Markdown editing -----
   autoPairBracket: boolean
@@ -94,11 +95,9 @@ export interface PreferencesState {
 
   // ----- Theme -----
   theme: string
-  documentStyle: DocumentStyle
-  followSystemTheme: boolean
-  lightModeTheme: string
-  darkModeTheme: string
-  customCss: string
+  appearance: Appearance
+  resolvedAppearance: ResolvedAppearance
+  customThemes: CustomDocumentTheme[]
 
   // ----- Spellchecker -----
   spellcheckerEnabled: boolean
@@ -179,6 +178,7 @@ export const usePreferencesStore = defineStore('preferences', {
     trimUnnecessaryCodeBlockEmptyLines: true,
     wrapCodeBlocks: false,
     editorLineWidth: '',
+    centerTables: true,
 
     autoPairBracket: true,
     autoPairMarkdownSyntax: true,
@@ -219,12 +219,10 @@ export const usePreferencesStore = defineStore('preferences', {
     sequenceTheme: 'hand',
     plantumlServer: 'https://www.plantuml.com/plantuml',
 
-    theme: 'light',
-    documentStyle: 'default',
-    followSystemTheme: true,
-    lightModeTheme: 'light',
-    darkModeTheme: 'dark',
-    customCss: '',
+    theme: 'github',
+    appearance: 'system',
+    resolvedAppearance: 'light',
+    customThemes: [],
 
     spellcheckerEnabled: false,
     spellcheckerNoUnderline: false,

@@ -17,13 +17,20 @@ const debug = logger('jsonState:');
 // document as `TState[]`; bridging the two requires `unknown` casts that
 // happen at every callsite. Concentrate them here so production code never
 // writes `as unknown as Doc` itself.
-export function asDoc(state: TState[] | TState): Doc {
+export function asDoc(state: readonly TState[] | TState): Doc {
     // eslint-disable-next-line no-restricted-syntax
     return state as unknown as Doc;
 }
 
 export function asState(doc: unknown): TState[] {
     return doc as TState[];
+}
+
+interface IReadonlyChange {
+    op: JSONOp;
+    source: string;
+    prevDoc: readonly TState[];
+    doc: readonly TState[];
 }
 
 class JSONState {
@@ -56,6 +63,11 @@ class JSONState {
     private _revision = 0;
     private _markdownCache = new MarkdownStateCache();
     private _parserOptionsKey = '';
+    private _serializedRevision = -1;
+    private _serializedIndentation: number | string | undefined;
+    private _serializedMarkdown = '';
+    private _markdownGenerator: StateToMarkdown | undefined;
+    private _readonlyChangeListeners = new Set<(change: IReadonlyChange) => void>();
 
     get revision() {
         return this._revision;
@@ -65,14 +77,18 @@ class JSONState {
         this.setContent(stateOrMarkdown);
     }
 
-    private _apply(op: JSONOp) {
+    private _apply(op: JSONOp): JSONOp {
         // ot-json1's noop is the literal `null`. `json1.type.apply` accepts it
         // and returns the doc unchanged — short-circuit instead so the rest of
         // the call site can treat `op` as definitely applied.
         if (op === null)
-            return;
-        this._state = asState(json1.type.apply(asDoc(this._state), op));
+            return null;
+        // JSON1 copies changed paths but retains inserted literals. The DOM tree
+        // owns mutable metadata from those same literals, so isolate the op first.
+        const stateOperation = deepClone(op);
+        this._state = asState(json1.type.apply(asDoc(this._state), stateOperation));
         this._revision++;
+        return stateOperation;
     }
 
     setContent(content: TState[] | string) {
@@ -94,7 +110,7 @@ class JSONState {
     }
 
     private _setState(state: TState[]) {
-        this._state = state;
+        this._state = deepClone(state);
     }
 
     private _setMarkdown(markdown: string) {
@@ -247,17 +263,34 @@ class JSONState {
         this._emitStateChange();
     }
 
-    dispatch(op: JSONOp, source = 'user' /* user, api */) {
-        const prevDoc = this.getState();
-        this._apply(op);
-        // TODO: remove doc in future
-        const doc = this.getState();
+    dispatch(op: JSONOp, source = 'user' /* user, api */, updateTree?: () => void) {
+        const prevDoc = this._state;
+        const stateOperation = this._apply(op);
+        updateTree?.();
         debug.log(JSON.stringify(op));
+        this._emitChange(op, source, prevDoc, stateOperation);
+    }
+
+    /** @internal Snapshots are shared OT values; listeners must not mutate them. */
+    onReadonlyChange(listener: (change: IReadonlyChange) => void) {
+        this._readonlyChangeListeners.add(listener);
+        return () => this._readonlyChangeListeners.delete(listener);
+    }
+
+    private _emitChange(op: JSONOp, source: string, previousState: TState[], stateOperation: JSONOp) {
+        const currentState = this._state;
+        // Capture both revisions before listeners can dispatch a nested change.
+        const change = { op: stateOperation, source, prevDoc: previousState, doc: currentState };
+        for (const listener of [...this._readonlyChangeListeners])
+            listener(change);
+
+        let prevDoc: TState[] | undefined;
+        let doc: TState[] | undefined;
         this._muya.eventCenter.emit('json-change', {
             op,
             source,
-            prevDoc,
-            doc,
+            get prevDoc() { return prevDoc ??= deepClone(previousState); },
+            get doc() { return doc ??= deepClone(currentState); },
         });
     }
 
@@ -265,14 +298,30 @@ class JSONState {
         return deepClone(this._state);
     }
 
+    // OT preserves unchanged node identities. Internal readers must never mutate
+    // these snapshots; the public getState() remains an independent copy.
+    getReadonlyState(): readonly TState[] {
+        return this._state;
+    }
+
     getMarkdown() {
-        // The serializer clones mutable list metadata itself.
-        return this.getMarkdownFromState(this._state);
+        const indentation = this._muya.options.listIndentation;
+        if (this._serializedRevision !== this._revision || this._serializedIndentation !== indentation) {
+            if (!this._markdownGenerator || this._serializedIndentation !== indentation) {
+                this._markdownGenerator = new StateToMarkdown({ listIndentation: indentation });
+            }
+            this._serializedMarkdown = this._markdownGenerator.generateIncremental(this._state);
+            this._serializedRevision = this._revision;
+            this._serializedIndentation = indentation;
+        }
+        return this._serializedMarkdown;
     }
 
     destroy() {
         this.setContent([]);
         this._markdownCache.clear();
+        this._readonlyChangeListeners.clear();
+        this._markdownGenerator = undefined;
     }
 
     getTOC() {
@@ -326,10 +375,8 @@ class JSONState {
         const op = this._operationCache.reduce(
             (acc, curr) => json1.type.compose(acc, curr) as JSONOpList,
         );
-        const prevDoc = this.getState();
-        this._apply(op);
-        // TODO: remove doc in future
-        const doc = this.getState();
+        const prevDoc = this._state;
+        const stateOperation = this._apply(op);
         // Clear before emitting: a listener that edits synchronously then starts
         // a fresh batch instead of mutating the one being flushed.
         this._operationCache = [];
@@ -337,12 +384,7 @@ class JSONState {
         if (op === null)
             return;
 
-        this._muya.eventCenter.emit('json-change', {
-            op,
-            source: 'user',
-            prevDoc,
-            doc,
-        });
+        this._emitChange(op, 'user', prevDoc, stateOperation);
     }
 }
 

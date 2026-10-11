@@ -122,7 +122,12 @@ export const registerWindowHandlers = (): void => {
     try {
       const appMenu = Menu.getApplicationMenu()
       if (!appMenu) return
-      appMenu.popup({ window: win, x: position?.x, y: position?.y })
+      // Keep Help in the native menu, but omit it from the hamburger popup.
+      const popup = new Menu()
+      for (const item of appMenu.items) {
+        if (item.role !== 'help') popup.append(item)
+      }
+      popup.popup({ window: win, x: position?.x, y: position?.y })
     } catch (err) {
       log.error('application menu popup failed:', err)
     }

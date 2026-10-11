@@ -20,10 +20,16 @@ vi.hoisted(() => {
   w.window.path ??= {
     sep: '/',
     join: (...parts: string[]) =>
-      parts.join('/').replace(/\/\.\//g, '/').replace(/\/{3,}/g, '//'),
+      parts
+        .join('/')
+        .replace(/\/\.\//g, '/')
+        .replace(/\/{3,}/g, '//'),
     // Some transitive helpers still expect a minimal POSIX-ish `resolve`.
     resolve: (...parts: string[]) =>
-      parts.join('/').replace(/\/\.\//g, '/').replace(/\/{2,}/g, '/')
+      parts
+        .join('/')
+        .replace(/\/\.\//g, '/')
+        .replace(/\/{2,}/g, '/')
   }
   // The document directory the export wrapper resolves relative <img> src
   // against (see resolveLocalImageSrc / window.DIRNAME).
@@ -74,6 +80,22 @@ describe('exportStyledHTML — wrapper parity', () => {
 })
 
 describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
+  it('derives the outline from the exported snapshot, preserving explicit and duplicate IDs', async() => {
+    const out = await exportStyledHTML(
+      NO_MUYA,
+      '# Saved in source\n\n[TOC]\n\n## Repeat\n\n## Repeat\n\n<h2 id="custom">Custom</h2>',
+      { tocOptions: { tocIncludeTopHeading: true } }
+    )
+    const parsed = new DOMParser().parseFromString(out, 'text/html')
+    const ids = Array.from(parsed.querySelectorAll('h1,h2')).map((node) => node.id)
+    const targets = Array.from(parsed.querySelectorAll('.toc-list a')).map((node) =>
+      node.getAttribute('href')?.slice(1)
+    )
+    expect(targets).toEqual(ids)
+    expect(targets).toContain('saved-in-source')
+    expect(targets).toContain('repeat-1')
+    expect(targets).toContain('custom')
+  })
   // Mirror what `muya.getTOC()` returns ({ lvl, content } per heading, content
   // being the heading's rendered plain text — inline markdown stripped (#4811)).
   // `getHtmlToc` re-slugs `content`; the engine slugs each heading's rendered

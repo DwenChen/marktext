@@ -1,6 +1,10 @@
 <template>
   <div>
-    <div v-if="showTitleBar" class="title-bar-editor-bg" :class="{ 'tabs-visible': showTabBar }" />
+    <div
+      v-if="showTitleBar"
+      class="title-bar-editor-bg"
+      :class="{ 'tabs-visible': showTabBar }"
+    />
     <div
       v-if="showTitleBar"
       class="title-bar"
@@ -19,22 +23,47 @@
         @dblclick.stop="toggleMaxmizeOnMacOS"
       >
         <span v-if="!filename">MarkText</span>
-        <span v-else class="title-content">
-          <span class="save-dot" :class="{ show: !isSaved }" />
+        <span
+          v-else
+          class="title-content"
+        >
+          <span
+            class="save-dot"
+            :class="{ show: !isSaved }"
+          />
           <span class="path">
-            <bdi ref="titleText" dir="ltr">
-              <span v-for="(path, index) of paths" :key="index">
+            <bdi
+              ref="titleText"
+              dir="ltr"
+            >
+              <span
+                v-for="(path, index) of paths"
+                :key="index"
+              >
                 {{ path }}
-                <el-icon class="path-arrow" :size="12">
+                <el-icon
+                  class="path-arrow"
+                  :size="12"
+                >
                   <ArrowRight />
                 </el-icon>
               </span>
-              <span class="filename" :class="{ isOsx: platform === 'darwin' }" @click="rename">
+              <span
+                class="filename"
+                :class="{ isOsx: platform === 'darwin' }"
+                @click="rename"
+              >
                 {{ filename }}
               </span>
             </bdi>
           </span>
         </span>
+      </div>
+      <div
+        class="appearance-shortcut title-no-drag"
+        :class="{ 'without-window-controls': titleBarStyle !== 'custom' || isFullScreen || isOsx }"
+      >
+        <appearance-switch />
       </div>
       <div :class="showCustomTitleBar ? 'left-toolbar title-no-drag' : 'right-toolbar'">
         <div
@@ -55,7 +84,10 @@
           @click.stop="handleCloseClick"
         >
           <div>
-            <svg width="10" height="10">
+            <svg
+              width="10"
+              height="10"
+            >
               <path :d="windowIconClose" />
             </svg>
           </div>
@@ -65,9 +97,18 @@
           @click.stop="handleMaximizeClick"
         >
           <div>
-            <svg width="10" height="10">
-              <path v-show="!isMaximized" :d="windowIconMaximize" />
-              <path v-show="isMaximized" :d="windowIconRestore" />
+            <svg
+              width="10"
+              height="10"
+            >
+              <path
+                v-show="!isMaximized"
+                :d="windowIconMaximize"
+              />
+              <path
+                v-show="isMaximized"
+                :d="windowIconRestore"
+              />
             </svg>
           </div>
         </div>
@@ -76,12 +117,21 @@
           @click.stop="handleMinimizeClick"
         >
           <div>
-            <svg width="10" height="10">
+            <svg
+              width="10"
+              height="10"
+            >
               <path :d="windowIconMinimize" />
             </svg>
           </div>
         </div>
       </div>
+    </div>
+    <div
+      v-if="!showTitleBar"
+      class="appearance-shortcut native-appearance title-no-drag"
+    >
+      <appearance-switch />
     </div>
   </div>
 </template>
@@ -96,6 +146,7 @@ import { isMac as isOsxPlatform } from '@/util'
 import { shouldShowInAppTitleBar } from './visibility'
 import { useEditorStore } from '@/store/editor'
 import { ArrowRight } from '@element-plus/icons-vue'
+import AppearanceSwitch from './appearanceSwitch.vue'
 
 interface ProjectInfo {
   name?: string
@@ -307,7 +358,7 @@ img {
   vertical-align: top;
 }
 .title {
-  padding: 0 min(142px, 50%);
+  padding: 0 min(186px, 50%);
   height: 100%;
   line-height: var(--titleBarHeight);
   font-size: 14px;
@@ -407,6 +458,23 @@ div.title > span > .path > bdi {
 
 .title-no-drag {
   -webkit-app-region: no-drag;
+}
+.appearance-shortcut {
+  position: absolute;
+  top: 0;
+  right: 146px;
+  height: var(--titleBarHeight);
+  display: flex;
+  align-items: center;
+  z-index: 3;
+}
+.appearance-shortcut.without-window-controls {
+  right: 8px;
+}
+.appearance-shortcut.native-appearance {
+  top: 6px;
+  right: 10px;
+  z-index: 5;
 }
 /* frameless window controls */
 .frameless-titlebar-button {

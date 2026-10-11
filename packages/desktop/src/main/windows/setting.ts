@@ -45,7 +45,7 @@ class SettingWindow extends BaseWindow {
     winOptions.resizable = true
 
     // Enable native or custom/frameless window and titlebar
-    const { titleBarStyle, theme } = preferences.getAll()
+    const { titleBarStyle, resolvedAppearance } = preferences.getAll()
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
       if (titleBarStyle === 'native') {
@@ -53,7 +53,7 @@ class SettingWindow extends BaseWindow {
       }
     }
 
-    winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
+    winOptions.backgroundColor = this._getPreferredBackgroundColor(resolvedAppearance)
     let win: BrowserWindow | null = (this.browserWindow = new BrowserWindow(winOptions))
 
     win.webContents.on('did-fail-load', (_event, code, desc, url) => {

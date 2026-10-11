@@ -16,6 +16,7 @@ class InlineRenderer {
     public renderer: Renderer;
 
     private _labelsRevision = -1;
+    private _definitionsByState = new WeakMap<TState, Labels>();
 
     constructor(public muya: Muya) {
         this.renderer = new Renderer(muya, this);
@@ -65,6 +66,7 @@ class InlineRenderer {
         this.renderer.loadMathMap.clear();
         this.labels.clear();
         this._labelsRevision = -1;
+        this._definitionsByState = new WeakMap();
     }
 
     patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {
@@ -87,30 +89,44 @@ class InlineRenderer {
     // `getTOC`, which tokenizes headings outside a rendered block.
     collectReferenceDefinitions(): Labels {
         const { jsonState } = this.muya.editor;
-        // getState clones the document; doing this for each leaf makes a
-        // full render quadratic. One snapshot suffices until an OT edit lands.
         if (this._labelsRevision === jsonState.revision)
             return this.labels;
-        const state = jsonState.getState();
+        const state = jsonState.getReadonlyState();
         const labels = new Map();
 
-        const travel = (sts: TState[]) => {
+        const travel = (sts: readonly TState[]) => {
             if (Array.isArray(sts) && sts.length) {
                 for (const st of sts) {
+                    const cached = this._definitionsByState.get(st);
+                    if (cached) {
+                        for (const [label, info] of cached) labels.set(label, info);
+                        continue;
+                    }
+                    const definitions: Labels = new Map();
                     if (st.name === 'paragraph') {
                         const { label, info } = this.getLabelInfo(st);
-                        if (label && info)
+                        if (label && info) {
                             labels.set(label, info);
+                            definitions.set(label, info);
+                        }
                     }
                     else if ((st as TContainerState).children) {
                         travel((st as TContainerState).children);
                     }
+                    if (st.name === 'paragraph' || !(st as TContainerState).children)
+                        this._definitionsByState.set(st, definitions);
                 }
             }
         };
 
         travel(state);
         this._labelsRevision = jsonState.revision;
+        if (labels.size === this.labels.size && [...labels].every(([key, value]) => {
+            const previous = this.labels.get(key);
+            return previous?.href === value.href && previous?.title === value.title;
+        })) {
+            return this.labels;
+        }
         this.labels = labels;
         return labels;
     }

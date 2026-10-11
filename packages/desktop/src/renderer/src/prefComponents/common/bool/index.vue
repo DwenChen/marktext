@@ -7,7 +7,7 @@
       class="description"
       style="display: flex; align-items: center"
     >
-      <span>{{ description }}:</span>
+      <span>{{ preferenceLabel(description) }}</span>
       <LinkIcon
         v-if="more"
         :size="14"
@@ -35,6 +35,7 @@
     </div>
     <el-switch
       v-model="status"
+      :disabled="disable"
       @change="handleSwitchChange"
     />
   </section>
@@ -45,6 +46,7 @@ import { ref, watch } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PrefControlBaseProps } from '../types'
+import { preferenceLabel } from '../label'
 
 interface BoolProps extends PrefControlBaseProps {
   notes?: string
@@ -110,29 +112,25 @@ const handleSwitchChange = (value: boolean | string | number) => {
   }
 }
 
-span.el-switch__core::after {
-  top: 3px;
-  left: 7px;
-  width: 10px;
-  height: 10px;
-}
-
-.el-switch .el-switch__core {
-  border: 2px solid var(--iconColor);
-  background: transparent;
-  box-sizing: border-box;
+.el-switch {
+  --el-switch-on-color: var(--themeColor);
+  --el-switch-off-color: var(--switchOffTrack);
+  --el-switch-border-color: var(--switchOffBorder);
 }
 
 span.el-switch__label {
   color: var(--editorColor50);
 }
 
-.el-switch:not(.is-checked) .el-switch__core::after {
-  background: var(--iconColor);
+.el-switch .el-switch__core .el-switch__action {
+  background-color: var(--switchOffThumb);
 }
 
-.el-switch.is-checked .el-switch__core {
-  border-color: var(--themeColor);
-  background-color: var(--themeColor);
+.el-switch.is-checked {
+  --el-switch-border-color: var(--themeColor);
+}
+
+.el-switch.is-checked .el-switch__core .el-switch__action {
+  background-color: #ffffff;
 }
 </style>

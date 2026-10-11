@@ -1,7 +1,9 @@
 import fs from 'fs'
 import path from 'path'
+import { randomUUID } from 'crypto'
+import { normalizeDocumentTheme } from '../../common/theme'
 import Store, { type Schema } from 'electron-store'
-import { BrowserWindow, ipcMain, nativeTheme } from 'electron'
+import { BrowserWindow, ipcMain, nativeTheme, dialog } from 'electron'
 import log from 'electron-log'
 import { isWindows } from '../config'
 import { hasSameKeys } from '../utils'
@@ -65,11 +67,6 @@ class Preference extends TypedEmitter<PreferenceEvents> {
     try {
       defaultSettings = JSON.parse(fs.readFileSync(this.staticPath, { encoding: 'utf8' }) || '{}')
 
-      // Set best theme on first application start.
-      if (nativeTheme.shouldUseDarkColors) {
-        defaultSettings!.theme = 'dark'
-      }
-
       // First start: leave `language` unset so it can be detected from the
       // system language once the app is ready. `app.getLocale()` returns an
       // empty string before the ready event, so detecting here would always
@@ -92,7 +89,7 @@ class Preference extends TypedEmitter<PreferenceEvents> {
     } else {
       // Because `this.getAll()` will return a plainObject, so we can not use `hasOwnProperty` method
       // const plainObject = () => Object.create(null)
-      const userSetting = this.getAll() as Record<string, unknown>
+      const userSetting = this.store.store as Record<string, unknown>
       // Update outdated settings
       const requiresUpdate = !hasSameKeys(defaultSettings, userSetting)
       const userSettingKeys = Object.keys(userSetting)
@@ -125,14 +122,21 @@ class Preference extends TypedEmitter<PreferenceEvents> {
       }
     }
 
+    const { theme, customThemes } = this.store.store
+    this.store.set('theme', normalizeDocumentTheme(theme, customThemes))
     this._listenForIpcMain()
   }
 
   getAll(): IUserPreferences {
-    return this.store.store as IUserPreferences
+    return {
+      ...this.store.store,
+      resolvedAppearance: nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+    }
   }
 
   setItem(key: string, value: unknown): void {
+    if (key === 'resolvedAppearance') return
+    if (key === 'theme') value = normalizeDocumentTheme(value, this.getAll().customThemes)
     this.store.set(key, value)
     ipcMain.emit('broadcast-preferences-changed', { [key]: value })
   }
@@ -174,6 +178,34 @@ class Preference extends TypedEmitter<PreferenceEvents> {
   }
 
   _listenForIpcMain(): void {
+    ipcMain.handle('mt::import-document-theme', async(e) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      if (!win) return { error: 'window' }
+      const result = await dialog.showOpenDialog(win, {
+        properties: ['openFile'],
+        filters: [{ name: 'CSS', extensions: ['css'] }]
+      })
+      if (result.canceled || !result.filePaths[0]) return {}
+      try {
+        const filename = result.filePaths[0]
+        const stat = await fs.promises.stat(filename)
+        if (path.extname(filename).toLowerCase() !== '.css' || stat.size > 1024 * 1024)
+          return { error: 'invalid' }
+        const css = (await fs.promises.readFile(filename, 'utf8')).replace(/^\uFEFF/, '')
+        if (!css.trim() || !css.includes('{') || /@import\b/i.test(css)) return { error: 'invalid' }
+        const theme = {
+          id: 'custom:' + randomUUID(),
+          name: path.basename(filename, path.extname(filename)),
+          css
+        }
+        this.setItem('customThemes', [...(this.getAll().customThemes || []), theme])
+        this.setItem('theme', theme.id)
+        return { theme }
+      } catch (err) {
+        log.error(err)
+        return { error: 'read' }
+      }
+    })
     ipcMain.handle('mt::get-user-preference', () => this.getAll())
     ipcMain.on('mt::ask-for-user-preference', (e) => {
       const win = BrowserWindow.fromWebContents(e.sender)
