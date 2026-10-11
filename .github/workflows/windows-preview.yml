@@ -59,6 +59,8 @@ jobs:
           test/e2e/titlebar-selection-word-count.spec.ts
           test/e2e/issue-2421-sidebar-state.spec.ts
           test/e2e/desktop-optimizations.spec.ts
+          test/e2e/editor-performance.spec.ts
+          test/e2e/window-resize.spec.ts
           test/e2e/tab-open-order.spec.ts
           test/e2e/issue-4895.spec.ts
           test/e2e/tab-switch-cursor.spec.ts

@@ -6,7 +6,10 @@
     ]"
     :dir="textDirection"
   >
-    <div ref="editorRef" class="editor-component" />
+    <div
+      ref="editorRef"
+      class="editor-component"
+    />
     <media-viewer ref="mediaViewer" @open-change="viewerOpen = $event" />
     <el-dialog
       v-model="dialogTableVisible"
@@ -170,6 +173,7 @@ const props = defineProps<{
   cursor?: unknown
   textDirection: string
   platform?: string
+  viewportHeight: number
 }>()
 
 // Get stores
@@ -457,7 +461,20 @@ watch(
   }
 )
 
+const updateViewportPadding = (): void => {
+  // Muya replaces the Vue mount node, so apply dimensions to its live DOM.
+  // Pixel padding avoids invalidating every descendant through an inherited var.
+  const mount = editor.value?.domNode
+  if (!mount) return
+  mount.style.paddingTop = typewriter.value ? `${Math.max(0, props.viewportHeight / 2 - 136)}px` : ''
+  mount.style.paddingBottom = typewriter.value ? `${Math.max(0, props.viewportHeight / 2 - 54)}px` : ''
+  const document = mount.querySelector<HTMLElement>('.mu-container')
+  if (document) document.style.paddingBottom = `${props.viewportHeight}px`
+}
+watch(() => props.viewportHeight, updateViewportPadding, { flush: 'post' })
+
 watch(typewriter, (value) => {
+  updateViewportPadding()
   if (value) {
     scrollToCursor()
   }
@@ -1511,6 +1528,7 @@ const setMarkdownToEditor = (payload: unknown) => {
       editor.value.setContent(newMarkdown ?? '')
       activeEngineTabId = id
     }
+    updateViewportPadding()
     // The freshly loaded content is this tab's clean baseline (id 0). Re-seed
     // the monotonic save-tracking allocator so undoing an edit back to this
     // content reads as clean again (matches the store's `lastSavedHistoryId: 0`).
@@ -1656,6 +1674,7 @@ const handleFileChange = (payload: unknown) => {
     applyCursor(editor.value, newCursor)
   }
 
+  updateViewportPadding()
   if (typeof scrollTop === 'number') {
     scrollToCords(scrollTop)
   } else {
@@ -1729,6 +1748,7 @@ const handleResetPaddingBottom = () => {
 
   if (currentFile.value && newScrollableHeightWithoutPadding > currentFile.value.scrollTop) {
     container.style.paddingBottom = ''
+    updateViewportPadding()
     resizeObserverForEditor.unobserve(firstChild) // unobserve #ag-editor-id since we have removed the padding
   }
 }
@@ -1848,6 +1868,7 @@ onMounted(() => {
   // the document tree and instantiates the registered UI plugins).
   muya.init({ focus: editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false })
   editor.value = muya
+  updateViewportPadding()
   // The first document's content is set via constructor options, so no
   // `file-loaded` / `setMarkdownToEditor` runs for it — seed its TOC here.
   editorStore.UPDATE_TOC(muya.getTOC())
@@ -2158,7 +2179,6 @@ onBeforeUnmount(() => {
 
 .editor-component .mu-container {
   padding-top: 20px;
-  padding-bottom: 100vh;
 }
 
 .typewriter .editor-component {

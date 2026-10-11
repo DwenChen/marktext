@@ -1,12 +1,20 @@
 <template>
-  <div class="editor-with-tabs">
+  <div
+    ref="viewport"
+    class="editor-with-tabs"
+  >
     <tabs v-show="showTabBar" />
-    <div ref="container" class="container" :style="{ width: resizeWidth }">
+    <div
+      ref="container"
+      class="container"
+      :style="viewportStyle"
+    >
       <editor
         :markdown="markdown"
         :cursor="cursor"
         :text-direction="textDirection"
         :platform="platform"
+        :viewport-height="editorViewportHeight"
       />
       <source-code
         v-if="sourceCode"
@@ -24,21 +32,82 @@ import Tabs from './tabs.vue'
 import Editor from './editor.vue'
 import SourceCode from './sourceCode.vue'
 import TabNotifications from './notifications.vue'
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import bus from '@/bus'
 
+const viewport = ref<HTMLElement | null>(null)
 const container = ref<HTMLElement | null>(null)
-const resizeWidth = ref<string>()
-const handleSidebarResize = (resizing: unknown): void => {
-  // Keep Muya and CodeMirror's line layout stable throughout a drag. The
-  // parent clips the temporary overflow; the final width reflows once on release.
-  resizeWidth.value =
-    resizing && container.value ? `${container.value.getBoundingClientRect().width}px` : undefined
-}
-bus.on('sidebar-resize', handleSidebarResize)
-onBeforeUnmount(() => bus.off('sidebar-resize', handleSidebarResize))
+const viewportStyle = ref<Record<string, string>>()
+const editorViewportHeight = ref(window.innerHeight)
+let windowResizing = false
+let sidebarResizing = false
+let pendingWindowResize = false
+let resizeTimer: ReturnType<typeof setTimeout> | undefined
+let resizeFrame = 0
+let resizeObserver: ResizeObserver | undefined
 
-defineProps<{
+const updateViewport = (): void => {
+  resizeFrame = 0
+  const host = viewport.value
+  const content = container.value
+  if (!host || !content || windowResizing || sidebarResizing || pendingWindowResize) return
+  viewportStyle.value = {
+    width: `${host.clientWidth}px`,
+    height: `${Math.max(0, host.clientHeight - content.offsetTop)}px`,
+    flex: 'none'
+  }
+  editorViewportHeight.value = window.innerHeight
+}
+const scheduleResize = (): void => {
+  cancelAnimationFrame(resizeFrame)
+  resizeFrame = requestAnimationFrame(updateViewport)
+}
+const handleWindowResize = (): void => {
+  // Windows can deliver IPC after the first viewport change. Keep the cached
+  // dimensions while resize events stream in, including on Linux without native
+  // drag-boundary events. A short idle period also recovers cancelled drags.
+  pendingWindowResize = true
+  cancelAnimationFrame(resizeFrame)
+  clearTimeout(resizeTimer)
+  resizeTimer = setTimeout(() => {
+    pendingWindowResize = false
+    scheduleResize()
+  }, 150)
+}
+const handleSidebarResize = (resizing: unknown): void => {
+  sidebarResizing = !!resizing
+  if (!resizing) scheduleResize()
+}
+const offWindowResize = window.electron.ipcRenderer.on(
+  'mt::window-resizing',
+  (_event, resizing) => {
+    windowResizing = resizing
+    if (!resizing) {
+      pendingWindowResize = false
+      clearTimeout(resizeTimer)
+      scheduleResize()
+    }
+  }
+)
+bus.on('sidebar-resize', handleSidebarResize)
+onMounted(() => {
+  // Keep pixel dimensions between frames as well: IPC may arrive after the
+  // first native resize, and a fluid child would already have reflowed by then.
+  updateViewport()
+  resizeObserver = new ResizeObserver(scheduleResize)
+  if (viewport.value) resizeObserver.observe(viewport.value)
+  window.addEventListener('resize', handleWindowResize)
+})
+onBeforeUnmount(() => {
+  bus.off('sidebar-resize', handleSidebarResize)
+  offWindowResize()
+  resizeObserver?.disconnect()
+  cancelAnimationFrame(resizeFrame)
+  clearTimeout(resizeTimer)
+  window.removeEventListener('resize', handleWindowResize)
+})
+
+const props = defineProps<{
   markdown: string
   // `cursor` originates as `IFileState.cursor` which is `unknown`
   // (see src/shared/types/files.ts); align here instead of forcing every
@@ -50,6 +119,7 @@ defineProps<{
   textDirection: string
   platform: string
 }>()
+watch(() => props.showTabBar, scheduleResize, { flush: 'post' })
 </script>
 
 <style scoped>
@@ -67,6 +137,7 @@ defineProps<{
     flex: 1;
     min-height: 0;
     overflow: hidden;
+    contain: layout;
   }
 }
 </style>

@@ -136,6 +136,26 @@ class EditorWindow extends BaseWindow {
 
     let win: BrowserWindow | null = (this.browserWindow = new BrowserWindow(winOptions))
 
+    // Native edge/corner drags run outside the renderer's pointer handlers.
+    // Send one boundary pair so the document can keep its layout until release.
+    let resizing = false
+    const finishResize = (): void => {
+      if (!resizing) return
+      resizing = false
+      win?.webContents.send('mt::window-resizing', false)
+    }
+    win.on('will-resize', () => {
+      if (resizing) return
+      resizing = true
+      win?.webContents.send('mt::window-resizing', true)
+    })
+    win.on('resized', finishResize)
+    win.on('blur', finishResize)
+    win.on('maximize', finishResize)
+    win.on('unmaximize', finishResize)
+    win.on('enter-full-screen', finishResize)
+    win.on('leave-full-screen', finishResize)
+
     // Give every editor window a stable id for session buffer persistence.
     // We cant use win.id as it might collide with same IDs from closed windows
     this.bufferStoreInfo = {
@@ -256,6 +276,7 @@ class EditorWindow extends BaseWindow {
 
     // Before closed. We cancel the action and ask the editor further instructions.
     win.on('close', (event) => {
+      finishResize()
       this.emit('window-close')
 
       event.preventDefault()
