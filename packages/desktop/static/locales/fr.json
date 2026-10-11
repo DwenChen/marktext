@@ -30,7 +30,8 @@
       "closeTab": "Fermer l'onglet",
       "closeWindow": "Fermer la fenêtre",
       "quit": "Quitter",
-      "preferences": "Préférences"
+      "preferences": "Préférences",
+      "exportImage": "Long Image (PNG)"
     },
     "edit": {
       "edit": "Édition",
@@ -249,8 +250,10 @@
     },
     "toc": {
       "title": "Table des matières",
-      "expandAll": "Tout développer",
-      "collapseAll": "Tout réduire"
+      "expandAll": "Expand all",
+      "collapseAll": "Tout réduire",
+      "collapseLevel": "Outline heading level",
+      "showLevel": "Show through H{level}"
     },
     "icons": {
       "files": "Fichiers",
@@ -344,6 +347,10 @@
         "default": "GitHub (par défaut)",
         "liber": "Liber"
       }
+    },
+    "image": {
+      "description": "Export the entire document as one continuous PNG image. Images, diagrams and math are included. Choose the image width on the Page tab.",
+      "width": "Image width (px)"
     }
   },
   "recent": {
@@ -989,7 +996,9 @@
     "export": {
       "error": "Erreur d'exportation",
       "errorExporting": "Erreur lors de l'exportation du fichier {type}",
-      "failed": "Échec de l'exportation {type}"
+      "failed": "Échec de l'exportation {type}",
+      "imageTooLarge": "The document exceeds the size supported by a single image. Reduce the image width or export separate sections.",
+      "imageTimeout": "Image export timed out. Check that document images are available and try again."
     },
     "insertTable": {
       "title": "Insérer un tableau",

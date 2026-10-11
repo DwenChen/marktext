@@ -1247,13 +1247,9 @@ const scrollToCords = (y: number) => {
       resizeObserverForEditor.observe(editorId)
     }
   }
-  requestAnimationFrame(() => {
-    if (!container) return
-    // wait for the padding to be applied (if any)
-    container.style.visibility = 'visible'
-    container.style.pointerEvents = 'auto'
-    container.scrollTop = y
-  })
+  container.style.visibility = 'visible'
+  container.style.pointerEvents = 'auto'
+  container.scrollTop = y
 }
 
 // Smoothly scroll the editor so `anchor` sits at the standard caret offset.
@@ -1311,20 +1307,24 @@ const handleExport = async (options: unknown) => {
   const opts = options as ExportOptions
   const { type, headerFooterStyled, htmlTitle } = opts
 
-  if (!/^pdf|print|styledHtml$/.test(type)) {
+  if (!/^(pdf|print|styledHtml|png)$/.test(type)) {
     throw new Error(`Invalid type to export: "${type}".`)
   }
 
   const muya = editor.value
   if (!muya) return
+  editorStore.flushActiveEditor()
 
   const extraCss = await getCssForOptions(opts as unknown as PdfCssOptions)
   const htmlToc = getHtmlToc(muya.getTOC(), opts as unknown as HtmlTocOptions)
-  const markdown = muya.getMarkdown()
+  const markdown = sourceCode.value
+    ? (currentFile.value?.markdown ?? muya.getMarkdown())
+    : muya.getMarkdown()
   const header = (opts.header ?? null) as HeaderFooterPart | null
   const footer = (opts.footer ?? null) as HeaderFooterPart | null
 
   switch (type) {
+    case 'png':
     case 'styledHtml': {
       try {
         const content = await exportStyledHTML(muya, markdown, {
@@ -1334,7 +1334,11 @@ const handleExport = async (options: unknown) => {
           toc: htmlToc,
           dir: props.textDirection
         })
-        editorStore.EXPORT({ type, content })
+        editorStore.EXPORT({
+          type,
+          content,
+          pageOptions: type === 'png' ? { imageWidth: opts.imageWidth as number } : undefined
+        })
       } catch (err) {
         log.error('Failed to export document:', err)
         notice.notify({
@@ -1653,8 +1657,6 @@ const handleFileChange = (payload: unknown) => {
   }
 
   if (typeof scrollTop === 'number') {
-    container.style.visibility = 'hidden'
-    container.style.pointerEvents = 'none'
     scrollToCords(scrollTop)
   } else {
     container.style.visibility = 'visible'
@@ -1684,14 +1686,8 @@ const focusEditor = () => {
   ed.focus()
 }
 
-// Focus a freshly opened/created tab's editor. The sibling `file-changed`
-// handler (emitted first, while the store commits the tab switch) hides the
-// editor and queues a `requestAnimationFrame` via `scrollToCords` to restore
-// it, and focus() is a no-op while the container is `visibility:hidden`. Our
-// rAF is registered after that restore rAF, so it runs once the editor is
-// visible; then take DOM focus (the engine's `focus()` only sets the selection
-// range — the contenteditable also needs focus or no caret blinks) and place
-// the caret at the document start.
+// Muya restores its selection during the document swap; take DOM focus after
+// that layout work, since its focus() alone does not activate contenteditable.
 const focusFreshEditor = () => {
   requestAnimationFrame(() => {
     const ed = editor.value

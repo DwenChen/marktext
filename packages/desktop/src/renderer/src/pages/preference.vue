@@ -16,13 +16,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted, nextTick } from 'vue'
+import { computed, watch, onMounted } from 'vue'
 import { usePreferencesStore } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
 import TitleBar from '@/prefComponents/common/titlebar.vue'
 import SideBar from '@/prefComponents/sideBar/index.vue'
 import { addThemeStyle } from '@/util/theme'
-import { DEFAULT_STYLE } from '@/config'
 import { isMac } from '@/util'
 
 // Store
@@ -48,12 +47,7 @@ watch(theme, (newValue, oldValue) => {
 
 // Lifecycle
 onMounted(() => {
-  nextTick(() => {
-    const state = window.marktext?.initialState ?? DEFAULT_STYLE
-    addThemeStyle(state.theme ?? DEFAULT_STYLE.theme)
-
-    preferencesStore.ASK_FOR_USER_PREFERENCE()
-  })
+  preferencesStore.ASK_FOR_USER_PREFERENCE()
 })
 </script>
 

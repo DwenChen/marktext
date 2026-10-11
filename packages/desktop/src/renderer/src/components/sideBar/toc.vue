@@ -4,7 +4,19 @@
     :class="[{ 'side-bar-toc-overflow': !wordWrapInToc, 'side-bar-toc-wordwrap': wordWrapInToc }]"
   >
     <div class="title">
-      {{ t('sideBar.toc.title') }}
+      <span>{{ t('sideBar.toc.title') }}</span>
+      <select
+        v-if="keyedToc.length"
+        v-model="visibleLevel"
+        class="toc-level"
+        :aria-label="t('sideBar.toc.collapseLevel')"
+        @change="applyVisibleLevel"
+      >
+        <option :value="0">{{ t('sideBar.toc.expandAll') }}</option>
+        <option v-for="level in 6" :key="level" :value="level">
+          {{ t('sideBar.toc.showLevel', { level }) }}
+        </option>
+      </select>
     </div>
     <el-tree
       v-if="keyedToc.length"
@@ -12,6 +24,7 @@
       :data="keyedToc"
       node-key="key"
       :default-expanded-keys="expandedKeys"
+      :auto-expand-parent="false"
       :current-node-key="activeNodeKey"
       highlight-current
       :props="defaultProps"
@@ -27,11 +40,7 @@
            made so the outline CSS keeps applying. -->
       <template #default="{ data }">
         <!-- eslint-disable vue/no-v-html -- sanitized by labelHtmlOf -->
-        <span
-          class="el-tree-node__label"
-          :title="plainLabel(data)"
-          v-html="labelHtmlOf(data)"
-        />
+        <span class="el-tree-node__label" :title="plainLabel(data)" v-html="labelHtmlOf(data)" />
         <!-- eslint-enable vue/no-v-html -->
       </template>
     </el-tree>
@@ -67,8 +76,7 @@ interface TocNodeData {
   labelHtml?: unknown
 }
 
-const plainLabel = (data: TocNodeData): string =>
-  typeof data.label === 'string' ? data.label : ''
+const plainLabel = (data: TocNodeData): string => (typeof data.label === 'string' ? data.label : '')
 
 const escapeHtml = (text: string): string =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -88,9 +96,49 @@ const keyedToc = computed<KeyedTocNode[]>(() => deriveKeyedToc(toc.value))
 // Track which headings the user collapsed, by stable key (#3028). Headings are
 // expanded by default; a collapse is remembered here.
 const collapsedKeys = ref<Set<string>>(new Set())
+const visibleLevel = ref(0)
+const expandedOverrides = ref<Set<string>>(new Set())
+const tabCollapseState = new Map<
+  string,
+  { collapsed: Set<string>; expanded: Set<string>; level: number }
+>()
+
+watch(
+  () => editorStore.currentFile?.id,
+  (id, previousId) => {
+    if (previousId) {
+      tabCollapseState.set(previousId, {
+        collapsed: collapsedKeys.value,
+        expanded: expandedOverrides.value,
+        level: visibleLevel.value
+      })
+    }
+    const state = id ? tabCollapseState.get(id) : undefined
+    collapsedKeys.value = state?.collapsed ?? new Set()
+    expandedOverrides.value = state?.expanded ?? new Set()
+    visibleLevel.value = state?.level ?? 0
+  }
+)
+
+watch(
+  () => editorStore.tabs.map((tab) => tab.id),
+  (ids) => {
+    for (const id of tabCollapseState.keys()) if (!ids.includes(id)) tabCollapseState.delete(id)
+  }
+)
+
+const applyVisibleLevel = () => {
+  collapsedKeys.value = new Set()
+  expandedOverrides.value = new Set()
+}
 
 const onCollapse = (data: { key?: string }): void => {
   if (data.key) collapsedKeys.value = new Set(collapsedKeys.value).add(data.key)
+  if (data.key) {
+    const expanded = new Set(expandedOverrides.value)
+    expanded.delete(data.key)
+    expandedOverrides.value = expanded
+  }
 }
 
 const onExpand = (data: { key?: string }): void => {
@@ -98,6 +146,7 @@ const onExpand = (data: { key?: string }): void => {
   const next = new Set(collapsedKeys.value)
   next.delete(data.key)
   collapsedKeys.value = next
+  expandedOverrides.value = new Set(expandedOverrides.value).add(data.key)
 }
 
 // The set el-tree should have expanded: every node that is neither collapsed
@@ -109,7 +158,12 @@ const expandedKeys = computed<string[]>(() => {
   const keys: string[] = []
   const walk = (nodes: KeyedTocNode[], hiddenByAncestor: boolean): void => {
     for (const node of nodes) {
-      const collapsed = hiddenByAncestor || collapsedKeys.value.has(node.key)
+      const collapsed =
+        hiddenByAncestor ||
+        collapsedKeys.value.has(node.key) ||
+        (visibleLevel.value > 0 &&
+          node.level >= visibleLevel.value &&
+          !expandedOverrides.value.has(node.key))
       if (!collapsed) keys.push(node.key)
       walk(node.children, collapsed)
     }
@@ -117,6 +171,22 @@ const expandedKeys = computed<string[]>(() => {
   walk(keyedToc.value, false)
   return keys
 })
+
+watch(
+  expandedKeys,
+  (keys) => {
+    const expanded = new Set(keys)
+    const update = (nodes: KeyedTocNode[]) => {
+      for (const data of nodes) {
+        const node = tocTreeRef.value?.getNode(data.key)
+        if (node) node.expanded = expanded.has(data.key)
+        update(data.children)
+      }
+    }
+    update(keyedToc.value)
+  },
+  { flush: 'post' }
+)
 
 // The store names the caret's heading by engine slug; el-tree keys its nodes by
 // githubSlug. Both sit on the same node, so one resolves to the other.
@@ -166,6 +236,22 @@ const handleClick = (data: { slug?: unknown }): void => {
   margin: 37px 0 10px 0;
   padding-left: 25px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-right: 12px;
+}
+
+.side-bar-toc .toc-level {
+  margin-left: auto;
+  max-width: 100%;
+  font-size: 12px;
+  color: var(--sideBarColor);
+  background: var(--sideBarBgColor);
+  border: 1px solid var(--editorColor10);
+  border-radius: 4px;
+  padding: 3px;
 }
 
 .side-bar-toc .el-tree-node {

@@ -49,6 +49,7 @@ export type PlantumlFetchResult =
 // =================================================================
 
 export interface IpcInvokeChannels {
+  'mt::get-user-preference': { args: []; ret: Record<string, unknown> }
   'mt::ask-for-image-path': { args: []; ret: string[] }
   'mt::boot-info-async': { args: []; ret: BootInfo }
   'mt::clipboard::guess-file-path': { args: []; ret: string | null }
@@ -205,6 +206,7 @@ export interface IpcSendChannels {
   'mt::win::unmaximize': []
   'mt::window-add-file-path': [windowId: number, filePath: string]
   'mt::window-initialized': []
+  'mt::renderer-ready': []
   'mt::window-tab-closed': [pathname: string]
   'mt::window-toggle-always-on-top': []
   'mt::window::drop': [payload: unknown]

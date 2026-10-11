@@ -55,6 +55,7 @@ class EditorWindow extends BaseWindow {
   // used to find the best window to open new files in.
   private _openedRootDirectory: string | null
   private _openedFiles: string[] | null
+  private _tabOpenQueue: Promise<void> = Promise.resolve()
 
   public bufferStoreInfo: BufferStoreInfo | null
 
@@ -160,7 +161,9 @@ class EditorWindow extends BaseWindow {
       showEditorContextMenu(win!, event, params, preferences.getItem('spellcheckerEnabled'))
     })
 
-    win.webContents.once('did-finish-load', () => {
+    // Route chunks and translations can finish after did-finish-load. Bootstrap
+    // only once the editor has registered all of its IPC listeners.
+    win.webContents.ipc.once('mt::renderer-ready', () => {
       this.lifecycle = WindowLifecycle.READY
       this.emit('window-ready')
 
@@ -333,23 +336,50 @@ class EditorWindow extends BaseWindow {
         browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath, options)
         continue
       }
-      loadMarkdownFile(
+      // Reads run concurrently; publication follows request order across batches.
+      // Attach rejection handling immediately while earlier files are still loading.
+      const loaded = loadMarkdownFile(
         filePath,
         eol,
         autoGuessEncoding,
         trimTrailingNewline,
         autoNormalizeLineEndings
+      ).then(
+        (doc) => ({ doc }),
+        (error: unknown) => ({ error })
       )
-        .then((rawDocument) => {
+      this._tabOpenQueue = this._tabOpenQueue
+        .then(async() => {
+          const result = await loaded
+          if (
+            this.lifecycle === WindowLifecycle.QUITTED ||
+            browserWindow?.isDestroyed() ||
+            !this._openedFiles ||
+            !this._filesToOpen
+          )
+            return
+          if ('error' in result) throw result.error
+          if (this._openedFiles.includes(filePath)) {
+            browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath, options)
+            return
+          }
+          const pending = this._filesToOpen.find((file) => file.doc.pathname === filePath)
+          if (pending) {
+            if (selected) pending.selected = true
+            Object.assign(pending.options, options)
+            return
+          }
           if (this.lifecycle === WindowLifecycle.READY) {
-            this._doOpenTab(rawDocument, options, selected)
+            this._doOpenTab(result.doc, options, selected)
           } else {
-            this._filesToOpen!.push({ doc: rawDocument, options, selected })
+            this._filesToOpen.push({ doc: result.doc, options, selected })
           }
         })
-        .catch((err: Error) => {
+        .catch((error: unknown) => {
+          const err = error instanceof Error ? error : new Error(String(error))
           const { message, stack } = err
           log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
+          if (!browserWindow || browserWindow.isDestroyed()) return
           browserWindow!.webContents.send('mt::show-notification', {
             title: 'Cannot open tab',
             type: 'error',
@@ -480,7 +510,7 @@ class EditorWindow extends BaseWindow {
     this._openedRootDirectory = ''
     this._openedFiles = []
 
-    browserWindow!.webContents.once('did-finish-load', () => {
+    browserWindow!.webContents.ipc.once('mt::renderer-ready', () => {
       this.lifecycle = WindowLifecycle.READY
       const { preferences } = this._accessor
       const { sideBarVisibility, restoreLayoutState, tabBarVisibility, sourceCodeModeEnabled } =

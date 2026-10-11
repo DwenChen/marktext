@@ -174,6 +174,7 @@ class Preference extends TypedEmitter<PreferenceEvents> {
   }
 
   _listenForIpcMain(): void {
+    ipcMain.handle('mt::get-user-preference', () => this.getAll())
     ipcMain.on('mt::ask-for-user-preference', (e) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       if (win) {

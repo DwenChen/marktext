@@ -30,7 +30,8 @@
       "closeTab": "關閉標籤頁",
       "closeWindow": "關閉視窗",
       "quit": "退出",
-      "preferences": "偏好設定"
+      "preferences": "偏好設定",
+      "exportImage": "長圖片（PNG）"
     },
     "edit": {
       "edit": "編輯",
@@ -250,7 +251,9 @@
     "toc": {
       "title": "目錄",
       "expandAll": "全部展開",
-      "collapseAll": "全部折疊"
+      "collapseAll": "全部折疊",
+      "collapseLevel": "大綱顯示層級",
+      "showLevel": "顯示至 H{level}"
     },
     "icons": {
       "files": "檔案",
@@ -344,6 +347,10 @@
         "default": "GitHub（預設）",
         "liber": "Liber"
       }
+    },
+    "image": {
+      "description": "將整篇文件匯出為一張連續的 PNG 長圖片，包含圖片、圖表和公式。可在「頁面」分頁設定圖片寬度。",
+      "width": "圖片寬度（像素）"
     }
   },
   "recent": {
@@ -989,7 +996,9 @@
     "export": {
       "error": "匯出錯誤",
       "errorExporting": "匯出 {type} 檔案時發生錯誤",
-      "failed": "{type} 匯出失敗"
+      "failed": "{type} 匯出失敗",
+      "imageTooLarge": "文件超出單張圖片支援的尺寸，請減小圖片寬度或分段匯出。",
+      "imageTimeout": "長圖片匯出逾時，請確認文件中的圖片可以載入後重試。"
     },
     "insertTable": {
       "title": "插入表格",

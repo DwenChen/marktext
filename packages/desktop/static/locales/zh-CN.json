@@ -30,7 +30,8 @@
       "closeTab": "关闭标签页",
       "closeWindow": "关闭窗口",
       "quit": "退出",
-      "preferences": "偏好设置"
+      "preferences": "偏好设置",
+      "exportImage": "导出为 PNG"
     },
     "edit": {
       "edit": "编辑",
@@ -250,7 +251,9 @@
     "toc": {
       "title": "目录",
       "expandAll": "全部展开",
-      "collapseAll": "全部折叠"
+      "collapseAll": "全部折叠",
+      "collapseLevel": "大纲显示级数",
+      "showLevel": "显示至 H{level}"
     },
     "icons": {
       "files": "文件",
@@ -344,6 +347,10 @@
         "default": "GitHub (默认)",
         "liber": "Liber"
       }
+    },
+    "image": {
+      "description": "将整篇文档导出为一张连续的 PNG 长图片，包含图片、图表和公式。可在“页面”选项卡设置图片宽度。",
+      "width": "图片宽度（像素）"
     }
   },
   "recent": {
@@ -1016,7 +1023,9 @@
     "export": {
       "error": "导出错误",
       "errorExporting": "导出 {type} 文件时出错",
-      "failed": "{type} 导出失败"
+      "failed": "{type} 导出失败",
+      "imageTooLarge": "文档超出单张图片支持的尺寸，请减小图片宽度或分段导出。",
+      "imageTimeout": "长图片导出超时，请确认文档中的图片可以加载后重试。"
     },
     "print": {
       "error": "打印 \"{title}\" 时出错",

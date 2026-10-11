@@ -69,9 +69,11 @@ export const t = (key: string, ...args: unknown[]): string => {
 // Cache in-flight translation loads so that concurrent setLanguage() calls
 // don't fire duplicate IPCs for the same locale.
 const inflightLoads = new Map<string, Promise<Record<string, unknown> | undefined>>()
+let languageRequest = 0
 
 export const setLanguage = async(locale: string): Promise<void> => {
   if (!locale) return
+  const request = ++languageRequest
   const globalI18n = i18n.global
   if (!globalI18n.availableLocales.includes(locale)) {
     let pending = inflightLoads.get(locale)
@@ -89,7 +91,7 @@ export const setLanguage = async(locale: string): Promise<void> => {
       console.log(`🌐 Loaded and set new locale: ${locale}`)
     }
   }
-  globalI18n.locale.value = locale
+  if (request === languageRequest) globalI18n.locale.value = locale
 }
 
 // Export the current language getter function
@@ -101,17 +103,13 @@ export const getCurrentLanguage = (): string => {
 export { i18n }
 export default i18n
 
+export const languageReady = setLanguage(
+  new URLSearchParams(window.location.search).get('lang') || 'en'
+)
+
 // Listen for language changes
 if (window.electron && window.electron.ipcRenderer) {
   window.electron.ipcRenderer.on('language-changed', (_event, newLocale) => {
-    setLanguage(newLocale)
-    bus.emit('language-changed', newLocale)
-  })
-
-  // Request the current language setting at startup
-  window.electron.ipcRenderer.send('mt::get-current-language')
-  window.electron.ipcRenderer.on('mt::current-language', (_event, language) => {
-    setLanguage(language)
-    bus.emit('language-changed', language)
+    void setLanguage(newLocale).then(() => bus.emit('language-changed', newLocale))
   })
 }

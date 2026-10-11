@@ -37,6 +37,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           npm_config_user_agent: 'pnpm'
 
+      - name: Check types, lint, and unit tests
+        run: |
+          pnpm run typecheck
+          pnpm run lint
+          pnpm run test:unit
+
       - name: Build Windows installer and ZIP
         run: pnpm run build:win:x64
         env:
@@ -49,17 +55,38 @@ jobs:
           test/e2e/document-appearance.spec.ts
           test/e2e/titlebar-selection-word-count.spec.ts
           test/e2e/issue-2421-sidebar-state.spec.ts
+          test/e2e/desktop-optimizations.spec.ts
+          test/e2e/tab-open-order.spec.ts
+          test/e2e/issue-4895.spec.ts
+          test/e2e/tab-switch-cursor.spec.ts
           --workers=1
 
-      - name: Upload Windows preview
+      - name: Record build provenance and checksums
+        shell: pwsh
+        run: |
+          $buildInfo = @{
+            commit = '${{ github.sha }}'
+            run = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+            platform = 'win32-x64'
+            version = (Get-Content packages/desktop/package.json | ConvertFrom-Json).version
+          }
+          $buildInfo | ConvertTo-Json | Set-Content dist/build-info.json -Encoding utf8
+          Get-ChildItem dist -File | Where-Object { $_.Extension -in '.exe', '.zip' } | ForEach-Object {
+            $hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($_.Name)"
+          } | Set-Content dist/SHA256SUMS.txt -Encoding utf8
+
+      - name: Upload Windows installer and portable archive
         uses: actions/upload-artifact@v7.0.2
         with:
-          name: marktext-windows-x64-preview
+          name: marktext-windows-x64
           retention-days: 7
           if-no-files-found: error
           path: |
             dist/*.exe
             dist/*.zip
+            dist/build-info.json
+            dist/SHA256SUMS.txt
 
       - name: Upload failed test diagnostics
         if: failure()

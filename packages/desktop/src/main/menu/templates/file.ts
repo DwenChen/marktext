@@ -167,6 +167,12 @@ export default function(
           click(_menuItem, browserWindow) {
             actions.exportFile(browserWindow as BrowserWindow | undefined, 'pdf')
           }
+        },
+        {
+          label: t('menu.file.exportImage'),
+          click(_menuItem, browserWindow) {
+            actions.exportFile(browserWindow as BrowserWindow | undefined, 'png')
+          }
         }
       ]
     },

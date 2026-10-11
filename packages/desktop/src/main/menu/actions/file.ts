@@ -31,10 +31,12 @@ import pandoc, {
 } from '../../utils/pandoc'
 import { t, getCurrentLanguage } from '../../i18n'
 import type { PandocExportPayload, TabOptions, UnsavedFile } from '@shared/types/files'
+import { renderLongImage } from '../../utils/exportImage'
 
 type Win = BrowserWindow | null | undefined
 
 interface PageOptions {
+  imageWidth?: number
   pageSize?: string
   pageSizeWidth?: number
   pageSizeHeight?: number
@@ -46,6 +48,7 @@ interface PageOptions {
 // E.g. "mt::save-tabs" --> "mt::window-save-tabs$wid:<windowId>"
 
 const getExportExtensionFilter = (type: string): Electron.FileFilter[] | undefined => {
+  if (type === 'png') return [{ name: 'PNG', extensions: ['png'] }]
   if (type === 'pdf') {
     return [
       {
@@ -103,6 +106,7 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
     return
   }
   const extension = (EXTENSION_HASN as Record<string, string>)[type]
+  if (!extension) return
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
   const nakedFilename = sanitizeFilename(pathname ? path.basename(pathname, '.md') : title)
 
@@ -128,6 +132,10 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
         const data = await win.webContents.printToPDF(options)
         removePrintServiceFromWindow(win)
         await writeFile(filePath, data, extension!, 'binary')
+      } else if (type === 'png') {
+        if (!content) throw new Error('No HTML content found.')
+        const data = await renderLongImage(content, pageOptions?.imageWidth)
+        await writeFile(filePath, data, extension, 'binary')
       } else {
         if (!content) {
           throw new Error('No HTML content found.')
@@ -140,7 +148,7 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
       const ERROR_MSG =
         (err instanceof Error && err.message) || `Error happened when export ${filePath}`
       win.webContents.send('mt::show-notification', {
-        title: 'Export failure',
+        title: t('editor.export.failed', { type: type === 'png' ? 'PNG' : type }),
         type: 'error',
         message: ERROR_MSG
       })

@@ -30,7 +30,8 @@
       "closeTab": "Закрыть вкладку",
       "closeWindow": "Закрыть окно",
       "quit": "Выход",
-      "preferences": "Настройки"
+      "preferences": "Настройки",
+      "exportImage": "Long Image (PNG)"
     },
     "edit": {
       "edit": "Правка",
@@ -249,8 +250,10 @@
     },
     "toc": {
       "title": "Оглавление",
-      "expandAll": "Развернуть всё",
-      "collapseAll": "Свернуть всё"
+      "expandAll": "Expand all",
+      "collapseAll": "Свернуть всё",
+      "collapseLevel": "Outline heading level",
+      "showLevel": "Show through H{level}"
     },
     "icons": {
       "files": "Файлы",
@@ -344,6 +347,10 @@
         "default": "GitHub (по умолчанию)",
         "liber": "Liber"
       }
+    },
+    "image": {
+      "description": "Export the entire document as one continuous PNG image. Images, diagrams and math are included. Choose the image width on the Page tab.",
+      "width": "Image width (px)"
     }
   },
   "recent": {
@@ -989,7 +996,9 @@
     "export": {
       "error": "Ошибка экспорта",
       "errorExporting": "Ошибка экспорта файла {type}",
-      "failed": "Не удалось экспортировать {type}"
+      "failed": "Не удалось экспортировать {type}",
+      "imageTooLarge": "The document exceeds the size supported by a single image. Reduce the image width or export separate sections.",
+      "imageTimeout": "Image export timed out. Check that document images are available and try again."
     },
     "insertTable": {
       "title": "Вставить таблицу",

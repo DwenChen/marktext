@@ -30,7 +30,8 @@
       "closeTab": "탭 닫기",
       "closeWindow": "창 닫기",
       "quit": "종료",
-      "preferences": "환경설정"
+      "preferences": "환경설정",
+      "exportImage": "Long Image (PNG)"
     },
     "edit": {
       "edit": "편집",
@@ -249,8 +250,10 @@
     },
     "toc": {
       "title": "목차",
-      "expandAll": "모두 펼치기",
-      "collapseAll": "모두 접기"
+      "expandAll": "Expand all",
+      "collapseAll": "모두 접기",
+      "collapseLevel": "Outline heading level",
+      "showLevel": "Show through H{level}"
     },
     "icons": {
       "files": "파일",
@@ -344,6 +347,10 @@
         "default": "GitHub (기본값)",
         "liber": "Liber"
       }
+    },
+    "image": {
+      "description": "Export the entire document as one continuous PNG image. Images, diagrams and math are included. Choose the image width on the Page tab.",
+      "width": "Image width (px)"
     }
   },
   "recent": {
@@ -989,7 +996,9 @@
     "export": {
       "error": "내보내기 오류",
       "errorExporting": "{type} 파일 내보내기 오류",
-      "failed": "{type} 내보내기 실패"
+      "failed": "{type} 내보내기 실패",
+      "imageTooLarge": "The document exceeds the size supported by a single image. Reduce the image width or export separate sections.",
+      "imageTimeout": "Image export timed out. Check that document images are available and try again."
     },
     "insertTable": {
       "title": "표 삽입",

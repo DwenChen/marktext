@@ -211,6 +211,11 @@ body.dark [data-document-style='github'] .editor-wrapper {
   font-style: italic;
 }
 
+/* Keep document tables centered independently of typography and interface themes. */
+.editor-wrapper .mu-container .mu-table-inner {
+  margin-inline: auto !important;
+}
+
 @media print {
   .status-bar {
     display: none;

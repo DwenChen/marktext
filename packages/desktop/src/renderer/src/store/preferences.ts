@@ -295,12 +295,11 @@ export const usePreferencesStore = defineStore('preferences', {
     },
 
     ASK_FOR_USER_PREFERENCE(): void {
-      window.electron.ipcRenderer.send('mt::ask-for-user-preference')
-      window.electron.ipcRenderer.send('mt::ask-for-user-data')
-
       window.electron.ipcRenderer.on('mt::user-preference', (_e, preferences) => {
         this.SET_USER_PREFERENCE(preferences as Partial<PreferencesState>)
       })
+      window.electron.ipcRenderer.send('mt::ask-for-user-preference')
+      window.electron.ipcRenderer.send('mt::ask-for-user-data')
     },
 
     SET_SINGLE_PREFERENCE({ type, value }: SingleSetPreferencePayload): void {

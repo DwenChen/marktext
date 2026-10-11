@@ -1,10 +1,6 @@
 <template>
   <div>
-    <div
-      v-if="showTitleBar"
-      class="title-bar-editor-bg"
-      :class="{ 'tabs-visible': showTabBar }"
-    />
+    <div v-if="showTitleBar" class="title-bar-editor-bg" :class="{ 'tabs-visible': showTabBar }" />
     <div
       v-if="showTitleBar"
       class="title-bar"
@@ -16,34 +12,24 @@
       ]"
     >
       <div
+        ref="titleElement"
         class="title"
+        :style="{ fontSize: `${titleFontSize}px` }"
+        :title="pathname || filename || 'MarkText'"
         @dblclick.stop="toggleMaxmizeOnMacOS"
       >
         <span v-if="!filename">MarkText</span>
-        <span v-else>
-          <span
-            class="save-dot"
-            :class="{ show: !isSaved }"
-          />
+        <span v-else class="title-content">
+          <span class="save-dot" :class="{ show: !isSaved }" />
           <span class="path">
-            <bdi dir="ltr">
-              <span
-                v-for="(path, index) of paths"
-                :key="index"
-              >
+            <bdi ref="titleText" dir="ltr">
+              <span v-for="(path, index) of paths" :key="index">
                 {{ path }}
-                <el-icon
-                  class="path-arrow"
-                  :size="12"
-                >
+                <el-icon class="path-arrow" :size="12">
                   <ArrowRight />
                 </el-icon>
               </span>
-              <span
-                class="filename"
-                :class="{ isOsx: platform === 'darwin' }"
-                @click="rename"
-              >
+              <span class="filename" :class="{ isOsx: platform === 'darwin' }" @click="rename">
                 {{ filename }}
               </span>
             </bdi>
@@ -69,10 +55,7 @@
           @click.stop="handleCloseClick"
         >
           <div>
-            <svg
-              width="10"
-              height="10"
-            >
+            <svg width="10" height="10">
               <path :d="windowIconClose" />
             </svg>
           </div>
@@ -82,18 +65,9 @@
           @click.stop="handleMaximizeClick"
         >
           <div>
-            <svg
-              width="10"
-              height="10"
-            >
-              <path
-                v-show="!isMaximized"
-                :d="windowIconMaximize"
-              />
-              <path
-                v-show="isMaximized"
-                :d="windowIconRestore"
-              />
+            <svg width="10" height="10">
+              <path v-show="!isMaximized" :d="windowIconMaximize" />
+              <path v-show="isMaximized" :d="windowIconRestore" />
             </svg>
           </div>
         </div>
@@ -102,10 +76,7 @@
           @click.stop="handleMinimizeClick"
         >
           <div>
-            <svg
-              width="10"
-              height="10"
-            >
+            <svg width="10" height="10">
               <path :d="windowIconMinimize" />
             </svg>
           </div>
@@ -118,10 +89,9 @@
 <script setup lang="ts">
 import { usePreferencesStore } from '@/store/preferences.js'
 import { useLayoutStore } from '@/store/layout.js'
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { storeToRefs } from 'pinia'
 import { minimizePath, restorePath, maximizePath, closePath } from '../../assets/window-controls.js'
-import { PATH_SEPARATOR } from '../../config'
 import { isMac as isOsxPlatform } from '@/util'
 import { shouldShowInAppTitleBar } from './visibility'
 import { useEditorStore } from '@/store/editor'
@@ -153,6 +123,42 @@ const windowIconClose = closePath
 
 const isFullScreen = ref(false)
 const isMaximized = ref(false)
+const titleElement = ref<HTMLElement | null>(null)
+const titleText = ref<HTMLElement | null>(null)
+const titleFontSize = ref(14)
+let titleObserver: ResizeObserver | undefined
+let titleFrame = 0
+
+const fitTitle = () => {
+  cancelAnimationFrame(titleFrame)
+  titleFrame = requestAnimationFrame(() => {
+    const element = titleElement.value
+    const text = titleText.value
+    if (!element || !text) return
+    const style = getComputedStyle(element)
+    const available =
+      element.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 24
+    const naturalWidth = (text.getBoundingClientRect().width * 14) / titleFontSize.value
+    titleFontSize.value = Math.max(
+      10,
+      Math.min(14, naturalWidth > 0 ? (14 * available) / naturalWidth : 14)
+    )
+  })
+}
+
+watch(
+  () => [props.filename, props.pathname],
+  () => nextTick(fitTitle)
+)
+onMounted(() => {
+  titleObserver = new ResizeObserver(fitTitle)
+  if (titleElement.value) titleObserver.observe(titleElement.value)
+  fitTitle()
+})
+onBeforeUnmount(() => {
+  titleObserver?.disconnect()
+  cancelAnimationFrame(titleFrame)
+})
 
 onMounted(async () => {
   try {
@@ -172,7 +178,7 @@ const { showTabBar } = storeToRefs(layoutStore)
 
 const paths = computed(() => {
   if (!props.pathname) return []
-  const pathnameToken = props.pathname.split(PATH_SEPARATOR).filter((i) => i)
+  const pathnameToken = props.pathname.split(/[\\/]/).filter((i) => i)
   return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
 })
 
@@ -185,8 +191,8 @@ const showTitleBar = computed(() => {
 })
 
 watch(
-  () => props.filename,
-  (value) => {
+  () => [props.filename, props.project?.name],
+  ([value]) => {
     // Set filename when hover on dock
     const hasOpenFolder = !!(props.project && props.project.name)
     const projectName = props.project?.name ?? ''
@@ -198,7 +204,8 @@ watch(
     }
 
     document.title = title
-  }
+  },
+  { immediate: true }
 )
 
 const handleCloseClick = () => {
@@ -282,7 +289,8 @@ onBeforeUnmount(() => {
   height: var(--titleBarHeight);
   box-sizing: border-box;
   color: var(--editorColor50);
-  position: fixed;
+  /* The editor column owns the center, including during live sidebar resizing. */
+  position: absolute;
   left: 0;
   top: 0;
   right: 0;
@@ -299,18 +307,15 @@ img {
   vertical-align: top;
 }
 .title {
-  padding: 0 142px;
+  padding: 0 min(142px, 50%);
   height: 100%;
   line-height: var(--titleBarHeight);
   font-size: 14px;
   text-align: center;
-  transition: all 0.25s ease-in-out;
-  & .filename {
-    transition: all 0.25s ease-in-out;
-  }
   &::after {
     content: '';
     position: absolute;
+    left: 0;
     top: 0;
     height: 1px;
     width: 100%;
@@ -322,6 +327,14 @@ div.title > span {
   display: flex;
   align-items: baseline;
   justify-content: center;
+  height: 100%;
+  min-width: 0;
+}
+
+/* Balance the save indicator so the path itself stays on the editor's center. */
+.title-content::after {
+  content: '';
+  flex: 0 0 12px;
 }
 
 /* Workaround for GH#339: the RTL context clips an over-long path from the left
@@ -330,7 +343,7 @@ div.title > span {
 div.title > span > .path {
   direction: rtl;
   overflow: hidden;
-  text-overflow: clip;
+  text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
 }
@@ -342,13 +355,17 @@ div.title > span > .path > bdi > span {
   unicode-bidi: isolate;
 }
 
+div.title > span > .path > bdi {
+  display: inline-block;
+}
+
 .title-bar .title .filename.isOsx:hover {
   color: var(--themeColor);
 }
 
-.active .save-dot {
+.save-dot {
   flex: none;
-  margin-right: 0.25rem;
+  margin-right: 4px;
   width: 8px;
   height: 8px;
   display: inline-block;
@@ -357,17 +374,17 @@ div.title > span > .path > bdi > span {
   opacity: 0.7;
   visibility: hidden;
 }
-.active .save-dot.show {
+.save-dot.show {
   visibility: visible;
 }
 .title:hover {
-  color: var(sideBarTitleColor);
+  color: var(--sideBarTitleColor);
 }
 
 .left-toolbar {
   padding: 0 10px;
-  height: 100%;
-  position: absolute;
+  height: var(--titleBarHeight);
+  position: fixed;
   top: 0;
   left: 0;
   width: 118px; /* + 2*10px padding*/

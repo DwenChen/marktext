@@ -115,7 +115,7 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     // NOTE: Only send absolutely necessary values. Full settings are delay loaded.
     const { type } = this
     const { debug, paths } = env
-    const { codeFontFamily, codeFontSize, hideScrollbar, theme, titleBarStyle } =
+    const { codeFontFamily, codeFontSize, hideScrollbar, theme, titleBarStyle, language } =
       userPreference.getAll()
 
     // Decided at build time: a NODE_ENV inherited from the user's environment
@@ -136,6 +136,7 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     url.searchParams.set('hsb', hideScrollbar ? '1' : '0')
     url.searchParams.set('theme', theme ?? '')
     url.searchParams.set('tbs', titleBarStyle ?? '')
+    url.searchParams.set('lang', typeof language === 'string' ? language : 'en')
 
     return url
   }

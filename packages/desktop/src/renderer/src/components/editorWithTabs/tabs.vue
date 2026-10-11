@@ -1,18 +1,12 @@
 <template>
   <div class="editor-tabs">
-    <div
-      ref="tabContainer"
-      class="scrollable-tabs"
-    >
-      <ul
-        ref="tabDropContainer"
-        class="tabs-container"
-      >
+    <div ref="tabContainer" class="scrollable-tabs">
+      <ul ref="tabDropContainer" class="tabs-container">
         <li
           v-for="file of tabs"
           :key="file.id"
           :title="file.pathname"
-          :class="{ active: currentFile?.id === file.id, unsaved: !file.isSaved }"
+          :class="{ active: selectedTabId === file.id, unsaved: !file.isSaved }"
           :data-id="file.id"
           @click.stop="selectFile(file)"
           @click.middle="closeTab(file.id)"
@@ -20,20 +14,13 @@
         >
           <span>{{ file.filename }}</span>
           <span class="unsaved-dot" />
-          <el-icon
-            class="close-icon"
-            :size="12"
-            @click.stop="removeFileInTab(file)"
-          >
+          <el-icon class="close-icon" :size="12" @click.stop="removeFileInTab(file)">
             <Close />
           </el-icon>
         </li>
       </ul>
     </div>
-    <div
-      class="new-file"
-      @click.stop="newFile()"
-    >
+    <div class="new-file" @click.stop="newFile()">
       <el-icon :size="16">
         <Plus />
       </el-icon>
@@ -42,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
 import { storeToRefs } from 'pinia'
@@ -72,14 +59,24 @@ const tabContainer = ref<HTMLElement | null>(null)
 const tabDropContainer = ref<HTMLElement | null>(null)
 let autoScroller: AutoScroller | null = null
 let drake: dragula.Drake | null = null
+const pendingTabId = ref<string | null>(null)
+const selectedTabId = computed(() => pendingTabId.value || currentFile.value?.id)
+let switchFrame = 0
 
 // Computed properties
 
 // Methods incorporated from tabsMixins
 const selectFile = (file: IFileState) => {
-  if (file.id !== currentFile.value?.id) {
-    editorStore.UPDATE_CURRENT_FILE(file)
-  }
+  cancelAnimationFrame(switchFrame)
+  pendingTabId.value = file.id
+  // Let the tab highlight paint before rebuilding a large document. Rapid
+  // clicks replace the pending target, so intermediate documents never load.
+  switchFrame = requestAnimationFrame(() => {
+    switchFrame = requestAnimationFrame(() => {
+      pendingTabId.value = null
+      if (tabs.value.some((tab) => tab.id === file.id)) editorStore.UPDATE_CURRENT_FILE(file)
+    })
+  })
 }
 
 const removeFileInTab = (file: IFileState) => {
@@ -184,6 +181,8 @@ const handleContextMenu = (event: MouseEvent, tab: IFileState) => {
 watch(
   () => currentFile.value?.id,
   () => {
+    cancelAnimationFrame(switchFrame)
+    pendingTabId.value = null
     nextTick(scrollActiveTabIntoView)
   }
 )
@@ -247,6 +246,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  cancelAnimationFrame(switchFrame)
   const tabsEl = tabContainer.value
   if (tabsEl) {
     tabsEl.removeEventListener('wheel', handleTabScroll)
@@ -314,7 +314,10 @@ onBeforeUnmount(() => {
     display: none;
   }
   & > li {
-    transition: all 0.15s ease-in-out;
+    transition:
+      color 120ms ease,
+      background-color 120ms ease;
+    flex-shrink: 0;
     position: relative;
     padding: 0 8px;
     color: var(--editorColor50);
@@ -324,11 +327,24 @@ onBeforeUnmount(() => {
     max-width: 280px;
     display: flex;
     align-items: center;
+    &::after {
+      content: '';
+      position: absolute;
+      inset: auto 0 0;
+      height: 2px;
+      background: var(--themeColor);
+      transform: scaleX(0);
+      opacity: 0;
+      transition:
+        transform 120ms ease-out,
+        opacity 120ms ease-out;
+    }
     &[aria-grabbed='true'] {
       color: var(--editorColor30) !important;
     }
     & > .close-icon {
       opacity: 0;
+      flex: 0 0 12px;
     }
     &:focus {
       outline: none;
@@ -355,6 +371,8 @@ onBeforeUnmount(() => {
       border-radius: 50%;
       background: var(--themeColor);
       flex-shrink: 0;
+      position: absolute;
+      right: 11px;
     }
   }
   & > li.unsaved:not(.active) {
@@ -375,13 +393,8 @@ onBeforeUnmount(() => {
     background: var(--itemBgColor);
     z-index: 3;
     &:after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      right: 0;
-      height: 2px;
-      background: var(--themeColor);
+      transform: scaleX(1);
+      opacity: 1;
     }
     & > .close-icon {
       opacity: 1;
@@ -409,9 +422,17 @@ onBeforeUnmount(() => {
 }
 
 .editor-tabs > .new-file:hover {
-  transition: all 0.15s ease-in-out;
+  transition: color 120ms ease;
   & > svg {
     fill: var(--focusColor);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs-container > li,
+  .tabs-container > li::after,
+  .close-icon {
+    transition: none;
   }
 }
 

@@ -11,7 +11,9 @@ import 'element-plus/dist/index.css'
 import en from 'element-plus/es/locale/lang/en'
 
 // I18n translation system
-import i18nPlugin from './i18n'
+import i18nPlugin, { languageReady, setLanguage } from './i18n'
+import { usePreferencesStore } from './store/preferences'
+import { addThemeStyle } from './util/theme'
 
 // something is wrong here! \/
 import services from './services/index'
@@ -58,5 +60,17 @@ app.config.globalProperties.$http = axios
   app.config.globalProperties['$' + s.name] = s[s.name]
 })
 
-// Mount the app
-app.mount('#app')
+const mountRenderer = async(): Promise<void> => {
+  const preferences = usePreferencesStore(pinia)
+  const [, initialPreferences] = await Promise.all([
+    languageReady,
+    window.electron.ipcRenderer.invoke('mt::get-user-preference')
+  ])
+  preferences.SET_USER_PREFERENCE(initialPreferences)
+  await setLanguage(preferences.language)
+  addThemeStyle(preferences.theme)
+  await router.isReady()
+  app.mount('#app')
+}
+
+void mountRenderer()

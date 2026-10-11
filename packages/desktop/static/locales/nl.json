@@ -30,7 +30,8 @@
       "closeTab": "Tabblad sluiten",
       "closeWindow": "Venster sluiten",
       "quit": "Afsluiten",
-      "preferences": "Voorkeuren"
+      "preferences": "Voorkeuren",
+      "exportImage": "Long Image (PNG)"
     },
     "edit": {
       "edit": "Bewerken",
@@ -249,8 +250,10 @@
     },
     "toc": {
       "title": "Inhoudsopgave",
-      "expandAll": "Alles uitklappen",
-      "collapseAll": "Alles inklappen"
+      "expandAll": "Expand all",
+      "collapseAll": "Alles inklappen",
+      "collapseLevel": "Outline heading level",
+      "showLevel": "Show through H{level}"
     },
     "icons": {
       "files": "Bestanden",
@@ -344,6 +347,10 @@
         "default": "GitHub (Standaard)",
         "liber": "Liber"
       }
+    },
+    "image": {
+      "description": "Export the entire document as one continuous PNG image. Images, diagrams and math are included. Choose the image width on the Page tab.",
+      "width": "Image width (px)"
     }
   },
   "recent": {
@@ -989,7 +996,9 @@
     "export": {
       "error": "Exportfout",
       "errorExporting": "Fout bij exporteren van {type}-bestand",
-      "failed": "{type}-export mislukt"
+      "failed": "{type}-export mislukt",
+      "imageTooLarge": "The document exceeds the size supported by a single image. Reduce the image width or export separate sections.",
+      "imageTimeout": "Image export timed out. Check that document images are available and try again."
     },
     "insertTable": {
       "title": "Tabel invoegen",

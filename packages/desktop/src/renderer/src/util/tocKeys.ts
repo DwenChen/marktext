@@ -3,6 +3,7 @@ export interface KeyedTocNode {
   label: unknown
   labelHtml: unknown
   slug: unknown
+  level: number
   children: KeyedTocNode[]
 }
 
@@ -11,6 +12,7 @@ interface TocLike {
   labelHtml?: unknown
   slug?: unknown
   githubSlug?: unknown
+  lvl?: number | null
   children?: TocLike[]
 }
 
@@ -33,6 +35,7 @@ export function deriveKeyedToc(nodes: TocLike[]): KeyedTocNode[] {
         label: node.label,
         labelHtml: node.labelHtml,
         slug: node.slug,
+        level: node.lvl ?? 1,
         children: assign(node.children ?? [])
       }
     })

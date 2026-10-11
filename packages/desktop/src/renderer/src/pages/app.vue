@@ -212,6 +212,7 @@ onMounted(async () => {
   notificationStore.listenForNotification()
 
   setupDragDropHandler()
+  window.electron.ipcRenderer.send('mt::renderer-ready')
 
   nextTick(() => {
     // `initialState` from bootstrap carries nullable URL params (string|null);

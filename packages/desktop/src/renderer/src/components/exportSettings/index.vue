@@ -9,23 +9,34 @@
     >
       <h3>{{ t('exportSettings.title') }}</h3>
       <el-tabs v-model="activeName">
-        <el-tab-pane
-          :label="t('exportSettings.info.label')"
-          name="info"
-        >
-          <span class="text">{{ t('exportSettings.info.description') }}</span>
+        <el-tab-pane :label="t('exportSettings.info.label')" name="info">
+          <span class="text">{{
+            t(
+              exportType === 'png'
+                ? 'exportSettings.image.description'
+                : 'exportSettings.info.description'
+            )
+          }}</span>
         </el-tab-pane>
-        <el-tab-pane
-          :label="t('exportSettings.page.label')"
-          name="page"
-        >
+        <el-tab-pane :label="t('exportSettings.page.label')" name="page">
           <!-- HTML -->
-          <div v-if="!isPrintable">
+          <div v-if="exportType === 'styledHtml'">
             <text-box
               :description="t('exportSettings.page.pageTitle')"
               :input="htmlTitle"
               :emit-time="0"
               :on-change="(value: unknown) => onSelectChange('htmlTitle', value)"
+            />
+          </div>
+          <div v-if="exportType === 'png'" class="row">
+            <label for="image-export-width">{{ t('exportSettings.image.width') }}</label>
+            <el-input-number
+              id="image-export-width"
+              v-model="imageWidth"
+              :min="320"
+              :max="2400"
+              :step="100"
+              controls-position="right"
             />
           </div>
 
@@ -39,10 +50,7 @@
                 :options="pageSizeList"
                 :on-change="(value: unknown) => onSelectChange('pageSize', value)"
               />
-              <div
-                v-if="pageSize === 'custom'"
-                class="row"
-              >
+              <div v-if="pageSize === 'custom'" class="row">
                 <div>{{ t('exportSettings.page.widthHeight') }}</div>
                 <el-input-number
                   v-model="pageSizeWidth"
@@ -110,10 +118,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane
-          :label="t('exportSettings.style.label')"
-          name="style"
-        >
+        <el-tab-pane :label="t('exportSettings.style.label')" name="style">
           <bool
             :description="t('exportSettings.style.overwriteThemeFont')"
             :bool="fontSettingsOverwrite"
@@ -154,10 +159,7 @@
             :on-change="(value: unknown) => onSelectChange('showFrontMatter', value)"
           />
         </el-tab-pane>
-        <el-tab-pane
-          :label="t('exportSettings.theme.label')"
-          name="theme"
-        >
+        <el-tab-pane :label="t('exportSettings.theme.label')" name="theme">
           <div class="text">
             {{ t('exportSettings.theme.description') }}
           </div>
@@ -257,10 +259,7 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane
-          :label="t('exportSettings.toc.label')"
-          name="toc"
-        >
+        <el-tab-pane :label="t('exportSettings.toc.label')" name="toc">
           <bool
             :description="t('exportSettings.toc.includeTopHeading')"
             :detailed-description="t('exportSettings.toc.includeTopHeadingDetail')"
@@ -276,10 +275,7 @@
         </el-tab-pane>
       </el-tabs>
       <div class="button-controlls">
-        <button
-          class="button-primary"
-          @click="handleClicked"
-        >
+        <button class="button-primary" @click="handleClicked">
           {{ t('exportSettings.export') }}
         </button>
       </div>
@@ -307,6 +303,7 @@ const isPrintable = ref(true)
 const showExportSettingsDialog = ref(false)
 const activeName = ref('info')
 const htmlTitle = ref('')
+const imageWidth = ref(1200)
 const pageSize = ref('A4')
 const pageSizeWidth = ref(210)
 const pageSizeHeight = ref(297)
@@ -342,6 +339,7 @@ const tocIncludeTopHeading = ref(true)
 // #2287 — persist the chosen export options across sessions. Every option ref
 // is registered here; changes are saved to localStorage and restored on mount.
 const persistableSettings: Record<string, Ref<unknown>> = {
+  imageWidth,
   htmlTitle,
   pageSize,
   pageSizeWidth,
@@ -408,7 +406,7 @@ const updateTranslations = () => {
 const showDialog = (type: unknown) => {
   const exportTypeValue = String(type ?? '')
   exportType.value = exportTypeValue
-  isPrintable.value = exportTypeValue !== 'styledHtml'
+  isPrintable.value = exportTypeValue === 'pdf' || exportTypeValue === 'print'
   if (!isPrintable.value && (activeName.value === 'header' || activeName.value === 'page')) {
     activeName.value = 'info'
   }
@@ -425,6 +423,7 @@ const showDialog = (type: unknown) => {
 const handleClicked = () => {
   const options: Record<string, unknown> = {
     type: exportType.value,
+    imageWidth: imageWidth.value,
     pageSize: pageSize.value,
     pageSizeWidth: pageSizeWidth.value,
     pageSizeHeight: pageSizeHeight.value,
