@@ -825,6 +825,8 @@ watch(
         // edit permanently. Same guard as saving (#3803) and tab switch
         // (#2938).
         editor.value.flush()
+        // The source-mode flag already suppresses the json-change listener here.
+        commitEditorContent()
         // Compute the WYSIWYG caret as a source-markdown `{ line, ch }` index
         // cursor JUST-IN-TIME, only when entering source mode (Phase G — G7),
         // and write it to the tab before sourceCode.vue mounts (`flush: 'sync'`
@@ -1737,6 +1739,22 @@ const flushActiveEditor = () => {
   editor.value?.flush()
 }
 
+const commitEditorContent = () => {
+  const muya = editor.value
+  const id = currentFile.value?.id
+  if (!muya || !id) return
+  const markdown = muya.getMarkdown()
+  editorStore.LISTEN_FOR_CONTENT_CHANGE({
+    id,
+    markdown,
+    wordCount: muyaWordCount(markdown),
+    cursor: serializeCursor(muya.getSelection()),
+    // The desktop tracks save state with a different history shape from Muya.
+    history: makeSyntheticHistory(id, markdown),
+    toc: muya.getTOC()
+  })
+}
+
 // The engine's `focus()` only sets the selection range; the contenteditable
 // also needs DOM focus or no caret blinks.
 const focusEditor = () => {
@@ -1982,22 +2000,8 @@ onMounted(() => {
   // so we compute it here — mirroring the legacy engine's
   // `dispatchChange` payload.
   editor.value.on('json-change', () => {
-    // There is a chance that this event is fired AFTER the tab is switched. If we purely rely on this.currentFile later on
-    // it can cause invalid updates. Hence, we need the id to identify changes as part of each tab
-    if (sourceCode.value || !currentFile.value || !editor.value) return
-    const { id } = currentFile.value
-    if (!id) return
-    const markdown = editor.value.getMarkdown()
-    editorStore.LISTEN_FOR_CONTENT_CHANGE({
-      id,
-      markdown,
-      wordCount: muyaWordCount(markdown),
-      cursor: serializeCursor(editor.value.getSelection()),
-      // Synthetic, desktop-shaped history so the store's save/dirty tracking
-      // keeps working (the engine history shape is incompatible).
-      history: makeSyntheticHistory(id, markdown),
-      toc: editor.value.getTOC()
-    })
+    if (sourceCode.value) return
+    commitEditorContent()
   })
 
   // The engine does not emit `scroll`; listen on the scroll container directly

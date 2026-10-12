@@ -48,13 +48,6 @@ test('horizontal rules render while editing in every built-in theme and appearan
     await clickMenuById(app, 'horizontalLineMenuItem')
     await expect(page.locator('.mu-thematic-break')).toHaveCount(2)
     await page.keyboard.type('inserted below the rule')
-    // Serialization commits on animation frames before source mode reads it.
-    await page.evaluate(
-      () =>
-        new Promise<void>((resolve) =>
-          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-        )
-    )
     expect(await getMarkdownContent(page, app)).toContain(
       'before\n\n---\n\ninserted below the rule'
     )
@@ -125,12 +118,6 @@ for (const [format, fence, text] of [
       await expect(page.locator('.mu-container > :first-child')).toHaveClass(/mu-frontmatter/)
       await expect(page.locator('.mu-frontmatter')).toHaveAttribute('frontMatterStart', fence)
       await page.keyboard.type(text)
-      await page.evaluate(
-        () =>
-          new Promise<void>((resolve) =>
-            requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-          )
-      )
       expect(await getMarkdownContent(page, app)).toContain(
         `${fence}\n${text}\n${format === '{' ? '}' : fence}`
       )

@@ -416,7 +416,14 @@ export class Muya {
     }
 
     /** Copy a complete block as Markdown without changing the document or selection. */
-    copyParagraph(block: Parent | null = this._outmostBlockAtCursor()) {
+    copyParagraph(block?: Parent | null) {
+        if (block === undefined) {
+            // Native menu commands can arrive before the cached caret updates.
+            const live = this.editor.selection.getSelection();
+            block = live?.anchor.block.muya === this
+                ? live.anchor.block.outMostBlock ?? null
+                : this._outmostBlockAtCursor();
+        }
         if (!block?.outMostBlock)
             return;
         const text = this.editor.jsonState.getMarkdownFromState([block.getState()]);
