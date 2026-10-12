@@ -132,7 +132,12 @@ test('one Ctrl+A copies the entire document and Copy Paragraph never inserts a d
     await page.keyboard.press('Control+a')
     await page.keyboard.press('Control+c')
     await expect.poll(() => app.evaluate(({ clipboard }) => clipboard.readText())).toBe('first\n\nsecond\n\nlast\n')
-    await page.locator('.mu-paragraph-content').nth(1).click()
+    await page.locator('.mu-paragraph-content').nth(1).click({ position: { x: 10, y: 8 } })
+    await expect.poll(() => page.evaluate(() => {
+      const selection = document.getSelection()
+      const paragraph = document.querySelectorAll('.mu-paragraph-content')[1]
+      return !!selection?.isCollapsed && !!selection.focusNode && !!paragraph?.contains(selection.focusNode)
+    })).toBe(true)
     await app.evaluate(({ BrowserWindow, Menu }) => {
       const win = BrowserWindow.getAllWindows()[0]
       const edit = Menu.getApplicationMenu()?.items.find(item => item.label === 'Edit')
