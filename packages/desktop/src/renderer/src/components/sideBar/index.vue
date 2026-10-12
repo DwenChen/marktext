@@ -3,9 +3,15 @@
     v-show="showSideBar"
     ref="sideBar"
     class="side-bar"
+    :class="{ compact: !rightColumn }"
     :style="[!rightColumn ? { 'min-width': '45px' } : {}, { width: `${finalSideBarWidth}px` }]"
   >
     <div class="left-column">
+      <sidebar-menus
+        v-if="!rightColumn"
+        class="compact-menus"
+        compact
+      />
       <ul>
         <li
           v-for="(c, index) of sideBarIcons"
@@ -26,15 +32,21 @@
         </li>
       </ul>
     </div>
-    <div v-show="rightColumn" class="right-column">
-      <tree
-        v-if="rightColumn === 'files'"
-        :project-tree="projectTree"
-        :opened-files="openedFiles"
-        :tabs="tabs"
-      />
-      <side-bar-search v-else-if="rightColumn === 'search'" />
-      <toc v-else-if="rightColumn === 'toc'" />
+    <div
+      v-show="rightColumn"
+      class="right-column"
+    >
+      <sidebar-menus />
+      <div class="sidebar-content">
+        <tree
+          v-if="rightColumn === 'files'"
+          :project-tree="projectTree"
+          :opened-files="openedFiles"
+          :tabs="tabs"
+        />
+        <side-bar-search v-else-if="rightColumn === 'search'" />
+        <toc v-else-if="rightColumn === 'toc'" />
+      </div>
     </div>
     <div
       v-show="rightColumn"
@@ -64,6 +76,7 @@ import { sideBarIcons, sideBarBottomIcons } from './help'
 import Tree from './tree.vue'
 import SideBarSearch from './search.vue'
 import Toc from './toc.vue'
+import SidebarMenus from './menus.vue'
 import { storeToRefs } from 'pinia'
 import type { TabDescriptor } from './types'
 import bus from '@/bus'
@@ -237,6 +250,18 @@ const handleLeftBottomClick = (name: string): void => {
   cursor: pointer;
 }
 
+.left-column > .compact-menus {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  width: 45px;
+  box-sizing: border-box;
+}
+
+.side-bar.compact .left-column > ul:first-of-type {
+  margin-top: 94px;
+}
+
 .left-column ul > li > svg {
   width: 18px;
   height: 18px;
@@ -257,6 +282,15 @@ const handleLeftBottomClick = (name: string): void => {
   flex: 1;
   width: calc(100% - 50px);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-top: 28px;
+  box-sizing: border-box;
+}
+
+.sidebar-content {
+  flex: 1;
+  min-height: 0;
 }
 
 .drag-bar {

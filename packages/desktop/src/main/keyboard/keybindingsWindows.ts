@@ -33,8 +33,6 @@ const keybindings: Map<string, string> = new Map([
   ['edit.cut', 'Ctrl+X'],
   ['edit.copy', 'Ctrl+C'],
   ['edit.paste', 'Ctrl+V'],
-  ['edit.copy-as-rich', 'Ctrl+Shift+C'],
-  ['edit.copy-as-html', ''],
   ['edit.paste-as-plaintext', 'Ctrl+Shift+V'],
   ['edit.select-all', 'Ctrl+A'],
   ['edit.duplicate', 'Ctrl+Alt+D'],

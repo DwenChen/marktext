@@ -44,7 +44,7 @@
       "copyAsHtml": "HTML Olarak Kopyala",
       "pasteAsPlainText": "Düz Metin Olarak Yapıştır",
       "selectAll": "Tümünü Seç",
-      "duplicate": "Çoğalt",
+      "duplicate": "Paragrafı kopyala",
       "createParagraph": "Paragraf Oluştur",
       "deleteParagraph": "Paragrafı Sil",
       "find": "Bul",
@@ -147,6 +147,8 @@
     }
   },
   "contextMenu": {
+    "insertBlockBelow": "Alta blok ekle / biçimi kaldır",
+    "convertSelection": "Seçili metni dönüştür",
     "cut": "Kes",
     "copy": "Kopyala",
     "paste": "Yapıştır",
@@ -809,7 +811,7 @@
       "copyAsHtml": "HTML Olarak Kopyala",
       "pasteAsPlaintext": "Düz Metin Olarak Yapıştır",
       "selectAll": "Tümünü Seç",
-      "duplicate": "Çoğalt",
+      "duplicate": "Paragrafı kopyala",
       "createParagraph": "Paragraf Oluştur",
       "deleteParagraph": "Paragrafı Sil",
       "find": "Bul",

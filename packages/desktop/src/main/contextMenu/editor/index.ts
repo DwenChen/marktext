@@ -3,8 +3,6 @@ import {
   getCUT,
   getCOPY,
   getPASTE,
-  getCopyAsRich,
-  getCopyAsHtml,
   getPasteAsPlainText,
   getLookUp,
   SEPARATOR,
@@ -14,10 +12,11 @@ import {
 import spellcheckMenuBuilder from './spellcheck'
 import { t } from '../../i18n'
 import { isOsx } from '../../config'
+import type { EditorBlockType, EditorContextMenuState } from '@shared/types/menu'
 
 // Electron's ContextMenuParams shape we rely on. Kept narrow — the renderer
 // supplies the full surface so we only annotate the fields we use.
-interface ContextMenuParams {
+export interface ContextMenuParams {
   isEditable: boolean
   hasImageContents?: boolean
   selectionText: string
@@ -53,12 +52,10 @@ const getContextItems = (): MenuItemConstructorOptions[] => [
   getCOPY(),
   getPASTE(),
   SEPARATOR,
-  getCopyAsRich(),
-  getCopyAsHtml(),
   getPasteAsPlainText()
 ]
 
-const isInsideEditor = (params: ContextMenuParams): boolean => {
+export const isInsideEditor = (params: ContextMenuParams): boolean => {
   const { isEditable, editFlags, inputFieldType } = params
   // WORKAROUND for Electron#32102: `params.spellcheckEnabled` is always false. Try to detect the editor container via other information.
   return isEditable && !inputFieldType && !!editFlags.canEditRichly
@@ -68,7 +65,8 @@ export const showEditorContextMenu = (
   win: BrowserWindow,
   event: ContextMenuEvent,
   params: ContextMenuParams,
-  isSpellcheckerEnabled: boolean
+  isSpellcheckerEnabled: boolean,
+  blockState?: EditorContextMenuState
 ): void => {
   const {
     isEditable,
@@ -85,11 +83,15 @@ export const showEditorContextMenu = (
   // Make sure that the request comes from a contenteditable inside the editor container.
   if (isInsideEditor(params) && !hasImageContents) {
     const hasText = selectionText.trim().length > 0
-    const canCopy = hasText && editFlags.canCut && editFlags.canCopy
+    const canCopy = hasText && editFlags.canCopy
     // const canPaste = hasText && editFlags.canPaste
     const isMisspelled = isEditable && !!selectionText && !!misspelledWord
 
     const menu = new Menu()
+    if (blockState) {
+      menu.append(new MenuItem(getBlockMenu(blockState)))
+      menu.append(new MenuItem(SEPARATOR))
+    }
     if (isOsx && hasText) {
       menu.append(new MenuItem(getLookUp(selectionText)))
       menu.append(new MenuItem(SEPARATOR))
@@ -111,12 +113,7 @@ export const showEditorContextMenu = (
     }
 
     const contextItems = getContextItems()
-    const copyItemIds = new Set([
-      'cutMenuItem',
-      'copyMenuItem',
-      'copyAsHtmlMenuItem',
-      'copyAsRichMenuItem'
-    ])
+    const copyItemIds = new Set(['cutMenuItem', 'copyMenuItem'])
     contextItems.forEach((item) => {
       if (item.id && copyItemIds.has(item.id)) {
         item.enabled = canCopy
@@ -133,5 +130,24 @@ export const showEditorContextMenu = (
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     event
     menu.popup({ window: win, x: params.x, y: params.y })
+  }
+}
+
+export const getBlockMenu = (state: EditorContextMenuState): MenuItemConstructorOptions => {
+  const types: Array<[EditorBlockType, string]> = [
+    ['table', 'table'], ['code-block', 'codeFences'], ['block-quote', 'quoteBlock'],
+    ['math-block', 'mathBlock'], ['order-list', 'orderedList'], ['bullet-list', 'bulletList']
+  ]
+  return {
+    label: t(state.hasSelection ? 'contextMenu.convertSelection' : 'contextMenu.insertBlockBelow'),
+    submenu: types.filter(([type]) => type !== 'math-block' || state.mathEnabled).map(([type, label]) => ({
+      id: `context-block-${type}`,
+      label: t(`menu.paragraph.${label}`),
+      type: state.hasSelection ? 'normal' : 'checkbox',
+      checked: !state.hasSelection && state.activeBlocks.includes(type),
+      click(_item, targetWindow) {
+        if (targetWindow) (targetWindow as BrowserWindow).webContents.send('mt::cm-block', type)
+      }
+    }))
   }
 }

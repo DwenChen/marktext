@@ -44,7 +44,7 @@
       "copyAsHtml": "複製為 HTML",
       "pasteAsPlainText": "貼上為純文字",
       "selectAll": "全選",
-      "duplicate": "複製",
+      "duplicate": "複製段落",
       "createParagraph": "建立段落",
       "deleteParagraph": "刪除段落",
       "find": "尋找",
@@ -147,6 +147,8 @@
     }
   },
   "contextMenu": {
+    "insertBlockBelow": "在下方插入區塊 / 取消區塊格式",
+    "convertSelection": "將選取文字轉換為",
     "cut": "剪下",
     "copy": "複製",
     "paste": "貼上",
@@ -809,7 +811,7 @@
       "copyAsHtml": "複製為 HTML",
       "pasteAsPlaintext": "貼上為純文字",
       "selectAll": "全選",
-      "duplicate": "複製",
+      "duplicate": "複製段落",
       "createParagraph": "建立段落",
       "deleteParagraph": "刪除段落",
       "find": "尋找",

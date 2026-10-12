@@ -81,7 +81,7 @@ export const ja = {
         'Symbols': '記号',
         'Flags': '国旗',
         // frontMenu
-        'Duplicate': '段落をコピーする',
+        'Copy Paragraph': '段落をコピー',
         'New Paragraph': '段落を新規作成',
         'Delete': '段落を削除する',
         // imageToolbar

@@ -711,9 +711,7 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_CLOSE(): void {
       const projectStore = useProjectStore()
-      const preferencesStore = usePreferencesStore()
       window.electron.ipcRenderer.on('mt::ask-for-close', async() => {
-        let buffered: unknown = false
         let stable = false
         while (!stable) {
           this.flushActiveEditor()
@@ -726,10 +724,9 @@ export const useEditorStore = defineStore('editor', {
             options: JSON.stringify(getOptionsFromState(tab))
           }))
           try {
-            buffered = await sendBufferedState()
+            await sendBufferedState()
           } catch (err) {
             console.error('Failed to update buffered state before closing', err)
-            buffered = false
           }
           this.flushActiveEditor()
           stable =
@@ -763,8 +760,7 @@ export const useEditorStore = defineStore('editor', {
             }
           })
 
-        if (unsavedFiles.length && (preferencesStore.startUpAction !== 'restoreAll' || !buffered)) {
-          // Restore All bypasses the prompt only after the final snapshot is durable.
+        if (unsavedFiles.length) {
           window.electron.ipcRenderer.send('mt::close-window-confirm', deepClone(unsavedFiles))
         } else {
           window.electron.ipcRenderer.send('mt::close-window')
@@ -1950,12 +1946,6 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_CONTEXT_MENU(): void {
       // General context menu
-      window.electron.ipcRenderer.on('mt::cm-copy-as-rich', () => {
-        bus.emit('copyAsRich', 'copyAsRich')
-      })
-      window.electron.ipcRenderer.on('mt::cm-copy-as-html', () => {
-        bus.emit('copyAsHtml', 'copyAsHtml')
-      })
       window.electron.ipcRenderer.on('mt::cm-paste-as-plain-text', () => {
         bus.emit('pasteAsPlainText', 'pasteAsPlainText')
       })

@@ -6,8 +6,14 @@
     ]"
     :dir="textDirection"
   >
-    <div ref="editorRef" class="editor-component" />
-    <media-viewer ref="mediaViewer" @open-change="viewerOpen = $event" />
+    <div
+      ref="editorRef"
+      class="editor-component"
+    />
+    <media-viewer
+      ref="mediaViewer"
+      @open-change="viewerOpen = $event"
+    />
     <el-dialog
       v-model="dialogTableVisible"
       :show-close="isShowClose"
@@ -22,7 +28,10 @@
           {{ t('editor.insertTable.title') }}
         </div>
       </template>
-      <el-form :model="tableChecker" :inline="true">
+      <el-form
+        :model="tableChecker"
+        :inline="true"
+      >
         <el-form-item :label="t('editor.insertTable.rows')">
           <el-input-number
             ref="rowInput"
@@ -48,7 +57,10 @@
           <el-button @click="dialogTableVisible = false">
             {{ t('common.cancel') }}
           </el-button>
-          <el-button type="primary" @click="handleDialogTableConfirm">
+          <el-button
+            type="primary"
+            @click="handleDialogTableConfirm"
+          >
             {{ t('common.ok') }}
           </el-button>
         </div>
@@ -1096,34 +1108,55 @@ const handleSelectAll = () => {
     return
   }
 
-  if (editor.value && editor.value.hasFocus()) {
-    editor.value.selectAll()
-  } else {
-    const activeElement = document.activeElement as HTMLElement | null
-    const nodeName = activeElement?.nodeName
-    if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
-      const selectable = activeElement as HTMLInputElement | HTMLTextAreaElement | null
-      if (selectable && typeof selectable.select === 'function') {
-        selectable.select()
-      }
-    }
+  const activeElement = document.activeElement as HTMLElement | null
+  const nodeName = activeElement?.nodeName
+  if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
+    const selectable = activeElement as HTMLInputElement | HTMLTextAreaElement
+    selectable.select()
+    return
   }
+  editor.value?.domNode.focus({ preventScroll: true })
+  editor.value?.selectAll()
 }
 
-// Custom copyAsRich copyAsHtml pasteAsPlainText.
-// `copyAsRich` writes the rendered HTML to `text/html` AND the plain text to
-// `text/plain`, so pasting into Word/email yields formatted rich text (whereas
-// `copyAsHtml` blanks `text/html` and puts the HTML source into `text/plain`).
-const COPY_PASTE_METHOD_MAP: Record<string, 'copyAsRich' | 'copyAsHtml' | 'pasteAsPlainText'> = {
-  copyAsRich: 'copyAsRich',
-  copyAsHtml: 'copyAsHtml',
-  pasteAsPlainText: 'pasteAsPlainText'
-}
-const handleCopyPaste = (type: unknown) => {
-  if (editor.value) {
-    const method = COPY_PASTE_METHOD_MAP[type as string]
-    if (method) editor.value[method]()
+let contextSelection: { selection: IHistorySelection; tabId: string; revision: number } | null = null
+const contextSubscriptions: Array<() => void> = []
+
+const prepareContextMenu = () => {
+  const muya = editor.value
+  if (!muya || sourceCode.value || !currentFile.value) return
+  muya.flush()
+  const selection = muya.getSelection()
+  if (!selection) return
+  contextSelection = {
+    selection, tabId: currentFile.value.id, revision: muya.editor.jsonState.revision
   }
+  window.electron.ipcRenderer.send('mt::show-editor-context-menu', {
+    hasSelection: !selection.isCollapsed,
+    activeBlocks: muya.getActiveContextBlocks(),
+    mathEnabled: muya.options.texMathDollars !== false
+  })
+}
+
+const applyContextBlock = (type: Parameters<Muya['applyContextBlock']>[0]) => {
+  const muya = editor.value
+  const snapshot = contextSelection
+  contextSelection = null
+  if (!muya || sourceCode.value || !snapshot || snapshot.tabId !== currentFile.value?.id ||
+    snapshot.revision !== muya.editor.jsonState.revision) return
+  const { anchor, focus } = snapshot.selection
+  const page = muya.editor.scrollPage
+  const anchorBlock = page?.queryBlock([...anchor.path])
+  const focusBlock = page?.queryBlock([...focus.path])
+  if (!anchorBlock?.isContent() || !focusBlock?.isContent()) return
+  muya.editor.selection.setSelection(
+    { ...anchor, block: anchorBlock }, { ...focus, block: focusBlock }
+  )
+  muya.applyContextBlock(type)
+}
+
+const handleCopyPaste = () => {
+  editor.value?.pasteAsPlainText()
 }
 
 const insertImage = (src: unknown) => {
@@ -1484,7 +1517,6 @@ const handleEditParagraph = (type: unknown) => {
   }
 }
 
-// handle `duplicate`, `delete`, `create paragraph below`
 const handleParagraph = (type: unknown) => {
   if (sourceCode.value) {
     return
@@ -1492,7 +1524,7 @@ const handleParagraph = (type: unknown) => {
   if (editor.value) {
     switch (type) {
       case 'duplicate': {
-        return editor.value.duplicate()
+        return editor.value.copyParagraph()
       }
       case 'createParagraph': {
         return editor.value.insertParagraph('after', '', true)
@@ -1877,6 +1909,10 @@ onMounted(() => {
   // the document tree and instantiates the registered UI plugins).
   muya.init({ focus: editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false })
   editor.value = muya
+  contextSubscriptions.push(
+    window.electron.ipcRenderer.on('mt::prepare-editor-context-menu', prepareContextMenu),
+    window.electron.ipcRenderer.on('mt::cm-block', (_event, type) => applyContextBlock(type))
+  )
   updateViewportPadding()
   // The first document's content is set via constructor options, so no
   // `file-loaded` / `setMarkdownToEditor` runs for it — seed its TOC here.
@@ -1927,8 +1963,6 @@ onMounted(() => {
   bus.on('flush-active-editor', flushActiveEditor)
   bus.on('editor-blur', blurEditor)
   bus.on('editor-focus', focusEditor)
-  bus.on('copyAsRich', handleCopyPaste)
-  bus.on('copyAsHtml', handleCopyPaste)
   bus.on('pasteAsPlainText', handleCopyPaste)
   bus.on('duplicate', handleParagraph)
   bus.on('createParagraph', handleParagraph)
@@ -2073,6 +2107,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  contextSubscriptions.splice(0).forEach(unsubscribe => unsubscribe())
+  contextSelection = null
   bus.off('file-loaded', setMarkdownToEditor)
   bus.off('invalidate-image-cache', handleInvalidateImageCache)
   bus.off('undo', handleUndo)
@@ -2091,8 +2127,6 @@ onBeforeUnmount(() => {
   bus.off('flush-active-editor', flushActiveEditor)
   bus.off('editor-blur', blurEditor)
   bus.off('editor-focus', focusEditor)
-  bus.off('copyAsRich', handleCopyPaste)
-  bus.off('copyAsHtml', handleCopyPaste)
   bus.off('pasteAsPlainText', handleCopyPaste)
   bus.off('duplicate', handleParagraph)
   bus.off('createParagraph', handleParagraph)

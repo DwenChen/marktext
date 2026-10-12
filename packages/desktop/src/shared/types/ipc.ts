@@ -18,6 +18,7 @@
  */
 
 import type { IKeyboardLayoutInfo, IKeyboardMapping } from 'native-keymap'
+import type { EditorBlockType, EditorContextMenuState, SidebarMenuSection } from './menu'
 import type {
   MarkdownDocument,
   TabOptions,
@@ -155,6 +156,8 @@ export interface IpcSendChannels {
   'mt::make-screenshot': []
   'mt::menu::popup': [template: MenuTemplate, position?: MenuPopupPosition]
   'mt::menu::popup-application': [position?: MenuPopupPosition]
+  'mt::menu::popup-section': [section: SidebarMenuSection, position: MenuPopupPosition]
+  'mt::show-editor-context-menu': [state: EditorContextMenuState]
   'mt::open-file': [filePath: string, options?: unknown]
   'mt::open-file-by-window-id': [windowId: number, filePath: string, options?: unknown]
   'mt::open-keybindings-config': []
@@ -258,8 +261,8 @@ export interface IpcMainEventChannels {
   'mt::about-dialog': []
   'mt::ask-for-close': []
   'mt::bootstrap-editor': [config: BootstrapEditorConfig]
-  'mt::cm-copy-as-html': []
-  'mt::cm-copy-as-rich': []
+  'mt::prepare-editor-context-menu': []
+  'mt::cm-block': [type: EditorBlockType]
   'mt::cm-insert-paragraph': [direction: 'before' | 'after']
   'mt::cm-paste-as-plain-text': []
   'mt::current-language': [language: string]

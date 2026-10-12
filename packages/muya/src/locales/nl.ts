@@ -78,7 +78,7 @@ export const nl = {
         'Symbols': 'Symbolen',
         'Flags': 'Vlaggen',
         // frontMenu
-        'Duplicate': 'Dupliceren',
+        'Copy Paragraph': 'Alinea kopiëren',
         'New Paragraph': 'Nieuwe alinea',
         'Delete': 'Verwijderen',
         // imageToolbar

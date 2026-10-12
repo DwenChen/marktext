@@ -52,20 +52,6 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         type: 'separator'
       },
       {
-        label: t('menu.edit.copyAsRich'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_COPY_AS_RICH) ?? undefined,
-        click(_menuItem, browserWindow) {
-          actions.editorCopyAsRich(browserWindow as BrowserWindow | undefined)
-        }
-      },
-      {
-        label: t('menu.edit.copyAsHtml'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_COPY_AS_HTML) ?? undefined,
-        click(_menuItem, browserWindow) {
-          actions.editorCopyAsHtml(browserWindow as BrowserWindow | undefined)
-        }
-      },
-      {
         label: t('menu.edit.pasteAsPlainText'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_PASTE_AS_PLAINTEXT) ?? undefined,
         click(_menuItem, browserWindow) {

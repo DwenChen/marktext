@@ -1,7 +1,5 @@
 const COMMANDS = Object.freeze({
   EDIT_COPY: 'edit.copy',
-  EDIT_COPY_AS_HTML: 'edit.copy-as-html',
-  EDIT_COPY_AS_RICH: 'edit.copy-as-rich',
   EDIT_CREATE_PARAGRAPH: 'edit.create-paragraph',
   EDIT_CUT: 'edit.cut',
   EDIT_DELETE_PARAGRAPH: 'edit.delete-paragraph',

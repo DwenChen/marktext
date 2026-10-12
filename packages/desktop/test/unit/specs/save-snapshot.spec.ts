@@ -185,7 +185,7 @@ describe('save snapshot boundaries', () => {
     await vi.waitFor(() => expect(sendBufferedState).toHaveBeenCalledTimes(1))
     store.currentFile!.markdown = 'version B'
     release(true)
-    await vi.waitFor(() => expect(ipc.send).toHaveBeenCalledWith('mt::close-window'))
+    await vi.waitFor(() => expect(ipc.send.mock.calls.some(call => call[0] === 'mt::close-window-confirm')).toBe(true))
     expect(sendBufferedState).toHaveBeenCalledTimes(2)
   })
 
@@ -214,7 +214,7 @@ describe('save snapshot boundaries', () => {
     await vi.waitFor(() => expect(sendBufferedState).toHaveBeenCalledTimes(1))
     store.SET_LINE_ENDING('crlf')
     release(true)
-    await vi.waitFor(() => expect(ipc.send).toHaveBeenCalledWith('mt::close-window'))
+    await vi.waitFor(() => expect(ipc.send.mock.calls.some(call => call[0] === 'mt::close-window-confirm')).toBe(true))
     expect(sendBufferedState).toHaveBeenCalledTimes(2)
   })
 })

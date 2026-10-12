@@ -23,3 +23,13 @@ export interface MenuPopupPosition {
   x: number
   y: number
 }
+
+export type EditorBlockType = 'table' | 'code-block' | 'block-quote' | 'math-block' | 'order-list' | 'bullet-list'
+
+export interface EditorContextMenuState {
+  hasSelection: boolean
+  activeBlocks: EditorBlockType[]
+  mathEnabled: boolean
+}
+
+export type SidebarMenuSection = 'paragraphMenuEntry' | 'formatMenuItem' | 'viewMenu'

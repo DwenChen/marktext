@@ -22,7 +22,7 @@ export const FRONT_MENU = [
     {
         icon: copyIcon,
         label: 'duplicate',
-        text: 'Duplicate',
+        text: 'Copy Paragraph',
         shortCut: `⇧${COMMAND_KEY}P`,
     },
     {

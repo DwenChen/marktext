@@ -81,7 +81,7 @@ export const ko = {
         'Symbols': '기호',
         'Flags': '국기',
         // frontMenu
-        'Duplicate': '단락 복제',
+        'Copy Paragraph': '단락 복사',
         'New Paragraph': '새 단락',
         'Delete': '단락 삭제',
         // imageToolbar

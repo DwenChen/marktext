@@ -7,6 +7,7 @@ import {
   type WebContents
 } from 'electron'
 import log from 'electron-log'
+import { t } from '../i18n'
 import type { MenuTemplate, MenuTemplateItem, MenuPopupPosition } from '@shared/types/menu'
 
 const windowFromEvent = (event: IpcMainEvent): BrowserWindow | null =>
@@ -122,14 +123,31 @@ export const registerWindowHandlers = (): void => {
     try {
       const appMenu = Menu.getApplicationMenu()
       if (!appMenu) return
-      // Keep Help in the native menu, but omit it from the hamburger popup.
+      syncWindowMenu(appMenu, win)
       const popup = new Menu()
       for (const item of appMenu.items) {
-        if (item.role !== 'help') popup.append(item)
+        const inSidebar = ['paragraphMenuEntry', 'formatMenuItem', 'viewMenu'].includes(item.id)
+        if (item.role !== 'help' && !(inSidebar && appMenu.getMenuItemById('sideBarMenuItem')?.checked)) {
+          popup.append(item)
+        }
       }
       popup.popup({ window: win, x: position?.x, y: position?.y })
     } catch (err) {
       log.error('application menu popup failed:', err)
     }
   })
+}
+
+export const syncWindowMenu = (menu: Menu, win: BrowserWindow): void => {
+  const alwaysOnTop = menu.getMenuItemById('alwaysOnTopMenuItem')
+  const fullScreen = menu.getMenuItemById('fullScreenMenuItem')
+  if (alwaysOnTop) alwaysOnTop.checked = win.isAlwaysOnTop()
+  if (fullScreen) fullScreen.checked = win.isFullScreen()
+  const zoom = win.webContents.getZoomFactor()
+  const zoomIn = menu.getMenuItemById('zoomInMenuItem')
+  const zoomOut = menu.getMenuItemById('zoomOutMenuItem')
+  const reset = menu.getMenuItemById('resetZoomMenuItem')
+  if (zoomIn) zoomIn.enabled = zoom < 2
+  if (zoomOut) zoomOut.enabled = zoom > 0.5
+  if (reset) reset.label = `${t('menu.window.resetZoom')} (${Math.round(zoom * 100)}%)`
 }

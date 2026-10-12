@@ -114,16 +114,13 @@ describe('paragraph front menu — a single menu open performs at most one actio
         const menu = new ParagraphFrontMenu(muya, {});
         (menu as unknown as { _block: Parent })._block = para;
 
-        // Double "duplicate": the first inserts one copy; the second click
-        // (before the menu's deferred hide) must be ignored, not insert a
-        // second copy.
+        const copy = vi.spyOn(muya.editor.clipboard, 'copy').mockImplementation(() => {});
         menu.selectItem(new Event('click'), { label: 'duplicate' });
         menu.selectItem(new Event('click'), { label: 'duplicate' });
 
-        await vi.waitFor(() => {
-            const state = muya.getState();
-            expect(state.length).toBe(2); // original + exactly one duplicate
-        });
+        expect(copy).toHaveBeenCalledOnce();
+        expect(copy.mock.calls[0][1]).toBe('hello\n');
+        expect(muya.getState()).toEqual([{ name: 'paragraph', text: 'hello' }]);
     });
 
     it('ignores a second turn-into after the first action detached the block', async () => {

@@ -27,6 +27,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       type: 'separator'
     },
     {
+      id: 'zoomInMenuItem',
       label: t('menu.window.zoomIn'),
       accelerator: keybindings.getAccelerator('window.zoomIn') ?? undefined,
       click(_menuItem, browserWindow) {
@@ -34,6 +35,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       }
     },
     {
+      id: 'zoomOutMenuItem',
       label: t('menu.window.zoomOut'),
       accelerator: keybindings.getAccelerator('window.zoomOut') ?? undefined,
       click(_menuItem, browserWindow) {
@@ -41,6 +43,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       }
     },
     {
+      id: 'resetZoomMenuItem',
       label: t('menu.window.resetZoom'),
       accelerator: keybindings.getAccelerator('window.resetZoom') ?? undefined,
       click(_menuItem, browserWindow) {
@@ -51,7 +54,9 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       type: 'separator'
     },
     {
+      id: 'fullScreenMenuItem',
       label: t('menu.window.fullScreen'),
+      type: 'checkbox',
       accelerator: keybindings.getAccelerator('window.toggle-full-screen') ?? undefined,
       click(_item, browserWindow) {
         if (browserWindow) {

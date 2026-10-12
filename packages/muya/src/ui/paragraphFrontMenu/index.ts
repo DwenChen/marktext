@@ -141,7 +141,6 @@ export class ParagraphFrontMenu extends BaseFloat {
     render() {
         const { _oldVNode: oldVNode, _frontMenuContainer: frontMenuContainer, _block: block } = this;
         const { i18n } = this.muya;
-        const { blockName } = block!;
         const children = FRONT_MENU.map(({ icon, label, text, shortCut }) => {
             const iconWrapperSelector = 'div.icon-wrapper';
             const iconWrapper = h(iconWrapperSelector, renderIcon({ icon, label }));
@@ -162,10 +161,6 @@ export class ParagraphFrontMenu extends BaseFloat {
                 itemChildren,
             );
         });
-
-        // Frontmatter can not be duplicated
-        if (blockName === 'frontmatter')
-            children.splice(0, 1);
 
         const subMenu = canTurnIntoMenu(block!);
         if (subMenu.length) {
@@ -201,7 +196,7 @@ export class ParagraphFrontMenu extends BaseFloat {
         const oldState = block.getState();
 
         const cursorBlock = /duplicate|new|delete/.test(label)
-            ? this._applyMetaAction(label, block, oldState)
+            ? this._applyMetaAction(label, block)
             : this._turnIntoBlock(label, block, oldState);
 
         if (cursorBlock) {
@@ -212,14 +207,12 @@ export class ParagraphFrontMenu extends BaseFloat {
         setTimeout(this.hide.bind(this));
     }
 
-    private _applyMetaAction(label: string, block: Parent, oldState: TState) {
+    private _applyMetaAction(label: string, block: Parent) {
         const { muya } = this;
         switch (label) {
             case 'duplicate': {
-                const state = deepClone(oldState);
-                const dupBlock = ScrollPage.loadBlock(state.name).create(muya, state);
-                block.parent!.insertAfter(dupBlock, block);
-                return dupBlock.lastContentInDescendant();
+                muya.copyParagraph(block);
+                return null;
             }
 
             case 'new': {

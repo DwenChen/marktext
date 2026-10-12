@@ -44,7 +44,7 @@
       "copyAsHtml": "HTML としてコピー",
       "pasteAsPlainText": "プレーンテキストとして貼り付け",
       "selectAll": "すべて選択",
-      "duplicate": "複製",
+      "duplicate": "段落をコピー",
       "createParagraph": "段落を作成",
       "deleteParagraph": "段落を削除",
       "find": "検索",
@@ -147,6 +147,8 @@
     }
   },
   "contextMenu": {
+    "insertBlockBelow": "下にブロックを挿入 / 書式を解除",
+    "convertSelection": "選択したテキストを変換",
     "cut": "切り取り",
     "copy": "コピー",
     "paste": "貼り付け",
@@ -809,7 +811,7 @@
       "copyAsHtml": "HTML としてコピー",
       "pasteAsPlaintext": "プレーンテキストとして貼り付け",
       "selectAll": "すべて選択",
-      "duplicate": "複製",
+      "duplicate": "段落をコピー",
       "createParagraph": "段落の作成",
       "deleteParagraph": "段落を削除",
       "find": "検索",

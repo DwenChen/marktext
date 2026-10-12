@@ -44,7 +44,7 @@
       "copyAsHtml": "Kopiëren als HTML",
       "pasteAsPlainText": "Plakken als platte tekst",
       "selectAll": "Alles selecteren",
-      "duplicate": "Dupliceren",
+      "duplicate": "Alinea kopiëren",
       "createParagraph": "Alinea aanmaken",
       "deleteParagraph": "Alinea verwijderen",
       "find": "Zoeken",
@@ -147,6 +147,8 @@
     }
   },
   "contextMenu": {
+    "insertBlockBelow": "Blok eronder invoegen / opmaak verwijderen",
+    "convertSelection": "Geselecteerde tekst omzetten",
     "cut": "Knippen",
     "copy": "Kopiëren",
     "paste": "Plakken",
@@ -809,7 +811,7 @@
       "copyAsHtml": "Kopiëren als HTML",
       "pasteAsPlaintext": "Plakken als platte tekst",
       "selectAll": "Alles selecteren",
-      "duplicate": "Dupliceren",
+      "duplicate": "Alinea kopiëren",
       "createParagraph": "Alinea aanmaken",
       "deleteParagraph": "Alinea verwijderen",
       "find": "Zoeken",

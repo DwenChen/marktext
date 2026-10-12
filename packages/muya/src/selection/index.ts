@@ -134,6 +134,12 @@ class Selection {
         this._text.setSelection(anchor, focus);
     }
 
+    selectAllDocument(): void {
+        this._table.clear();
+        this._image.clear();
+        this._text.selectAllContent();
+    }
+
     selectAll(): void {
         const tableSelection = this._table;
 

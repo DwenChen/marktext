@@ -53,7 +53,9 @@ export function resolveEndpoint(node: Node, offset: number): IAnchorFocusInfo | 
     // A selection anchored to an element carries a child index in `offset`,
     // not a character offset (#5239).
     const base = getOffsetOfParagraph(node, contentDOM);
-    const within = node === contentDOM ? textLengthBeforeChild(contentDOM, offset) : offset;
+    // Image containers encode their source offset in the surrounding marker nodes.
+    const isImageContainer = node instanceof HTMLElement && node.classList.contains(CLASS_NAMES.MU_IMAGE_CONTAINER);
+    const within = node.nodeType === Node.TEXT_NODE || isImageContainer ? offset : textLengthBeforeChild(node, offset);
 
     return {
         offset: base + within,

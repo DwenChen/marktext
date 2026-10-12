@@ -42,6 +42,13 @@ function firstContent(muya: Muya): Content {
 }
 
 describe('resolveEndpoint — element-anchored caret', () => {
+    it('counts the characters before a nested element boundary, not its child index', () => {
+        const content = firstContent(bootMuya('alpha bravo charlie'));
+        content.domNode!.innerHTML = '<span>alpha </span><span><b>bravo</b><i> charlie</i></span>';
+        const nested = content.domNode!.lastElementChild!;
+        expect(resolveEndpoint(nested, 1)?.offset).toBe(11);
+        expect(resolveEndpoint(nested, 2)?.offset).toBe(19);
+    });
     it('maps a child index to a text offset after a trailing `<br>`', () => {
         const content = firstContent(bootMuya('foo\n'));
         content.domNode!.innerHTML = 'foo\n<br>';

@@ -81,7 +81,7 @@ export const de = {
         'Symbols': 'Symbole',
         'Flags': 'Flaggen',
         // frontMenu
-        'Duplicate': 'Duplizieren',
+        'Copy Paragraph': 'Absatz kopieren',
         'New Paragraph': 'Neuer Absatz',
         'Delete': 'Löschen',
         // imageToolbar

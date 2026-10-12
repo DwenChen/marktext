@@ -44,7 +44,7 @@
       "copyAsHtml": "Copier en HTML",
       "pasteAsPlainText": "Coller en texte brut",
       "selectAll": "Sélectionner tout",
-      "duplicate": "Dupliquer",
+      "duplicate": "Copier le paragraphe",
       "createParagraph": "Créer un paragraphe",
       "deleteParagraph": "Supprimer le paragraphe",
       "find": "Rechercher",
@@ -147,6 +147,8 @@
     }
   },
   "contextMenu": {
+    "insertBlockBelow": "Insérer un bloc dessous / retirer le format",
+    "convertSelection": "Convertir le texte sélectionné",
     "cut": "Couper",
     "copy": "Copier",
     "paste": "Coller",
@@ -809,7 +811,7 @@
       "copyAsHtml": "Copier en HTML",
       "pasteAsPlaintext": "Coller en texte brut",
       "selectAll": "Sélectionner tout",
-      "duplicate": "Dupliquer",
+      "duplicate": "Copier le paragraphe",
       "createParagraph": "Créer un paragraphe",
       "deleteParagraph": "Supprimer le paragraphe",
       "find": "Rechercher",

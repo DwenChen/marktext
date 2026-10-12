@@ -8,7 +8,9 @@ import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import type Accessor from '../app/accessor'
 import { ensureWindowPosition, zoomIn, zoomOut } from './utils'
 import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
-import { showEditorContextMenu } from '../contextMenu/editor'
+import { isInsideEditor, showEditorContextMenu, type ContextMenuParams } from '../contextMenu/editor'
+import type { EditorContextMenuState } from '@shared/types/menu'
+import { syncWindowMenu } from '../ipc/window'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { switchLanguage } from '../spellchecker'
 
@@ -177,8 +179,22 @@ class EditorWindow extends BaseWindow {
     // Create a menu for the current window
     appMenu.addEditorMenu(win, { sourceCodeModeEnabled: sourceCodeModeEnabled as boolean })
 
+    let pendingContext: ContextMenuParams | null = null
     win.webContents.on('context-menu', (event, params) => {
+      const sourceMode = appMenu.getWindowMenuById(win!.id)?.getMenuItemById('sourceCodeModeMenuItem')?.checked
+      if (isInsideEditor(params) && !params.hasImageContents && !sourceMode) {
+        pendingContext = params
+        win!.webContents.send('mt::prepare-editor-context-menu')
+        return
+      }
       showEditorContextMenu(win!, event, params, preferences.getItem('spellcheckerEnabled'))
+    })
+    win.webContents.ipc.on('mt::show-editor-context-menu', (_event, state: EditorContextMenuState) => {
+      const params = pendingContext
+      pendingContext = null
+      if (params && win && !win.isDestroyed()) {
+        showEditorContextMenu(win, {}, params, preferences.getItem('spellcheckerEnabled'), state)
+      }
     })
 
     // Route chunks and translations can finish after did-finish-load. Bootstrap
@@ -269,6 +285,13 @@ class EditorWindow extends BaseWindow {
         // Electron's BrowserWindow.on() is heavily overloaded — the union of
         // event names can't be satisfied by a single overload, so we widen.
         ;(win! as { on(event: string, listener: () => void): void }).on(channel, () => {
+          const menu = appMenu.getWindowMenuById(win!.id)
+          syncWindowMenu(menu, win!)
+          if (channel === 'enter-full-screen' || channel === 'leave-full-screen') {
+            // Windows can emit the transition before isFullScreen() reflects it.
+            const item = menu.getMenuItemById('fullScreenMenuItem')
+            if (item) item.checked = channel === 'enter-full-screen'
+          }
           win!.webContents.send(`mt::window-${channel}`)
         })
       }

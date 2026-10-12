@@ -44,7 +44,7 @@
       "copyAsHtml": "Als HTML kopieren",
       "pasteAsPlainText": "Als reinen Text einfügen",
       "selectAll": "Alles auswählen",
-      "duplicate": "Duplizieren",
+      "duplicate": "Absatz kopieren",
       "createParagraph": "Absatz erstellen",
       "deleteParagraph": "Absatz löschen",
       "find": "Suchen",
@@ -147,6 +147,8 @@
     }
   },
   "contextMenu": {
+    "insertBlockBelow": "Block darunter einfügen / Format entfernen",
+    "convertSelection": "Ausgewählten Text umwandeln",
     "cut": "Ausschneiden",
     "copy": "Kopieren",
     "paste": "Einfügen",
@@ -809,7 +811,7 @@
       "copyAsHtml": "Als HTML kopieren",
       "pasteAsPlaintext": "Als reinen Text einfügen",
       "selectAll": "Alles auswählen",
-      "duplicate": "Duplizieren",
+      "duplicate": "Absatz kopieren",
       "createParagraph": "Absatz erstellen",
       "deleteParagraph": "Absatz löschen",
       "find": "Suchen",

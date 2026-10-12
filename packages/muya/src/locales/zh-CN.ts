@@ -81,7 +81,7 @@ export const zhCN = {
         'Symbols': '抽象',
         'Flags': '国旗',
         // frontMenu
-        'Duplicate': '复制段落',
+        'Copy Paragraph': '复制段落',
         'New Paragraph': '新建段落',
         'Delete': '删除段落',
         // imageToolbar

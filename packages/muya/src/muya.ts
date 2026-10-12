@@ -1,5 +1,6 @@
 import type Content from './block/base/content';
 import type Parent from './block/base/parent';
+import type { TContextBlockType } from './block/contextActions';
 import type { TBlockPath } from './block/types';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
@@ -11,7 +12,9 @@ import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TS
 import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
 import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
+import { applyContextBlock, getActiveContextBlocks } from './block/contextActions';
 import { ScrollPage } from './block/scrollPage';
+import { CopyType } from './clipboard/types';
 import emptyStates from './config/emptyStates';
 import {
     CLASS_NAMES,
@@ -400,7 +403,25 @@ export class Muya {
     }
 
     selectAll() {
-        this.editor.selection.selectAll();
+        this.editor.selection.selectAllDocument();
+    }
+
+    getActiveContextBlocks(): TContextBlockType[] {
+        return getActiveContextBlocks(this);
+    }
+
+    /** Insert below the complete cursor block, or convert only the selected text. */
+    applyContextBlock(type: TContextBlockType) {
+        applyContextBlock(this, type);
+    }
+
+    /** Copy a complete block as Markdown without changing the document or selection. */
+    copyParagraph(block: Parent | null = this._outmostBlockAtCursor()) {
+        if (!block?.outMostBlock)
+            return;
+        const text = this.editor.jsonState.getMarkdownFromState([block.getState()]);
+        this.domNode.focus({ preventScroll: true });
+        this.editor.clipboard.copy(CopyType.COPY_CODE_CONTENT, text);
     }
 
     format(type: string) {

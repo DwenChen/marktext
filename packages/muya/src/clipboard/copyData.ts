@@ -6,6 +6,7 @@ import type { ISelection } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
+import { SelectionDirection } from '../selection/types';
 import StateToMarkdown from '../state/stateToMarkdown';
 import { getClipBoardHtml, getSanitizeClipboardHtml } from '../utils/marked';
 import { CopyType } from './types';
@@ -88,7 +89,9 @@ function resolveSelectionOrder(
     if (anchorOutMostBlockOffset == null || focusOutMostBlockOffset == null)
         return null;
 
-    const anchorFirst = anchorOutMostBlockOffset <= focusOutMostBlockOffset;
+    const anchorFirst = anchorOutMostBlockOffset === focusOutMostBlockOffset
+        ? selection.direction !== SelectionDirection.BACKWARD
+        : anchorOutMostBlockOffset < focusOutMostBlockOffset;
 
     return {
         anchorBlock,
@@ -126,7 +129,7 @@ function truncateLeafState(
 // the selected side of the boundary leaf, recurse into the boundary child, and
 // truncate the boundary leaf's own text. Mirrors the legacy DOM-selection
 // serialization, which carried only the selected portion of a quote.
-function buildPartialContainerState(
+export function buildPartialContainerState(
     container: Parent,
     leaf: Content,
     offset: number,
@@ -395,7 +398,7 @@ export function writeClipboardData(
     // A selected inline image copies its raw `![alt](src)` markdown
     // verbatim, short-circuiting the text-selection clipboard data.
     const selectedImage = clipboard.muya.editor?.selection?.image;
-    if (selectedImage) {
+    if (selectedImage && clipboard.copyType !== CopyType.COPY_CODE_CONTENT) {
         const { raw } = selectedImage.token;
         if (raw.length > 0) {
             event.clipboardData.setData('text/html', raw);

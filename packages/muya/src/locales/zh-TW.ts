@@ -81,7 +81,7 @@ export const zhTW = {
         'Symbols': '符號',
         'Flags': '旗幟',
         // frontMenu
-        'Duplicate': '複製段落',
+        'Copy Paragraph': '複製段落',
         'New Paragraph': '新增段落',
         'Delete': '刪除段落',
         // imageToolbar

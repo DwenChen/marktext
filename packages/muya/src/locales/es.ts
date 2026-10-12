@@ -81,7 +81,7 @@ export const es = {
         'Symbols': 'Símbolos',
         'Flags': 'Banderas',
         // frontMenu
-        'Duplicate': 'Duplicar',
+        'Copy Paragraph': 'Copiar párrafo',
         'New Paragraph': 'Nuevo párrafo',
         'Delete': 'Eliminar',
         // imageToolbar

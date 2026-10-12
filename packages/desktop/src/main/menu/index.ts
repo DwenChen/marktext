@@ -303,6 +303,8 @@ class AppMenu {
       updateMenuItem(oldMenu, newMenu, 'focusModeMenuItem')
       updateMenuItem(oldMenu, newMenu, 'sideBarMenuItem')
       updateMenuItem(oldMenu, newMenu, 'tabBarMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'alwaysOnTopMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'fullScreenMenuItem')
 
       // update window menu
       value.menu = newMenu
@@ -332,6 +334,8 @@ class AppMenu {
         updateMenuItem(oldMenu, rebuilt, 'focusModeMenuItem')
         updateMenuItem(oldMenu, rebuilt, 'sideBarMenuItem')
         updateMenuItem(oldMenu, rebuilt, 'tabBarMenuItem')
+        updateMenuItem(oldMenu, rebuilt, 'alwaysOnTopMenuItem')
+        updateMenuItem(oldMenu, rebuilt, 'fullScreenMenuItem')
         newMenu = rebuilt
       } else if (type === MenuType.SETTINGS) {
         newMenu = this._buildSettingMenu().menu
@@ -495,6 +499,13 @@ class AppMenu {
   }
 
   _listenForIpcMain(): void {
+    ipcMain.on('mt::menu::popup-section', (event, section: string, position: { x: number; y: number }) => {
+      if (!['paragraphMenuEntry', 'formatMenuItem', 'viewMenu'].includes(section)) return
+      const win = BrowserWindow.fromWebContents(event.sender)
+      if (!win) return
+      const submenu = this.getWindowMenuById(win.id)?.getMenuItemById(section)?.submenu
+      submenu?.popup({ window: win, x: position.x, y: position.y })
+    })
     ipcMain.on('mt::add-recently-used-document', (_e, pathname: string) => {
       this.addRecentlyUsedDocument(pathname)
     })

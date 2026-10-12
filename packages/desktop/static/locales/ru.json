@@ -44,7 +44,7 @@
       "copyAsHtml": "Копировать как HTML",
       "pasteAsPlainText": "Вставить как обычный текст",
       "selectAll": "Выделить всё",
-      "duplicate": "Дублировать",
+      "duplicate": "Копировать абзац",
       "createParagraph": "Создать абзац",
       "deleteParagraph": "Удалить абзац",
       "find": "Найти",
@@ -147,6 +147,8 @@
     }
   },
   "contextMenu": {
+    "insertBlockBelow": "Вставить блок ниже / убрать формат",
+    "convertSelection": "Преобразовать выделенный текст",
     "cut": "Вырезать",
     "copy": "Копировать",
     "paste": "Вставить",
@@ -809,7 +811,7 @@
       "copyAsHtml": "Копировать как HTML",
       "pasteAsPlaintext": "Вставить как обычный текст",
       "selectAll": "Выделить всё",
-      "duplicate": "Дублировать",
+      "duplicate": "Копировать абзац",
       "createParagraph": "Создать абзац",
       "deleteParagraph": "Удалить абзац",
       "find": "Найти",

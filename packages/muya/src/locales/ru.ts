@@ -81,7 +81,7 @@ export const ru = {
         'Symbols': 'Символы',
         'Flags': 'Флаги',
         // frontMenu
-        'Duplicate': 'Дублировать',
+        'Copy Paragraph': 'Копировать абзац',
         'New Paragraph': 'Новый абзац',
         'Delete': 'Удалить',
         // imageToolbar

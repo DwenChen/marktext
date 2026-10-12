@@ -44,7 +44,7 @@
       "copyAsHtml": "Copiar como HTML",
       "pasteAsPlainText": "Colar como Texto Simples",
       "selectAll": "Selecionar Tudo",
-      "duplicate": "Duplicar",
+      "duplicate": "Copiar parágrafo",
       "createParagraph": "Criar Parágrafo",
       "deleteParagraph": "Excluir Parágrafo",
       "find": "Localizar",
@@ -147,6 +147,8 @@
     }
   },
   "contextMenu": {
+    "insertBlockBelow": "Inserir bloco abaixo / remover formato",
+    "convertSelection": "Converter texto selecionado",
     "cut": "Cortar",
     "copy": "Copiar",
     "paste": "Colar",
@@ -809,7 +811,7 @@
       "copyAsHtml": "Copiar como HTML",
       "pasteAsPlaintext": "Colar como Texto Simples",
       "selectAll": "Selecionar Tudo",
-      "duplicate": "Duplicar",
+      "duplicate": "Copiar parágrafo",
       "createParagraph": "Criar Parágrafo",
       "deleteParagraph": "Excluir Parágrafo",
       "find": "Localizar",

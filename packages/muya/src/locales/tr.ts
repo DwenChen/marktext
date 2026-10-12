@@ -81,7 +81,7 @@ export const tr = {
         'Symbols': 'Semboller',
         'Flags': 'Bayraklar',
         // frontMenu
-        'Duplicate': 'Çoğalt',
+        'Copy Paragraph': 'Paragrafı kopyala',
         'New Paragraph': 'Yeni Paragraf',
         'Delete': 'Sil',
         // imageToolbar
