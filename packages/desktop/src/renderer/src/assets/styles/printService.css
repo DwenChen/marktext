@@ -76,6 +76,9 @@ body article.print-container {
     word-break: break-word;
   }
   body article.markdown-body .flowchart,
+  body article.markdown-body .geojson,
+  body article.markdown-body .topojson,
+  body article.markdown-body .stl,
   body article.markdown-body .sequence,
   body article.markdown-body .plantuml,
   body article.markdown-body .mermaid,
@@ -83,6 +86,9 @@ body article.print-container {
     text-align: center;
   }
   body article.markdown-body .flowchart > svg,
+  body article.markdown-body .geojson > svg,
+  body article.markdown-body .topojson > svg,
+  body article.markdown-body .stl > svg,
   body article.markdown-body .sequence > svg,
   body article.markdown-body .plantuml > svg,
   body article.markdown-body .plantuml > img,

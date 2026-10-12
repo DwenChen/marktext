@@ -29,9 +29,9 @@ interface IMarkdownToStateOptions {
 };
 
 const DEFAULT_OPTIONS = {
-    footnote: false,
+    footnote: true,
     texMathDollars: true,
-    texMathGfm: false,
+    texMathGfm: true,
     texMathSingleBackslash: false,
     texMathDoubleBackslash: false,
     trimUnnecessaryCodeBlockEmptyLines: false,
@@ -60,9 +60,9 @@ export class MarkdownToState {
 
     private _convertMarkdownToState(markdown: string): TState[] {
         const {
-            footnote = false,
+            footnote = true,
             texMathDollars = true,
-            texMathGfm = false,
+            texMathGfm = true,
             texMathSingleBackslash = false,
             texMathDoubleBackslash = false,
             trimUnnecessaryCodeBlockEmptyLines = false,

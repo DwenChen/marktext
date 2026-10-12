@@ -4,6 +4,7 @@ import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
 import { sanitize } from '../index';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import footnoteExtension from './extensions/footnote';
+import githubExtension from './extensions/github';
 import inlineDiffExtension from './extensions/inlineDiff';
 import markExtension from './extensions/mark';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
@@ -24,6 +25,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     // and the global is shared with anything else in the bundle that imports
     // `marked`.
     const marked = new Marked();
+    marked.use(githubExtension());
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),

@@ -4,6 +4,7 @@ import { CLASS_NAMES, PREVIEW_DOMPURIFY_CONFIG } from '../../../config';
 import { sanitize } from '../../../utils';
 import { getImageSrc } from '../../../utils/image';
 import logger from '../../../utils/logger';
+import { getHighlightHtml } from '../../../utils/marked';
 import Parent from '../../base/parent';
 
 const debug = logger('htmlPreview:');
@@ -54,7 +55,10 @@ class HTMLPreview extends Parent {
             this._html = html;
 
         const { disableHtml } = this.muya.options;
-        const htmlContent = sanitize(html, PREVIEW_DOMPURIFY_CONFIG, disableHtml) as string;
+        const rendered = /^\s*<details(?:\s|>)/i.test(html)
+            ? getHighlightHtml(html, this.muya.options)
+            : html;
+        const htmlContent = sanitize(rendered, PREVIEW_DOMPURIFY_CONFIG, disableHtml) as string;
 
         // handle empty html bock
         if (isEmptyHtmlBlock(htmlContent)) {

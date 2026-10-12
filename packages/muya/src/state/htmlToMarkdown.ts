@@ -1,5 +1,6 @@
 import type { ITurnoverOptions } from './types';
 import { CLASS_NAMES, DEFAULT_TURNDOWN_CONFIG } from '../config';
+import { alertType } from '../utils/githubMarkdown';
 import TurndownService, { usePluginsAddRules } from '../utils/turndownService';
 
 // Just because turndown change `\n`(soft line break) to space, So we add `span.ag-soft-line-break` to workaround.
@@ -76,6 +77,21 @@ export default class HtmlToMarkdown {
         // turn html to markdown
         const turndownService = new TurndownService(this._options);
         usePluginsAddRules(turndownService);
+        turndownService.addRule('github-alert-title', {
+            filter: node => node.classList.contains('markdown-alert-title'),
+            replacement: () => '',
+        });
+        turndownService.addRule('github-alert', {
+            filter: node => node.classList.contains('markdown-alert'),
+            replacement(content, node) {
+                const marker = node.className.match(/(?:^|\s)markdown-alert-(note|tip|important|warning|caution)(?:\s|$)/)?.[1].toUpperCase();
+                const type = marker ? alertType(`[!${marker}]`) : null;
+                if (!type)
+                    return content;
+                const body = content.trim().split('\n').map(line => line ? `> ${line}` : '>').join('\n');
+                return `\n\n> [!${type}]\n${body}\n\n`;
+            },
+        });
 
         // fix #752, but I don't know why the &nbsp; vanished.
         html = html.replace(/<span>&nbsp;<\/span>/g, String.fromCharCode(160));

@@ -1,0 +1,137 @@
+.mu-github-alert,
+.markdown-alert {
+    --alert-color: #0969da;
+}
+
+.markdown-alert-tip {
+    --alert-color: #1a7f37;
+}
+
+.markdown-alert-important {
+    --alert-color: #8250df;
+}
+
+.markdown-alert-warning {
+    --alert-color: #9a6700;
+}
+
+.markdown-alert-caution {
+    --alert-color: #cf222e;
+}
+
+.dark .markdown-alert-note {
+    --alert-color: #58a6ff;
+}
+
+.dark .markdown-alert-tip {
+    --alert-color: #3fb950;
+}
+
+.dark .markdown-alert-important {
+    --alert-color: #ab7df8;
+}
+
+.dark .markdown-alert-warning {
+    --alert-color: #d29922;
+}
+
+.dark .markdown-alert-caution {
+    --alert-color: #f85149;
+}
+
+.mu-container .mu-github-alert {
+    color: var(--editor-color);
+}
+
+.mu-container .mu-github-alert::before {
+    width: 4px;
+
+    background: var(--alert-color);
+}
+
+.mu-alert-marker {
+    color: var(--alert-color);
+    font-weight: 600;
+}
+
+.mu-alert-marker.mu-hide {
+    display: block;
+
+    font-size: 0;
+}
+
+.mu-alert-marker.mu-hide::after {
+    font-size: var(--mu-font-size, 16px);
+
+    content: attr(data-title);
+}
+
+.mu-alert-icon {
+    display: none;
+    margin-right: 8px;
+
+    vertical-align: middle;
+
+    fill: currentcolor;
+}
+
+.mu-hide > .mu-alert-icon {
+    display: inline;
+}
+
+.markdown-body .markdown-alert {
+    margin-bottom: 16px;
+    padding: 0.5rem 1rem;
+
+    color: inherit;
+
+    border-left: 0.25em solid var(--alert-color);
+}
+
+.markdown-body .markdown-alert-title {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    color: var(--alert-color);
+    font-weight: 600;
+}
+
+.markdown-alert-title svg {
+    fill: currentcolor;
+}
+
+.markdown-body .markdown-alert > :last-child {
+    margin-bottom: 0;
+}
+
+.github-color-swatch {
+    display: inline-block;
+    width: 0.75em;
+    height: 0.75em;
+    margin-left: 0.4em;
+
+    vertical-align: middle;
+
+    border: 1px solid #8888;
+    border-radius: 50%;
+}
+
+.github-geometry svg {
+    display: block;
+    width: 100%;
+    max-height: 480px;
+
+    touch-action: none;
+}
+
+.mu-html-preview details {
+    padding: 0.5em 1em;
+
+    border: 1px solid var(--editor-color-10);
+    border-radius: 6px;
+}
+
+.mu-html-preview summary {
+    cursor: pointer;
+}

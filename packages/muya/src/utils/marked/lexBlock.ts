@@ -2,6 +2,7 @@ import type { Token } from 'marked';
 import type { IFrontmatterToken, ILexOption, TLexedToken } from './types';
 import { Marked } from 'marked';
 import compatibleTaskList from './compatibleTaskList';
+import detailsExtension from './extensions/details';
 import footnoteExtension from './extensions/footnote';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
@@ -21,6 +22,9 @@ export function lexBlock(
     // marked.use() on the global singleton would make math / footnote sticky:
     // any consumer that once passed `texMathDollars: true` would get math parsing forever.
     const m = new Marked();
+    // Keep the disclosure together in state; CommonMark splits raw HTML at
+    // blank lines, which otherwise detaches its Markdown body from the preview.
+    m.use(detailsExtension());
 
     if (texMathDollars) {
         m.use(

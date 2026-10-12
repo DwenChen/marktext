@@ -137,6 +137,10 @@ ${EDITOR_SCOPE} {
 .editor-middle .mu-container pre.mu-code-block:has(.mu-line-numbers-rows) > code.mu-code { padding-left: 3.8em; }
 .editor-middle .mu-container .mu-code-block .mu-line-numbers-rows { top: 16px; }
 .editor-middle .mu-container .mu-tight-list > li > p { margin: 0; }
+.editor-middle .mu-container blockquote.mu-github-alert {
+  border-left: 0.25em solid var(--alert-color);
+  color: var(--editor-color);
+}
 .editor-middle .mu-container .mu-thematic-break::before {
   display: block;
   height: 0;

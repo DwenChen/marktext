@@ -4,6 +4,7 @@ import type { Muya } from '../muya';
 import type { IRenderCursor } from '../selection/types';
 import type { IParagraphState, TContainerState, TState } from '../state/types';
 import type { IHighlight, Labels } from './types';
+import { alertType } from '../utils/githubMarkdown';
 import logger from '../utils/logger';
 import { tokenizer } from './lexer';
 import Renderer from './renderer';
@@ -70,6 +71,14 @@ class InlineRenderer {
     }
 
     patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {
+        const paragraph = block.parent;
+        const quote = paragraph?.parent;
+        if (block.blockName === 'paragraph.content' && quote?.blockName === 'block-quote' && quote.firstChild === paragraph) {
+            const type = alertType(block.text);
+            quote.domNode!.classList.toggle('mu-github-alert', !!type);
+            for (const name of ['note', 'tip', 'important', 'warning', 'caution'])
+                quote.domNode!.classList.toggle(`markdown-alert-${name}`, type?.toLowerCase() === name);
+        }
         this.labels = this.collectReferenceDefinitions();
         const { domNode } = block;
         if (block.isParent())

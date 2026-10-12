@@ -33,6 +33,7 @@ jobs:
         uses: ./.github/actions/setup
         with:
           node-version: '24.14.1'
+          package-filter: 'marktext...'
 
       - name: Prepare Electron and native modules
         run: pnpm run postinstall
@@ -46,10 +47,11 @@ jobs:
           pnpm run lint
           pnpm -C packages/desktop exec vitest run test/unit/specs/locale-validation.spec.ts test/unit/specs/application-menu-state.spec.ts test/unit/specs/flush-before-save.spec.ts --maxWorkers=2
 
-      - name: Check Muya lint and paragraph regression tests
+      - name: Check Muya lint and GitHub Markdown regression tests
         run: |
           pnpm -C packages/muya lint
-          pnpm -C packages/muya exec vitest run src/__tests__/updateParagraph.spec.ts src/__tests__/copyParagraphSelection.spec.ts src/__tests__/frontMatter.spec.ts src/state/__tests__/stateToMarkdown.spec.ts --maxWorkers=2
+          pnpm -C packages/muya exec vitest run src/state/__tests__/githubMarkdown.spec.ts src/state/__tests__/renderToStaticHTML.spec.ts src/state/__tests__/stateToMarkdown.spec.ts --maxWorkers=2
+          pnpm -C packages/muya test:spec
 
       - name: Build Windows installer and ZIP
         run: pnpm run build:win:x64
@@ -63,6 +65,7 @@ jobs:
           test/e2e/editor-menus-clipboard.spec.ts
           test/e2e/source-mode-flush.spec.ts
           test/e2e/markdown-controls.spec.ts
+          test/e2e/github-markdown.spec.ts
           --workers=1
 
       - name: Record build provenance and checksums

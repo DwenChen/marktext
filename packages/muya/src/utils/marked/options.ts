@@ -1,7 +1,7 @@
 export const DEFAULT_OPTIONS = {
-    footnote: false,
+    footnote: true,
     texMathDollars: true,
-    texMathGfm: false,
+    texMathGfm: true,
     texMathSingleBackslash: false,
     texMathDoubleBackslash: false,
     frontMatter: true,

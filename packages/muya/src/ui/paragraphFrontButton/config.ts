@@ -41,6 +41,9 @@ const DIAGRAM_ICONS = {
     'vega-lite': vegaIcon,
     'flowchart': flowchartIcon,
     'sequence': sequenceIcon,
+    'geojson': vegaIcon,
+    'topojson': vegaIcon,
+    'stl': vegaIcon,
 };
 
 export function getIcon(block: Parent) {

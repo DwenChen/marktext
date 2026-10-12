@@ -1,6 +1,7 @@
 import type { Muya } from '../../../muya';
 import type { IBlockQuoteState } from '../../../state/types';
 import { mixins } from '../../../utils';
+import { alertType } from '../../../utils/githubMarkdown';
 import Parent from '../../base/parent';
 import IContainerQueryBlock from '../../mixins/containerQueryBlock';
 import { ScrollPage } from '../../scrollPage';
@@ -17,6 +18,13 @@ class BlockQuote extends Parent {
 
         for (const child of state.children)
             blockQuote.append(ScrollPage.loadBlock(child.name).create(muya, child));
+
+        const first = state.children[0];
+        const type = first?.name === 'paragraph' ? alertType(first.text) : null;
+        if (type) {
+            blockQuote.domNode!.classList.add('mu-github-alert', `markdown-alert-${type.toLowerCase()}`);
+            blockQuote.firstContentInDescendant()?.update();
+        }
 
         return blockQuote;
     }

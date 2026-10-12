@@ -6,6 +6,10 @@ inputs:
     description: Node.js version to install
     required: false
     default: '22.21.1'
+  package-filter:
+    description: Optional pnpm package selector; root tooling is always included
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -21,6 +25,12 @@ runs:
 
     - name: Install Dependencies
       shell: bash
-      run: pnpm install --frozen-lockfile --ignore-scripts
+      run: |
+        filters=()
+        if [ -n "$INSTALL_FILTER" ]; then
+          filters=(--filter "$INSTALL_FILTER" --filter .)
+        fi
+        pnpm install --frozen-lockfile --ignore-scripts "${filters[@]}"
       env:
         GITHUB_TOKEN: ${{ github.token }}
+        INSTALL_FILTER: ${{ inputs.package-filter }}

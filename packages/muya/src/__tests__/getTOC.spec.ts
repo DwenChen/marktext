@@ -212,12 +212,12 @@ describe('muya.getTOC()', () => {
         expect(toc[0].content).toBe('Tabbed heading');
     });
 
-    it('githubSlug keeps non-ASCII letters, strips emoji and punctuation, collapses whitespace', () => {
+    it('githubSlug keeps non-ASCII letters and repeated spaces, and strips emoji and punctuation', () => {
         const md = `# 你好 World 🎉\n\n# API & Usage Examples!\n\n## 中文标题\n\n## Café Résumé`;
         const muya = bootMuya(md);
         const toc = muya.getTOC();
         expect(toc[0].githubSlug).toBe('你好-world-');
-        expect(toc[1].githubSlug).toBe('api-usage-examples');
+        expect(toc[1].githubSlug).toBe('api--usage-examples');
         expect(toc[2].githubSlug).toBe('中文标题');
         expect(toc[3].githubSlug).toBe('café-résumé');
     });

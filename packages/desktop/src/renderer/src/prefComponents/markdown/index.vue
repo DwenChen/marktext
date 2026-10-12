@@ -63,7 +63,7 @@
           :notes="t('preferences.markdown.extensions.footnoteNotes')"
           :bool="footnote"
           :on-change="(value) => onSelectChange('footnote', value)"
-          more="https://pandoc.org/MANUAL.html#footnotes"
+          more="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes"
         />
         <bool
           :description="t('preferences.markdown.extensions.texMathDollars')"
@@ -75,7 +75,7 @@
           :description="t('preferences.markdown.extensions.texMathGfm')"
           :bool="texMathGfm"
           :on-change="(value) => onSelectChange('texMathGfm', value)"
-          more="https://pandoc.org/MANUAL.html#extension-tex_math_gfm"
+          more="https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/writing-mathematical-expressions"
         />
         <bool
           :description="t('preferences.markdown.extensions.texMathSingleBackslash')"
