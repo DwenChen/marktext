@@ -52,6 +52,8 @@ export type PlantumlFetchResult =
 // =================================================================
 
 export interface IpcInvokeChannels {
+  'mt::menu::get-application': { args: []; ret: MenuTemplate }
+  'mt::menu::execute-application': { args: [command: string]; ret: boolean }
   'mt::import-document-theme': {
     args: []
     ret: { theme?: CustomDocumentTheme; error?: string }

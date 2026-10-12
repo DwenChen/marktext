@@ -69,7 +69,7 @@
       "promoteHeading": "提升标题级别",
       "demoteHeading": "降低标题级别",
       "table": "表格",
-      "codeFences": "代码围栏",
+      "codeFences": "代码块",
       "quoteBlock": "引用块",
       "mathBlock": "数学块",
       "htmlBlock": "HTML 块",
@@ -88,7 +88,7 @@
       "resetZoom": "重置缩放",
       "fullScreen": "全屏",
       "bringAllToFront": "将所有窗口置于前台",
-      "alwaysOnTop": "总是在最前面"
+      "alwaysOnTop": "窗口置顶"
     },
     "help": {
       "help": "帮助",
@@ -831,7 +831,7 @@
       "upgradeHeading": "提升标题级别",
       "degradeHeading": "降低标题级别",
       "table": "表格",
-      "codeFence": "代码围栏",
+      "codeFence": "代码块",
       "quoteBlock": "引用块",
       "mathBlock": "数学块",
       "mathFormula": "数学公式",
@@ -863,7 +863,7 @@
     "window": {
       "minimize": "最小化",
       "close": "关闭",
-      "toggleAlwaysOnTop": "切换总是在最前面",
+      "toggleAlwaysOnTop": "切换窗口置顶",
       "zoomIn": "放大",
       "zoomOut": "缩小",
       "toggleFullScreen": "切换全屏",

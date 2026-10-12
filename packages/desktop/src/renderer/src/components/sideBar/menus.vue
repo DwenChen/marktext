@@ -41,7 +41,9 @@ const openMenu = (event: MouseEvent, section: SidebarMenuSection): void => {
   display: flex;
   flex-shrink: 0;
   gap: 2px;
-  padding: 4px;
+  height: var(--titleBarHeight);
+  box-sizing: border-box;
+  padding: 2px 4px;
   border-bottom: 1px solid var(--itemBgColor);
   -webkit-app-region: no-drag;
 }
@@ -64,5 +66,6 @@ const openMenu = (event: MouseEvent, section: SidebarMenuSection): void => {
 }
 .compact {
   flex-direction: column;
+  height: auto;
 }
 </style>

@@ -1,6 +1,7 @@
 <template>
   <div class="editor-container">
     <side-bar v-if="init" />
+    <application-menu v-if="init" />
 
     <div
       class="editor-middle"
@@ -55,6 +56,7 @@ import TitleBar from '@/components/titleBar/index.vue'
 import StatusBar from '@/components/statusBar/index.vue'
 import { applyDocumentTheme } from '@/util/documentTheme'
 import SideBar from '@/components/sideBar/index.vue'
+import ApplicationMenu from '@/components/applicationMenu/index.vue'
 import AboutDialog from '@/components/about/index.vue'
 import CommandPalette from '@/components/commandPalette/index.vue'
 import ExportSettingDialog from '@/components/exportSettings/index.vue'

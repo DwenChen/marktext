@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { app, Menu, ipcMain, BrowserWindow } from 'electron'
+import { app, Menu, ipcMain, BrowserWindow, type MenuItem, type WebContents } from 'electron'
 import log from 'electron-log'
 import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
 import { isOsx, isWindows } from '../config'
@@ -14,6 +14,8 @@ import { setLanguage } from '../i18n.js'
 import type Preference from '../preferences'
 import type Keybindings from '../keyboard/shortcutHandler'
 import type { IUserPreferences } from '@shared/types/preferences'
+import type { MenuTemplate } from '@shared/types/menu'
+import { syncWindowMenu } from '../ipc/window'
 
 const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
 const MAX_RECENTLY_USED_DOCUMENTS = 12
@@ -47,6 +49,14 @@ class AppMenu {
   public readonly isOsxOrWindows: boolean
   public activeWindowId: number
   public windowMenus: Map<number, WindowMenuEntry>
+  private readonly _rendererMenus = new WeakMap<
+    WebContents,
+    {
+      menu: Menu
+      commands: Map<string, MenuItem[]>
+    }
+  >()
+  private _nextRendererCommand = 0
 
   /**
    * @param preferences The preferences instances.
@@ -499,13 +509,73 @@ class AppMenu {
   }
 
   _listenForIpcMain(): void {
-    ipcMain.on('mt::menu::popup-section', (event, section: string, position: { x: number; y: number }) => {
-      if (!['paragraphMenuEntry', 'formatMenuItem', 'viewMenu'].includes(section)) return
+    ipcMain.handle('mt::menu::get-application', (event): MenuTemplate => {
       const win = BrowserWindow.fromWebContents(event.sender)
-      if (!win) return
-      const submenu = this.getWindowMenuById(win.id)?.getMenuItemById(section)?.submenu
-      submenu?.popup({ window: win, x: position.x, y: position.y })
+      if (!win || !this.has(win.id)) return []
+      const menu = this.getWindowMenuById(win.id)
+      if (!menu) return []
+      syncWindowMenu(menu, win)
+      const commands = new Map<string, MenuItem[]>()
+      const serialize = (items: MenuItem[], ancestors: MenuItem[] = []): MenuTemplate =>
+        items
+          .filter((item) => item.visible)
+          .map((item) => {
+            const id = `application-${this._nextRendererCommand++}`
+            commands.set(id, [...ancestors, item])
+            return {
+              id,
+              label: item.label,
+              type: item.type === 'header' || item.type === 'palette' ? 'normal' : item.type,
+              enabled: item.enabled,
+              checked: item.checked,
+              accelerator: item.accelerator?.toString(),
+              submenu: item.submenu
+                ? serialize(item.submenu.items, [...ancestors, item])
+                : undefined
+            }
+          })
+      const sidebarVisible = menu.getMenuItemById('sideBarMenuItem')?.checked
+      const items = serialize(
+        menu.items.filter(
+          (item) =>
+            item.role !== 'help' &&
+            !(
+              sidebarVisible &&
+              ['paragraphMenuEntry', 'formatMenuItem', 'viewMenu'].includes(item.id)
+            )
+        )
+      )
+      this._rendererMenus.set(event.sender, { menu, commands })
+      return items
     })
+    ipcMain.handle('mt::menu::execute-application', (event, command: string): boolean => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      const snapshot = this._rendererMenus.get(event.sender)
+      this._rendererMenus.delete(event.sender)
+      if (
+        !win ||
+        !this.has(win.id) ||
+        !snapshot ||
+        snapshot.menu !== this.getWindowMenuById(win.id)
+      )
+        return false
+      const chain = snapshot.commands.get(command)
+      if (!chain || chain.some((item) => !item.enabled || !item.visible)) return false
+      const item = chain[chain.length - 1]!
+      if (item.submenu || item.type === 'separator') return false
+      item.click(undefined, win, win.webContents)
+      return true
+    })
+    ipcMain.on(
+      'mt::menu::popup-section',
+      (event, section: string, position: { x: number; y: number }) => {
+        if (!['paragraphMenuEntry', 'formatMenuItem', 'viewMenu'].includes(section)) return
+        const win = BrowserWindow.fromWebContents(event.sender)
+        if (!win) return
+        const submenu = this.getWindowMenuById(win.id)?.getMenuItemById(section)?.submenu
+        submenu?.popup({ window: win, x: position.x, y: position.y })
+      }
+    )
     ipcMain.on('mt::add-recently-used-document', (_e, pathname: string) => {
       this.addRecentlyUsedDocument(pathname)
     })

@@ -223,7 +223,7 @@ const handleLeftBottomClick = (name: string): void => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding-top: 28px;
+  padding-top: var(--titleBarHeight);
   box-sizing: border-box;
 }
 
@@ -252,7 +252,7 @@ const handleLeftBottomClick = (name: string): void => {
 
 .left-column > .compact-menus {
   position: absolute;
-  top: 28px;
+  top: var(--titleBarHeight);
   left: 0;
   width: 45px;
   box-sizing: border-box;
@@ -284,7 +284,6 @@ const handleLeftBottomClick = (name: string): void => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding-top: 28px;
   box-sizing: border-box;
 }
 

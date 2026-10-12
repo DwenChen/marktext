@@ -66,13 +66,22 @@
         <appearance-switch />
       </div>
       <div :class="showCustomTitleBar ? 'left-toolbar title-no-drag' : 'right-toolbar'">
-        <div
+        <button
           v-if="showCustomTitleBar"
           class="frameless-titlebar-menu title-no-drag"
+          type="button"
+          aria-label="MarkText"
+          aria-haspopup="menu"
+          @mousedown.prevent
           @click.stop="handleMenuClick"
         >
-          <span class="text-center-vertical">&#9776;</span>
-        </div>
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+        </button>
       </div>
       <div
         v-if="titleBarStyle === 'custom' && !isFullScreen && !isOsx"
@@ -147,6 +156,7 @@ import { shouldShowInAppTitleBar } from './visibility'
 import { useEditorStore } from '@/store/editor'
 import { ArrowRight } from '@element-plus/icons-vue'
 import AppearanceSwitch from './appearanceSwitch.vue'
+import { openApplicationMenu } from '../applicationMenu/state'
 
 interface ProjectInfo {
   name?: string
@@ -282,9 +292,7 @@ const handleMinimizeClick = () => {
   window.electron.windowControl.minimize()
 }
 
-const handleMenuClick = () => {
-  window.electron.windowControl.popupApplicationMenu({ x: 23, y: 20 })
-}
+const handleMenuClick = (event: MouseEvent) => openApplicationMenu(event)
 
 const rename = () => {
   if (props.platform === 'darwin') {
@@ -433,12 +441,11 @@ div.title > span > .path > bdi {
 }
 
 .left-toolbar {
-  padding: 0 10px;
   height: var(--titleBarHeight);
   position: fixed;
   top: 0;
   left: 0;
-  width: 118px; /* + 2*10px padding*/
+  width: 45px;
   display: flex;
   flex-direction: row;
 }
@@ -491,7 +498,32 @@ div.title > span > .path > bdi {
   transform: translateX(-50%) translateY(-50%);
 }
 .frameless-titlebar-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: var(--titleBarHeight);
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--sideBarColor);
+  cursor: pointer;
+}
+.frameless-titlebar-menu svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.frameless-titlebar-menu:hover,
+.frameless-titlebar-menu:focus-visible {
+  background: var(--itemBgColor);
+}
+.frameless-titlebar-menu:focus-visible {
+  outline: 1px solid var(--themeColor);
+  outline-offset: -2px;
 }
 .frameless-titlebar-close:hover {
   background-color: rgb(228, 79, 79);
@@ -507,9 +539,4 @@ div.title > span > .path > bdi {
   fill: #ffffff;
 }
 
-.text-center-vertical {
-  display: inline-block;
-  vertical-align: middle;
-  line-height: normal;
-}
 </style>

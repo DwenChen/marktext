@@ -71,6 +71,7 @@ jobs:
           test/e2e/issue-2421-sidebar-state.spec.ts
           test/e2e/desktop-optimizations.spec.ts
           test/e2e/editor-menus-clipboard.spec.ts
+          test/e2e/sidebar-menu-layout.spec.ts
           test/e2e/editor-performance.spec.ts
           test/e2e/window-resize.spec.ts
           test/e2e/tab-open-order.spec.ts
