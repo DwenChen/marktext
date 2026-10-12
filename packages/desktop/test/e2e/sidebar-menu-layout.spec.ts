@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test'
 import { launchWithMarkdown, expectNoRendererErrors } from './helpers'
 
+test.skip(process.platform === 'darwin', 'macOS uses the native application menu')
+
 const preferences = {
   language: 'zh-CN', titleBarStyle: 'custom', sideBarVisibility: true,
   openedFilesInSidebar: true, spellcheckerEnabled: false, autoSave: false

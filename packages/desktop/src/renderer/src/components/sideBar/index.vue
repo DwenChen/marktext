@@ -3,7 +3,7 @@
     v-show="showSideBar"
     ref="sideBar"
     class="side-bar"
-    :class="{ compact: !rightColumn }"
+    :class="{ compact: !rightColumn, isOsx }"
     :style="[!rightColumn ? { 'min-width': '45px' } : {}, { width: `${finalSideBarWidth}px` }]"
   >
     <div class="left-column">
@@ -80,6 +80,7 @@ import SidebarMenus from './menus.vue'
 import { storeToRefs } from 'pinia'
 import type { TabDescriptor } from './types'
 import bus from '@/bus'
+import { isMac as isOsx } from '@/util'
 
 const layoutStore = useLayoutStore()
 const projectStore = useProjectStore()
@@ -290,6 +291,10 @@ const handleLeftBottomClick = (name: string): void => {
 .sidebar-content {
   flex: 1;
   min-height: 0;
+}
+
+.side-bar.isOsx .right-column {
+  padding-top: var(--titleBarHeight);
 }
 
 .drag-bar {
