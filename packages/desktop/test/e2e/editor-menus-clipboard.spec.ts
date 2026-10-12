@@ -84,7 +84,6 @@ test('sidebar menus preserve focus and editor context actions round-trip through
     await expectNoRendererErrors(app)
     await page.screenshot({ path: 'test-results/editor-menus-sidebar.png' })
   } finally {
-    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().forEach(win => win.destroy()))
     await app.close()
   }
 })
@@ -117,7 +116,6 @@ test('window menu reflects always-on-top, fullscreen and the current zoom', asyn
       Menu.getApplicationMenu()?.getMenuItemById('resetZoomMenuItem')?.label
     )).toContain('113%')
   } finally {
-    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().forEach(win => win.destroy()))
     await app.close()
   }
 })
@@ -162,7 +160,6 @@ test('one Ctrl+A copies the entire document and Copy Paragraph never inserts a d
     await expect.poll(() => app.evaluate(({ clipboard }) => clipboard.readText())).toBe('first\n\nsecond\n\nlast\n')
     await expectNoRendererErrors(app)
   } finally {
-    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().forEach(win => win.destroy()))
     await app.close()
   }
 })
@@ -191,7 +188,6 @@ test('Restore All still confirms unsaved changes on window close', async() => {
     })).toBeTruthy()
     expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1)
   } finally {
-    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().forEach(win => win.destroy()))
     await app.close()
   }
 })
