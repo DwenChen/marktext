@@ -92,6 +92,29 @@ export const launchElectron = async(
     env,
     timeout: 30000
   })
+  const close = app.close.bind(app)
+  app.close = async() => {
+    // Teardown discards throwaway edits; window-close tests still exercise the real prompt.
+    if (app.windows().some(window => !window.isClosed())) {
+      await app.evaluate(({ dialog }) => {
+        const showMessageBox = dialog.showMessageBox.bind(dialog)
+        dialog.showMessageBox = (async(
+          windowOrOptions: Electron.BaseWindow | Electron.MessageBoxOptions,
+          options?: Electron.MessageBoxOptions
+        ) => {
+          const messageOptions = options ?? windowOrOptions as Electron.MessageBoxOptions
+          if (messageOptions.type === 'warning' && messageOptions.buttons?.length === 3 &&
+            messageOptions.defaultId === 0 && messageOptions.cancelId === 2 && messageOptions.noLink) {
+            return { response: 1, checkboxChecked: false }
+          }
+          return options
+            ? showMessageBox(windowOrOptions as Electron.BaseWindow, options)
+            : showMessageBox(messageOptions)
+        }) as typeof dialog.showMessageBox
+      })
+    }
+    await close()
+  }
   if (options.suppressErrorDialog) await installRendererErrorCounter(app)
   const page = await app.firstWindow()
   await page.waitForLoadState('domcontentloaded')
