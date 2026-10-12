@@ -1,4 +1,4 @@
-import { dialog, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
+import { type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import * as actions from '../actions/paragraph'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
@@ -11,88 +11,89 @@ export default function(
   // A math block writes `$$…$$`, which the editor no longer reads back once
   // pandoc's tex_math_dollars is off — so the entry goes away with it (#5446).
   const texMathDollars = userPreference.getItem<boolean>('texMathDollars') !== false
-  const showInformation = (win: BrowserWindow | undefined, title: string, detail: string): void => {
-    const options = { type: 'info' as const, title, message: title, detail }
-    if (win) void dialog.showMessageBox(win, options)
-    else void dialog.showMessageBox(options)
-  }
 
   return {
     id: 'paragraphMenuEntry',
     label: t('menu.paragraph.title'),
     submenu: [
       {
-        id: 'heading1MenuItem',
-        label: t('menu.paragraph.heading1'),
-        type: 'checkbox',
-        accelerator: keybindings.getAccelerator('paragraph.heading-1') ?? undefined,
-        click(_menuItem, focusedWindow) {
-          actions.heading1(focusedWindow as BrowserWindow | undefined)
-        }
-      },
-      {
-        id: 'heading2MenuItem',
-        label: t('menu.paragraph.heading2'),
-        type: 'checkbox',
-        accelerator: keybindings.getAccelerator('paragraph.heading-2') ?? undefined,
-        click(_menuItem, focusedWindow) {
-          actions.heading2(focusedWindow as BrowserWindow | undefined)
-        }
-      },
-      {
-        id: 'heading3MenuItem',
-        label: t('menu.paragraph.heading3'),
-        type: 'checkbox',
-        accelerator: keybindings.getAccelerator('paragraph.heading-3') ?? undefined,
-        click(_menuItem, focusedWindow) {
-          actions.heading3(focusedWindow as BrowserWindow | undefined)
-        }
-      },
-      {
-        id: 'heading4MenuItem',
-        label: t('menu.paragraph.heading4'),
-        type: 'checkbox',
-        accelerator: keybindings.getAccelerator('paragraph.heading-4') ?? undefined,
-        click(_menuItem, focusedWindow) {
-          actions.heading4(focusedWindow as BrowserWindow | undefined)
-        }
-      },
-      {
-        id: 'heading5MenuItem',
-        label: t('menu.paragraph.heading5'),
-        type: 'checkbox',
-        accelerator: keybindings.getAccelerator('paragraph.heading-5') ?? undefined,
-        click(_menuItem, focusedWindow) {
-          actions.heading5(focusedWindow as BrowserWindow | undefined)
-        }
-      },
-      {
-        id: 'heading6MenuItem',
-        label: t('menu.paragraph.heading6'),
-        type: 'checkbox',
-        accelerator: keybindings.getAccelerator('paragraph.heading-6') ?? undefined,
-        click(_menuItem, focusedWindow) {
-          actions.heading6(focusedWindow as BrowserWindow | undefined)
-        }
-      },
-      {
-        type: 'separator'
-      },
-      {
-        id: 'upgradeHeadingMenuItem',
-        label: t('menu.paragraph.promoteHeading'),
-        accelerator: keybindings.getAccelerator('paragraph.upgrade-heading') ?? undefined,
-        click(_menuItem, focusedWindow) {
-          actions.increaseHeading(focusedWindow as BrowserWindow | undefined)
-        }
-      },
-      {
-        id: 'degradeHeadingMenuItem',
-        label: t('menu.paragraph.demoteHeading'),
-        accelerator: keybindings.getAccelerator('paragraph.degrade-heading') ?? undefined,
-        click(_menuItem, focusedWindow) {
-          actions.degradeHeading(focusedWindow as BrowserWindow | undefined)
-        }
+        id: 'headingMenuEntry',
+        label: t('menu.paragraph.heading'),
+        submenu: [
+          {
+            id: 'heading1MenuItem',
+            label: t('menu.paragraph.heading1'),
+            type: 'checkbox',
+            accelerator: keybindings.getAccelerator('paragraph.heading-1') ?? undefined,
+            click(_menuItem, focusedWindow) {
+              actions.heading1(focusedWindow as BrowserWindow | undefined)
+            }
+          },
+          {
+            id: 'heading2MenuItem',
+            label: t('menu.paragraph.heading2'),
+            type: 'checkbox',
+            accelerator: keybindings.getAccelerator('paragraph.heading-2') ?? undefined,
+            click(_menuItem, focusedWindow) {
+              actions.heading2(focusedWindow as BrowserWindow | undefined)
+            }
+          },
+          {
+            id: 'heading3MenuItem',
+            label: t('menu.paragraph.heading3'),
+            type: 'checkbox',
+            accelerator: keybindings.getAccelerator('paragraph.heading-3') ?? undefined,
+            click(_menuItem, focusedWindow) {
+              actions.heading3(focusedWindow as BrowserWindow | undefined)
+            }
+          },
+          {
+            id: 'heading4MenuItem',
+            label: t('menu.paragraph.heading4'),
+            type: 'checkbox',
+            accelerator: keybindings.getAccelerator('paragraph.heading-4') ?? undefined,
+            click(_menuItem, focusedWindow) {
+              actions.heading4(focusedWindow as BrowserWindow | undefined)
+            }
+          },
+          {
+            id: 'heading5MenuItem',
+            label: t('menu.paragraph.heading5'),
+            type: 'checkbox',
+            accelerator: keybindings.getAccelerator('paragraph.heading-5') ?? undefined,
+            click(_menuItem, focusedWindow) {
+              actions.heading5(focusedWindow as BrowserWindow | undefined)
+            }
+          },
+          {
+            id: 'heading6MenuItem',
+            label: t('menu.paragraph.heading6'),
+            type: 'checkbox',
+            accelerator: keybindings.getAccelerator('paragraph.heading-6') ?? undefined,
+            click(_menuItem, focusedWindow) {
+              actions.heading6(focusedWindow as BrowserWindow | undefined)
+            }
+          },
+          {
+            type: 'separator'
+          },
+          {
+            id: 'upgradeHeadingMenuItem',
+            label: t('menu.paragraph.promoteHeading'),
+            accelerator: keybindings.getAccelerator('paragraph.upgrade-heading') ?? undefined,
+            click(_menuItem, focusedWindow) {
+              actions.increaseHeading(focusedWindow as BrowserWindow | undefined)
+            }
+          },
+          {
+            id: 'degradeHeadingMenuItem',
+            label: t('menu.paragraph.demoteHeading'),
+            accelerator: keybindings.getAccelerator('paragraph.degrade-heading') ?? undefined,
+            click(_menuItem, focusedWindow) {
+              actions.degradeHeading(focusedWindow as BrowserWindow | undefined)
+            }
+          }
+        ]
       },
       {
         type: 'separator'
@@ -189,17 +190,6 @@ export default function(
         }
       },
       {
-        id: 'looseListItemHelpMenuItem',
-        label: 'ⓘ ' + t('menu.paragraph.looseListItemHelp'),
-        click(_menuItem, focusedWindow) {
-          showInformation(
-            focusedWindow as BrowserWindow | undefined,
-            t('menu.paragraph.looseListItem'),
-            t('preferences.markdown.lists.looseListItemDescription')
-          )
-        }
-      },
-      {
         type: 'separator'
       },
       {
@@ -227,17 +217,6 @@ export default function(
         accelerator: keybindings.getAccelerator('paragraph.front-matter') ?? undefined,
         click(_menuItem, focusedWindow) {
           actions.frontMatter(focusedWindow as BrowserWindow | undefined)
-        }
-      },
-      {
-        id: 'frontMatterHelpMenuItem',
-        label: 'ⓘ ' + t('menu.paragraph.frontMatterHelp'),
-        click(_menuItem, focusedWindow) {
-          showInformation(
-            focusedWindow as BrowserWindow | undefined,
-            t('menu.paragraph.frontMatter'),
-            t('preferences.markdown.extensions.frontmatterType.description')
-          )
         }
       }
     ]

@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "Paragraph",
       "paragraph": "Paragraph",
+      "heading": "Heading",
       "heading1": "Heading 1",
       "heading2": "Heading 2",
       "heading3": "Heading 3",
@@ -78,9 +79,7 @@
       "taskList": "Task List",
       "looseListItem": "Loose List Item",
       "horizontalRule": "Horizontal Rule",
-      "frontMatter": "Front Matter",
-      "looseListItemHelp": "About Loose List Items",
-      "frontMatterHelp": "About Front Matter"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Window",
@@ -213,6 +212,7 @@
       "closeAll": "Close All",
       "emptyProject": "Empty project",
       "createFile": "Create File",
+      "noFolder": "No folder opened.",
       "openFolder": "Open Folder",
       "closeFolder": "Close Folder"
     },

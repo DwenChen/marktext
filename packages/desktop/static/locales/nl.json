@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "Alinea",
       "paragraph": "Alinea",
+      "heading": "Kop",
       "heading1": "Kop 1",
       "heading2": "Kop 2",
       "heading3": "Kop 3",
@@ -78,9 +79,7 @@
       "taskList": "Takenlijst",
       "looseListItem": "Los lijstitem",
       "horizontalRule": "Horizontale lijn",
-      "frontMatter": "Front Matter",
-      "looseListItemHelp": "Over losse lijstitems",
-      "frontMatterHelp": "Over Front Matter"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Venster",
@@ -213,6 +212,7 @@
       "closeAll": "Alles sluiten",
       "emptyProject": "Leeg project",
       "createFile": "Bestand aanmaken",
+      "noFolder": "Er is geen map geopend.",
       "openFolder": "Map openen",
       "closeFolder": "Map sluiten"
     },

@@ -16,6 +16,7 @@ import type Keybindings from '../keyboard/shortcutHandler'
 import type { IUserPreferences } from '@shared/types/preferences'
 import type { MenuTemplate } from '@shared/types/menu'
 import { syncWindowMenu } from '../ipc/window'
+import { getMenuItemsRecursive } from './utils'
 
 const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
 const MAX_RECENTLY_USED_DOCUMENTS = 12
@@ -626,7 +627,9 @@ class AppMenu {
       const menu = this.getWindowMenuById(windowId)
       for (const id of ['paragraphMenuEntry', 'formatMenuItem']) {
         const entry = menu.getMenuItemById(id)
-        entry?.submenu?.items.forEach((item) => (item.enabled = enabled))
+        if (entry?.submenu) {
+          getMenuItemsRecursive(entry.submenu).forEach((item) => (item.enabled = enabled))
+        }
       }
     })
 

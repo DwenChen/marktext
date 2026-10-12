@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "Абзац",
       "paragraph": "Абзац",
+      "heading": "Заголовок",
       "heading1": "Заголовок 1",
       "heading2": "Заголовок 2",
       "heading3": "Заголовок 3",
@@ -78,9 +79,7 @@
       "taskList": "Список задач",
       "looseListItem": "Свободный элемент списка",
       "horizontalRule": "Горизонтальная линия",
-      "frontMatter": "Front Matter",
-      "looseListItemHelp": "О свободных элементах списка",
-      "frontMatterHelp": "О Front Matter"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Окно",
@@ -213,6 +212,7 @@
       "closeAll": "Закрыть всё",
       "emptyProject": "Пустой проект",
       "createFile": "Создать файл",
+      "noFolder": "Папка не открыта.",
       "openFolder": "Открыть папку",
       "closeFolder": "Закрыть папку"
     },

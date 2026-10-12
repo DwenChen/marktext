@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "段落",
       "paragraph": "段落",
+      "heading": "标题",
       "heading1": "标题 1",
       "heading2": "标题 2",
       "heading3": "标题 3",
@@ -78,9 +79,7 @@
       "taskList": "任务列表",
       "looseListItem": "宽松列表项",
       "horizontalRule": "水平分割线",
-      "frontMatter": "前置元数据",
-      "looseListItemHelp": "宽松列表项说明",
-      "frontMatterHelp": "前置元数据说明"
+      "frontMatter": "前置元数据"
     },
     "window": {
       "title": "窗口",
@@ -213,6 +212,7 @@
       "closeAll": "关闭全部",
       "emptyProject": "空项目",
       "createFile": "创建文件",
+      "noFolder": "尚未打开文件夹。",
       "openFolder": "打开文件夹",
       "closeFolder": "关闭文件夹"
     },

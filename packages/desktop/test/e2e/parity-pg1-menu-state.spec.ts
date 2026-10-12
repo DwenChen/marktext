@@ -26,7 +26,9 @@ const paragraphItemStates = async(app: ElectronApplication): Promise<MenuItemSta
     const entry = menu.getMenuItemById('paragraphMenuEntry')
     const submenu = entry?.submenu
     if (!submenu) return []
-    return submenu.items
+    const flatten = (items: Electron.MenuItem[]): Electron.MenuItem[] =>
+      items.flatMap(item => [item, ...(item.submenu ? flatten(item.submenu.items) : [])])
+    return flatten(submenu.items)
       .filter((item) => item.id)
       .map((item) => ({ id: item.id as string, checked: !!item.checked, enabled: !!item.enabled }))
   })

@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "段落",
       "paragraph": "段落",
+      "heading": "標題",
       "heading1": "標題 1",
       "heading2": "標題 2",
       "heading3": "標題 3",
@@ -78,9 +79,7 @@
       "taskList": "任務清單",
       "looseListItem": "鬆散清單項目",
       "horizontalRule": "水平線",
-      "frontMatter": "前置資料",
-      "looseListItemHelp": "鬆散清單項目說明",
-      "frontMatterHelp": "前置資料說明"
+      "frontMatter": "前置資料"
     },
     "window": {
       "title": "視窗",
@@ -213,6 +212,7 @@
       "closeAll": "全部關閉",
       "emptyProject": "空專案",
       "createFile": "建立檔案",
+      "noFolder": "尚未開啟資料夾。",
       "openFolder": "開啟資料夾",
       "closeFolder": "關閉資料夾"
     },

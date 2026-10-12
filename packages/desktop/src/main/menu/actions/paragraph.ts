@@ -1,6 +1,7 @@
 import { type BrowserWindow, type Menu, type MenuItem } from 'electron'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
+import { getMenuItemsRecursive } from '../utils'
 
 type Win = BrowserWindow | null | undefined
 
@@ -152,7 +153,7 @@ export const loadParagraphCommands = (commandManager: CommandManager): void => {
 
 const setParagraphMenuItemStatus = (applicationMenu: Menu, bool: boolean): void => {
   const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
-  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = bool))
+  getMenuItemsRecursive(paragraphMenuItem.submenu!).forEach((item) => (item.enabled = bool))
 }
 
 const setMultipleStatus = (
@@ -161,7 +162,7 @@ const setMultipleStatus = (
   status: boolean
 ): void => {
   const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
-  paragraphMenuItem.submenu!.items
+  getMenuItemsRecursive(paragraphMenuItem.submenu!)
     .filter((item: MenuItem) => item.id && list.includes(item.id))
     .forEach((item: MenuItem) => (item.enabled = status))
 }
@@ -183,8 +184,9 @@ const setCheckedMenuItem = (
   { affiliation, isTable, isLooseListItem }: SelectionState
 ): void => {
   const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
-  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => (item.checked = false))
-  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => {
+  const items = getMenuItemsRecursive(paragraphMenuItem.submenu!)
+  items.forEach((item) => (item.checked = false))
+  items.forEach((item) => {
     if (!item.id) {
       return false
     } else if (item.id === 'looseListItemMenuItem') {
@@ -259,7 +261,7 @@ export const updateSelectionMenus = (
       .forEach((item: MenuItem) => (item.enabled = false))
     // Paragraph: enable only the items that have a defined cross-block action.
     const paragraphMenu = applicationMenu.getMenuItemById('paragraphMenuEntry')!
-    paragraphMenu.submenu!.items.forEach((item: MenuItem) => {
+    getMenuItemsRecursive(paragraphMenu.submenu!).forEach((item) => {
       if (item.id) {
         item.enabled = CROSS_BLOCK_ENABLED_PARAGRAPH.includes(item.id)
       }

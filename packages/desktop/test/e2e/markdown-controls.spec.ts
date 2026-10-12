@@ -3,7 +3,9 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import {
   clickMenuById,
+  enterSourceMode,
   expectNoRendererErrors,
+  exitSourceMode,
   getMarkdownContent,
   launchWithMarkdown
 } from './helpers'
@@ -132,36 +134,20 @@ for (const [format, fence, text] of [
   })
 }
 
-test('settings and paragraph menus explain lists and metadata and omit the retired heading preference', async() => {
+test('settings keep list and metadata tips while paragraph menus omit help entries', async() => {
   const { app } = await launchWithMarkdown('body', {
     suppressErrorDialog: true,
     preferences: { language: 'zh-CN', autoSave: false, preferHeadingStyle: 'setext' }
   })
   try {
-    await app.evaluate(({ dialog }) => {
-      dialog.showMessageBox = (async(...args: unknown[]) => {
-        const state = globalThis as typeof globalThis & { lastInformation?: unknown }
-        state.lastInformation = args[args.length - 1]
-        return { response: 0, checkboxChecked: false }
-      }) as typeof dialog.showMessageBox
-    })
-    for (const [id, title, snippet] of [
-      ['looseListItemHelpMenuItem', '宽松列表项', '空行'],
-      ['frontMatterHelpMenuItem', '前置元数据', 'title: 我的文章']
-    ]) {
-      await clickMenuById(app, id)
-      const info = await app.evaluate(
-        () =>
-          (
-            globalThis as typeof globalThis & {
-              lastInformation?: { type: string; title: string; detail: string }
-            }
-          ).lastInformation
-      )
-      expect(info?.type).toBe('info')
-      expect(info?.title).toBe(title)
-      expect(info?.detail).toContain(snippet)
-    }
+    expect(
+      await app.evaluate(({ Menu }) => {
+        const menu = Menu.getApplicationMenu()!
+        return ['looseListItemHelpMenuItem', 'frontMatterHelpMenuItem'].map(
+          (id) => !!menu.getMenuItemById(id)
+        )
+      })
+    ).toEqual([false, false])
     const newWindow = app.waitForEvent('window')
     await app.evaluate(({ ipcMain }) => {
       ipcMain.emit('app-create-settings-window')
@@ -191,6 +177,211 @@ test('settings and paragraph menus explain lists and metadata and omit the retir
     const userData = await app.evaluate(({ app }) => app.getPath('userData'))
     const saved = JSON.parse(readFileSync(path.join(userData, 'preferences.json'), 'utf8'))
     expect(saved.preferHeadingStyle).toBeUndefined()
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
+test('compact heading submenu preserves commands, checked states and context restrictions', async() => {
+  const { app, page } = await launchWithMarkdown('# Heading\n\nbody\n\n```js\nconst x = 1\n```\n', {
+    suppressErrorDialog: true,
+    preferences: {
+      language: 'zh-CN',
+      titleBarStyle: 'custom',
+      sideBarVisibility: false,
+      autoSave: false
+    }
+  })
+  try {
+    const readHeadings = () =>
+      app.evaluate(({ Menu }) => {
+        const menu = Menu.getApplicationMenu()!
+        const heading = menu.getMenuItemById('headingMenuEntry')!
+        return {
+          enabled: heading.enabled,
+          children: heading
+            .submenu!.items.filter((item) => item.id)
+            .map((item) => ({
+              id: item.id,
+              checked: item.checked,
+              enabled: item.enabled
+            })),
+          topLevel: menu
+            .getMenuItemById('paragraphMenuEntry')!
+            .submenu!.items.map((item) => item.id)
+        }
+      })
+    await page.locator('h1 .mu-atxheading-content').click()
+    await expect.poll(async() => (await readHeadings()).children[0].checked).toBe(true)
+    const initial = await readHeadings()
+    expect(initial.topLevel).toContain('headingMenuEntry')
+    expect(initial.topLevel).not.toContain('heading1MenuItem')
+    expect(initial.children.map((item) => item.id)).toEqual([
+      'heading1MenuItem',
+      'heading2MenuItem',
+      'heading3MenuItem',
+      'heading4MenuItem',
+      'heading5MenuItem',
+      'heading6MenuItem',
+      'upgradeHeadingMenuItem',
+      'degradeHeadingMenuItem'
+    ])
+    if (process.platform !== 'darwin') {
+      if (await page.locator('.side-bar').isVisible()) await clickMenuById(app, 'sideBarMenuItem')
+      await expect(page.locator('.side-bar')).toBeHidden()
+      await page.locator('.frameless-titlebar-menu').click()
+      await page.getByRole('menuitem', { name: '段落', exact: true }).hover()
+      await expect(page.getByRole('menuitemcheckbox', { name: '标题 1', exact: true })).toHaveCount(
+        0
+      )
+      await page.getByRole('menuitem', { name: '标题', exact: true }).hover()
+      await expect(
+        page.getByRole('menuitemcheckbox', { name: '标题 1', exact: true })
+      ).toHaveAttribute('aria-checked', 'true')
+      await page.screenshot({ path: 'test-results/compact-heading-menu.png' })
+      await page.getByRole('menuitemcheckbox', { name: '标题 4', exact: true }).click()
+      await expect(page.locator('h4 .mu-atxheading-content')).toContainText('Heading')
+    }
+    for (let level = 1; level <= 6; level++) {
+      await clickMenuById(app, `heading${level}MenuItem`)
+      await expect(page.locator(`h${level} .mu-atxheading-content`)).toContainText('Heading')
+      await expect
+        .poll(async() =>
+          (await readHeadings()).children.filter((item) => item.checked).map((item) => item.id)
+        )
+        .toEqual([`heading${level}MenuItem`])
+    }
+    const accelerators = await app.evaluate(({ Menu }) =>
+      ['upgradeHeadingMenuItem', 'degradeHeadingMenuItem'].map(
+        (id) => Menu.getApplicationMenu()!.getMenuItemById(id)!.accelerator
+      )
+    )
+    expect(accelerators.every(Boolean)).toBe(true)
+    await clickMenuById(app, 'upgradeHeadingMenuItem')
+    await expect(page.locator('h5 .mu-atxheading-content')).toContainText('Heading')
+    await clickMenuById(app, 'degradeHeadingMenuItem')
+    await expect(page.locator('h6 .mu-atxheading-content')).toContainText('Heading')
+    await enterSourceMode(page, app)
+    await expect
+      .poll(async() => {
+        const state = await readHeadings()
+        return !state.enabled && state.children.every((item) => !item.enabled)
+      })
+      .toBe(true)
+    await exitSourceMode(page, app)
+    await page.locator('h6 .mu-atxheading-content').click()
+    await expect
+      .poll(async() => (await readHeadings()).children.every((item) => item.enabled))
+      .toBe(true)
+    await page.evaluate(() => {
+      const heading = document.querySelector('h6 .mu-atxheading-content')!
+      const body = document.querySelector('.mu-paragraph-content')!
+      const range = document.createRange()
+      range.setStart(heading, 0)
+      range.setEnd(body, body.childNodes.length)
+      const selection = document.getSelection()!
+      selection.removeAllRanges()
+      selection.addRange(range)
+      body.dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey: true }))
+    })
+    await expect
+      .poll(async() => (await readHeadings()).children.every((item) => !item.enabled))
+      .toBe(true)
+    await page.locator('.mu-codeblock-content').click()
+    await expect.poll(async() => (await readHeadings()).enabled).toBe(false)
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
+test('folder empty state stays below opened files with a full-width working button', async() => {
+  const { app, page } = await launchWithMarkdown('sidebar', {
+    suppressErrorDialog: true,
+    preferences: {
+      language: 'zh-CN',
+      titleBarStyle: 'custom',
+      sideBarVisibility: true,
+      openedFilesInSidebar: true,
+      autoSave: false
+    }
+  })
+  try {
+    const empty = page.locator('.open-project')
+    const button = empty.getByRole('button', { name: '打开文件夹', exact: true })
+    if (await page.locator('.close-project').isVisible())
+      await page.locator('.close-project').click()
+    await expect(empty.locator('p')).toHaveText('尚未打开文件夹。')
+    const checkLayout = async() => {
+      const geometry = await page.evaluate(() => {
+        const bounds = (selector: string) =>
+          document.querySelector(selector)!.getBoundingClientRect().toJSON()
+        return {
+          files: document.querySelector('.opened-files')?.getBoundingClientRect().toJSON(),
+          tree: bounds('.tree-view'),
+          empty: bounds('.open-project'),
+          message: bounds('.open-project p'),
+          button: bounds('.open-project button')
+        }
+      })
+      expect(geometry.empty.top).toBe(geometry.files?.bottom ?? geometry.tree.top)
+      expect(geometry.message.left - geometry.empty.left).toBe(16)
+      expect(geometry.button.left).toBe(geometry.message.left)
+      expect(geometry.button.width).toBe(geometry.empty.width - 32)
+      expect(geometry.button.top).toBe(geometry.message.bottom + 12)
+      expect(geometry.button.bottom).toBeLessThanOrEqual(geometry.tree.bottom)
+    }
+    await checkLayout()
+    for (let i = 0; i < 6; i++) {
+      await app.evaluate(({ Menu, BrowserWindow }) => {
+        const item = Menu.getApplicationMenu()!
+          .items.find((item) => item.label === '文件')!
+          .submenu!.items.find((item) => item.label === '新建标签页')!
+        const win = BrowserWindow.getAllWindows()[0]
+        item.click(undefined, win, win.webContents)
+      })
+      await expect(page.locator('.opened-files-list .opened-file')).toHaveCount(i + 2)
+    }
+    await expect(page.locator('.opened-files-list .opened-file')).toHaveCount(7)
+    await checkLayout()
+    expect(
+      await page.locator('.opened-files-list').evaluate((el) => el.scrollHeight > el.clientHeight)
+    ).toBe(true)
+    await page.locator('.opened-files > .title > span').click()
+    await expect(page.locator('.opened-files-list')).toBeHidden()
+    await checkLayout()
+    await page.screenshot({ path: 'test-results/folder-empty-state.png' })
+    await page.locator('.opened-files > .title > span').click()
+    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(640, 480))
+    await page.locator('.drag-bar').focus()
+    await page.keyboard.press('Home')
+    await checkLayout()
+    await page.evaluate(() =>
+      window.electron.ipcRenderer.send('mt::set-user-preference', { openedFilesInSidebar: false })
+    )
+    await expect(page.locator('.opened-files')).toHaveCount(0)
+    await checkLayout()
+    await app.evaluate(({ dialog }) => {
+      const state = globalThis as typeof globalThis & { folderDialogProperties?: string[] }
+      dialog.showOpenDialog = (async(...args: unknown[]) => {
+        state.folderDialogProperties = (
+          args[args.length - 1] as Electron.OpenDialogOptions
+        ).properties
+        return { canceled: true, filePaths: [] }
+      }) as typeof dialog.showOpenDialog
+    })
+    await button.click()
+    await expect
+      .poll(() =>
+        app.evaluate(
+          () =>
+            (globalThis as typeof globalThis & { folderDialogProperties?: string[] })
+              .folderDialogProperties
+        )
+      )
+      .toContain('openDirectory')
+    await expect(empty).toBeVisible()
     await expectNoRendererErrors(app)
   } finally {
     await app.close()

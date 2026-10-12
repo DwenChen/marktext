@@ -161,16 +161,15 @@
       v-else
       class="open-project"
     >
-      <div class="centered-group">
-        <el-button
-          text
-          bg
-          type="primary"
-          @click="openFolder"
-        >
-          {{ t('sideBar.tree.openFolder') }}
-        </el-button>
-      </div>
+      <p>{{ t('sideBar.tree.noFolder') }}</p>
+      <el-button
+        text
+        bg
+        type="primary"
+        @click="openFolder"
+      >
+        {{ t('sideBar.tree.openFolder') }}
+      </el-button>
     </div>
   </div>
 </template>
@@ -607,6 +606,7 @@ onUnmounted(() => {
 .opened-files {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 }
 .default-cursor {
   cursor: pointer;
@@ -686,22 +686,25 @@ onUnmounted(() => {
   opacity: 1;
 }
 .open-project {
-  flex: 1;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  padding-bottom: 100px;
+  padding: 16px;
 }
 
-.open-project .centered-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.open-project p {
+  margin: 0 0 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .open-project .el-button {
-  margin-top: 20px;
+  width: 100%;
+  margin: 0;
+  min-height: 32px;
+  white-space: normal;
+  height: auto;
+  padding: 8px 12px;
 }
 .open-project .el-button.is-text.is-has-bg,
 .empty-project .el-button.is-text.is-has-bg {

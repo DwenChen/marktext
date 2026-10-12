@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "Absatz",
       "paragraph": "Absatz",
+      "heading": "Überschrift",
       "heading1": "Überschrift 1",
       "heading2": "Überschrift 2",
       "heading3": "Überschrift 3",
@@ -78,9 +79,7 @@
       "taskList": "Aufgabenliste",
       "looseListItem": "Lockeres Listenelement",
       "horizontalRule": "Horizontale Linie",
-      "frontMatter": "Front Matter",
-      "looseListItemHelp": "Über lockere Listenelemente",
-      "frontMatterHelp": "Über Front Matter"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Fenster",
@@ -213,6 +212,7 @@
       "closeAll": "Alle schließen",
       "emptyProject": "Leeres Projekt",
       "createFile": "Datei erstellen",
+      "noFolder": "Es ist kein Ordner geöffnet.",
       "openFolder": "Ordner öffnen",
       "closeFolder": "Ordner schließen"
     },

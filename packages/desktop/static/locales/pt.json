@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "Parágrafo",
       "paragraph": "Parágrafo",
+      "heading": "Título",
       "heading1": "Cabeçalho 1",
       "heading2": "Cabeçalho 2",
       "heading3": "Cabeçalho 3",
@@ -78,9 +79,7 @@
       "taskList": "Lista de Tarefas",
       "looseListItem": "Item de Lista Solta",
       "horizontalRule": "Linha Horizontal",
-      "frontMatter": "Front Matter",
-      "looseListItemHelp": "Sobre itens de lista solta",
-      "frontMatterHelp": "Sobre Front Matter"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Janela",
@@ -213,6 +212,7 @@
       "closeAll": "Fechar Todos",
       "emptyProject": "Projeto vazio",
       "createFile": "Criar Arquivo",
+      "noFolder": "Nenhuma pasta aberta.",
       "openFolder": "Abrir Pasta",
       "closeFolder": "Fechar pasta"
     },

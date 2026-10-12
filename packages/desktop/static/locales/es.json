@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "Párrafo",
       "paragraph": "Párrafo",
+      "heading": "Encabezado",
       "heading1": "Encabezado 1",
       "heading2": "Encabezado 2",
       "heading3": "Encabezado 3",
@@ -78,9 +79,7 @@
       "taskList": "Lista de Tareas",
       "looseListItem": "Elemento de Lista Suelto",
       "horizontalRule": "Regla Horizontal",
-      "frontMatter": "Front Matter",
-      "looseListItemHelp": "Acerca de las listas sueltas",
-      "frontMatterHelp": "Acerca de Front Matter"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Ventana",
@@ -213,6 +212,7 @@
       "closeAll": "Cerrar",
       "emptyProject": "Proyecto vacío",
       "createFile": "Crear Archivo",
+      "noFolder": "No se ha abierto ninguna carpeta.",
       "openFolder": "Abrir Carpeta",
       "closeFolder": "Cerrar carpeta"
     },

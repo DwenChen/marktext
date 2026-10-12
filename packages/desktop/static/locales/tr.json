@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "Paragraf",
       "paragraph": "Paragraf",
+      "heading": "Başlık",
       "heading1": "Başlık 1",
       "heading2": "Başlık 2",
       "heading3": "Başlık 3",
@@ -78,9 +79,7 @@
       "taskList": "Görev Listesi",
       "looseListItem": "Gevşek Liste Öğesi",
       "horizontalRule": "Yatay Çizgi",
-      "frontMatter": "Ön Bilgi",
-      "looseListItemHelp": "Gevşek liste öğeleri hakkında",
-      "frontMatterHelp": "Ön bilgi hakkında"
+      "frontMatter": "Ön Bilgi"
     },
     "window": {
       "title": "Pencere",
@@ -213,6 +212,7 @@
       "closeAll": "Tümünü Kapat",
       "emptyProject": "Boş proje",
       "createFile": "Dosya Oluştur",
+      "noFolder": "Açık klasör yok.",
       "openFolder": "Klasör Aç",
       "closeFolder": "Klasörü kapat"
     },

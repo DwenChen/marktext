@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "단락",
       "paragraph": "단락",
+      "heading": "제목",
       "heading1": "제목 1",
       "heading2": "제목 2",
       "heading3": "제목 3",
@@ -78,9 +79,7 @@
       "taskList": "작업 목록",
       "looseListItem": "느슨한 목록 항목",
       "horizontalRule": "수평선",
-      "frontMatter": "프론트 매터",
-      "looseListItemHelp": "느슨한 목록 항목 설명",
-      "frontMatterHelp": "프론트 매터 설명"
+      "frontMatter": "프론트 매터"
     },
     "window": {
       "title": "창",
@@ -213,6 +212,7 @@
       "closeAll": "모두 닫기",
       "emptyProject": "빈 프로젝트",
       "createFile": "파일 만들기",
+      "noFolder": "열린 폴더가 없습니다.",
       "openFolder": "폴더 열기",
       "closeFolder": "폴더 닫기"
     },

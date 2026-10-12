@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "段落",
       "paragraph": "段落",
+      "heading": "見出し",
       "heading1": "見出し1",
       "heading2": "見出し2",
       "heading3": "見出し3",
@@ -78,9 +79,7 @@
       "taskList": "タスクリスト",
       "looseListItem": "ルーズリスト項目",
       "horizontalRule": "水平線",
-      "frontMatter": "フロントマター",
-      "looseListItemHelp": "ルーズリスト項目について",
-      "frontMatterHelp": "フロントマターについて"
+      "frontMatter": "フロントマター"
     },
     "window": {
       "title": "ウィンドウ",
@@ -213,6 +212,7 @@
       "closeAll": "すべて閉じる",
       "emptyProject": "空のプロジェクト",
       "createFile": "ファイルの作成",
+      "noFolder": "フォルダーが開かれていません。",
       "openFolder": "フォルダーを開く",
       "closeFolder": "フォルダーを閉じる"
     },

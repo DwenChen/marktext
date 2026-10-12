@@ -60,6 +60,7 @@
     "paragraph": {
       "title": "Paragraphe",
       "paragraph": "Paragraphe",
+      "heading": "Titre",
       "heading1": "Titre 1",
       "heading2": "Titre 2",
       "heading3": "Titre 3",
@@ -78,9 +79,7 @@
       "taskList": "Liste de tâches",
       "looseListItem": "Élément de liste lâche",
       "horizontalRule": "Règle horizontale",
-      "frontMatter": "Front Matter",
-      "looseListItemHelp": "À propos des listes espacées",
-      "frontMatterHelp": "À propos de Front Matter"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Fenêtre",
@@ -213,6 +212,7 @@
       "closeAll": "Tout fermer",
       "emptyProject": "Projet vide",
       "createFile": "Créer un fichier",
+      "noFolder": "Aucun dossier ouvert.",
       "openFolder": "Ouvrir un dossier",
       "closeFolder": "Fermer le dossier"
     },
