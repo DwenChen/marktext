@@ -78,7 +78,9 @@
       "taskList": "Lista de Tarefas",
       "looseListItem": "Item de Lista Solta",
       "horizontalRule": "Linha Horizontal",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "looseListItemHelp": "Sobre itens de lista solta",
+      "frontMatterHelp": "Sobre Front Matter"
     },
     "window": {
       "title": "Janela",
@@ -396,7 +398,6 @@
         "preferLooseListItem": "O tipo de lista preferido",
         "bulletListMarker": "O marcador usado na lista de marcadores",
         "orderListDelimiter": "O delimitador usado na lista ordenada",
-        "preferHeadingStyle": "O estilo de cabeçalho preferido no MarkText",
         "tabSize": "Substituir a tabulação com x espaços",
         "listIndentation": "Selecionar a indentação da lista",
         "frontmatterType": "O tipo de frontmatter",
@@ -660,7 +661,8 @@
         "frontmatterType": {
           "jsonBrace": "JSON com Chaves",
           "jsonSemicolon": "JSON com Ponto e Vírgula",
-          "title": "Tipo de Frontmatter"
+          "title": "Tipo de Frontmatter",
+          "description": "Front Matter guarda metadados no início do documento, como título, autor ou etiquetas para blogs e sites estáticos. Exemplo (YAML):\n---\ntitle: Meu artigo\n---\nEscolha YAML, TOML ou JSON para novos blocos. Insira por Parágrafo → Front Matter. Os metadados existentes mantêm seu formato."
         }
       },
       "diagrams": {
@@ -673,14 +675,6 @@
         "plantumlServer": {
           "title": "URL do servidor PlantUML"
         }
-      },
-      "misc": {
-        "preferHeadingStyle": {
-          "title": "Preferir Estilo de Cabeçalho",
-          "atx": "Estilo ATX",
-          "setext": "Estilo Setext"
-        },
-        "title": "Diversos"
       },
       "compatibility": {
         "enableHtml": "Habilitar suporte HTML",
@@ -700,7 +694,8 @@
         },
         "orderListDelimiter": "Delimitador de lista ordenada",
         "preferLooseListItem": "Preferir itens de lista soltos",
-        "title": "Listas"
+        "title": "Listas",
+        "looseListItemDescription": "Listas soltas separam os itens com uma linha em branco no Markdown e maior espaçamento no editor. Exemplo:\n- Primeiro item\n\n- Segundo item\nEsta preferência vale para listas novas. Para alterar uma lista existente, coloque o cursor nela e escolha Parágrafo → Item de Lista Solta."
       }
     },
     "theme": {

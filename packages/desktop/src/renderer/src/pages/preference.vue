@@ -52,6 +52,29 @@ onMounted(() => {
 </script>
 
 <style>
+.pref-info-button {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 4px;
+  padding: 2px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--iconColor);
+  cursor: help;
+}
+.pref-info-button:focus-visible {
+  outline: 1px solid var(--themeColor);
+}
+.pref-info-button svg {
+  margin: 0 !important;
+  cursor: inherit !important;
+}
+.pref-info-tooltip {
+  max-width: 360px;
+  white-space: pre-line;
+}
 .pref-container {
   --prefSideBarWidth: 220px;
 

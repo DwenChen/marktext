@@ -15,6 +15,24 @@
         class="link-icon"
         @click="handleMoreClick"
       />
+      <el-tooltip
+        v-if="detailedDescription"
+        :content="detailedDescription"
+        popper-class="pref-info-tooltip"
+        effect="dark"
+        placement="top-start"
+      >
+        <button
+          type="button"
+          class="pref-info-button"
+          :aria-label="detailedDescription"
+        >
+          <InfoFilled
+            width="16"
+            height="16"
+          />
+        </button>
+      </el-tooltip>
     </div>
     <el-select
       v-model="selectValue"
@@ -39,6 +57,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { InfoFilled } from '@element-plus/icons-vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PrefControlBaseProps, PrefSelectOption } from '../types'
 import { preferenceLabel } from '../label'
@@ -47,6 +66,7 @@ type SelectValue = string | number | boolean
 
 interface SelectProps extends PrefControlBaseProps {
   notes?: string
+  detailedDescription?: string
   value: SelectValue
   options: ReadonlyArray<PrefSelectOption<SelectValue>>
   onChange: (value: SelectValue) => void
@@ -56,6 +76,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   description: '',
   notes: '',
   more: '',
+  detailedDescription: '',
   disable: false
 })
 

@@ -15,16 +15,23 @@
         @click="handleMoreClick"
       />
       <el-tooltip
-        v-else-if="detailedDescription"
+        v-if="detailedDescription"
         :content="detailedDescription"
+        popper-class="pref-info-tooltip"
         class="item"
         effect="dark"
         placement="top-start"
       >
-        <InfoFilled
-          width="16"
-          height="16"
-        />
+        <button
+          type="button"
+          class="pref-info-button"
+          :aria-label="detailedDescription"
+        >
+          <InfoFilled
+            width="16"
+            height="16"
+          />
+        </button>
       </el-tooltip>
       <span
         v-if="notes"

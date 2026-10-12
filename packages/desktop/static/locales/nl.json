@@ -78,7 +78,9 @@
       "taskList": "Takenlijst",
       "looseListItem": "Los lijstitem",
       "horizontalRule": "Horizontale lijn",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "looseListItemHelp": "Over losse lijstitems",
+      "frontMatterHelp": "Over Front Matter"
     },
     "window": {
       "title": "Venster",
@@ -395,7 +397,6 @@
         "preferLooseListItem": "Het voorkeurs lijsttype",
         "bulletListMarker": "Het teken voor opsommingslijsten",
         "orderListDelimiter": "Het scheidingsteken voor genummerde lijsten",
-        "preferHeadingStyle": "De voorkeursstijl voor koppen",
         "tabSize": "Tab vervangen door x spaties",
         "listIndentation": "Inspringkeuze voor lijsten",
         "frontmatterType": "Het type Front Matter",
@@ -660,7 +661,8 @@
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",
-          "title": "Front Matter-type"
+          "title": "Front Matter-type",
+          "description": "Front Matter bevat metadata aan het begin van een document, zoals titel, auteur of tags voor blogs en statische websites. Voorbeeld (YAML):\n---\ntitle: Mijn artikel\n---\nKies YAML, TOML of JSON voor nieuwe blokken. Voeg ze in via Alinea → Front Matter. Bestaande metadata behoudt het oorspronkelijke formaat."
         }
       },
       "diagrams": {
@@ -673,14 +675,6 @@
         "plantumlServer": {
           "title": "PlantUML server"
         }
-      },
-      "misc": {
-        "preferHeadingStyle": {
-          "title": "Voorkeursstijl koppen",
-          "atx": "ATX-stijl",
-          "setext": "Setext-stijl"
-        },
-        "title": "Diversen"
       },
       "compatibility": {
         "enableHtml": "HTML-ondersteuning inschakelen",
@@ -700,7 +694,8 @@
         },
         "orderListDelimiter": "Scheidingsteken genummerde lijst",
         "preferLooseListItem": "Losse lijstitems prefereren",
-        "title": "Lijsten"
+        "title": "Lijsten",
+        "looseListItemDescription": "Losse lijsten scheiden items met een lege regel in Markdown en meer alinea-afstand in de editor. Voorbeeld:\n- Eerste item\n\n- Tweede item\nDeze voorkeur geldt voor nieuwe lijsten. Plaats de cursor in een bestaande lijst en kies Alinea → Los lijstitem om deze te wijzigen."
       }
     },
     "theme": {

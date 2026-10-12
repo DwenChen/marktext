@@ -80,6 +80,7 @@ jobs:
           test/e2e/project-directory-performance.spec.ts
           test/e2e/sidebar-auto-reveal-528.spec.ts
           test/e2e/issue-3148-sidebar-delete-key.spec.ts
+          test/e2e/markdown-controls.spec.ts
           --workers=1
 
       - name: Record build provenance and checksums

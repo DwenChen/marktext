@@ -10,6 +10,7 @@
       <template #children>
         <bool
           :description="t('preferences.markdown.lists.preferLooseListItem')"
+          :detailed-description="t('preferences.markdown.lists.looseListItemDescription')"
           :bool="preferLooseListItem"
           :on-change="(value) => onSelectChange('preferLooseListItem', value)"
           more="https://spec.commonmark.org/0.29/#loose"
@@ -46,6 +47,7 @@
       <template #children>
         <cur-select
           :description="t('preferences.markdown.extensions.frontmatterType.title')"
+          :detailed-description="t('preferences.markdown.extensions.frontmatterType.description')"
           :value="frontmatterType"
           :options="getFrontmatterTypeOptions()"
           :on-change="(value) => onSelectChange('frontmatterType', value)"
@@ -150,23 +152,6 @@
         />
       </template>
     </compound>
-
-    <compound>
-      <template #head>
-        <h6 class="title">
-          {{ t('preferences.markdown.misc.title') }}
-        </h6>
-      </template>
-      <template #children>
-        <cur-select
-          :description="t('preferences.markdown.misc.preferHeadingStyle.title')"
-          :value="preferHeadingStyle"
-          :options="getPreferHeadingStyleOptions()"
-          :on-change="(value) => onSelectChange('preferHeadingStyle', value)"
-          :disable="true"
-        />
-      </template>
-    </compound>
   </div>
 </template>
 
@@ -181,7 +166,6 @@ import TextBox from '../common/textBox/index.vue'
 import {
   bulletListMarkerOptions,
   orderListDelimiterOptions,
-  getPreferHeadingStyleOptions,
   getListIndentationOptions,
   getFrontmatterTypeOptions,
   getSequenceThemeOptions
@@ -196,7 +180,6 @@ const {
   preferLooseListItem,
   bulletListMarker,
   orderListDelimiter,
-  preferHeadingStyle,
   listIndentation,
   frontmatterType,
   superSubScript,

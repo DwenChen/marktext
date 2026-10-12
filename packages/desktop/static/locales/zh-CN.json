@@ -78,7 +78,9 @@
       "taskList": "任务列表",
       "looseListItem": "宽松列表项",
       "horizontalRule": "水平分割线",
-      "frontMatter": "前置元数据"
+      "frontMatter": "前置元数据",
+      "looseListItemHelp": "宽松列表项说明",
+      "frontMatterHelp": "前置元数据说明"
     },
     "window": {
       "title": "窗口",
@@ -396,7 +398,6 @@
         "preferLooseListItem": "首选列表类型",
         "bulletListMarker": "项目符号列表中使用的标记",
         "orderListDelimiter": "有序列表中使用的分隔符",
-        "preferHeadingStyle": "MarkText 中的首选标题样式",
         "tabSize": "用 x 个空格替换制表符",
         "listIndentation": "选择列表的缩进",
         "frontmatterType": "前言类型",
@@ -660,7 +661,8 @@
         "frontmatterType": {
           "jsonBrace": "带大括号的 JSON",
           "jsonSemicolon": "带分号的 JSON",
-          "title": "前置元数据类型"
+          "title": "前置元数据类型",
+          "description": "前置元数据是文档开头保存标题、作者、标签等信息的区域，常供博客和静态网站读取。例如（YAML）：\n---\ntitle: 我的文章\n---\n此设置选择新插入元数据的格式（YAML、TOML 或 JSON）；通过“段落 → 前置元数据”插入。已有元数据保持原格式。"
         }
       },
       "diagrams": {
@@ -673,14 +675,6 @@
         "plantumlServer": {
           "title": "PlantUML 服务器 URL"
         }
-      },
-      "misc": {
-        "preferHeadingStyle": {
-          "title": "首选标题样式",
-          "atx": "ATX 样式",
-          "setext": "Setext 样式"
-        },
-        "title": "杂项"
       },
       "compatibility": {
         "enableHtml": "启用 HTML 支持",
@@ -700,7 +694,8 @@
         },
         "orderListDelimiter": "有序列表分隔符",
         "preferLooseListItem": "首选宽松列表项",
-        "title": "列表"
+        "title": "列表",
+        "looseListItemDescription": "宽松列表在 Markdown 的列表项之间保留空行，并在编辑器中显示更大的段落间距。例如：\n- 第一项\n\n- 第二项\n此偏好只影响新建列表。要切换已有列表，请把光标放入列表，再选择“段落 → 宽松列表项”。"
       }
     },
     "theme": {

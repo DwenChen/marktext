@@ -78,7 +78,9 @@
       "taskList": "タスクリスト",
       "looseListItem": "ルーズリスト項目",
       "horizontalRule": "水平線",
-      "frontMatter": "フロントマター"
+      "frontMatter": "フロントマター",
+      "looseListItemHelp": "ルーズリスト項目について",
+      "frontMatterHelp": "フロントマターについて"
     },
     "window": {
       "title": "ウィンドウ",
@@ -396,7 +398,6 @@
         "preferLooseListItem": "優先されるリストタイプ",
         "bulletListMarker": "箇条書きリストで使用されるマーカー",
         "orderListDelimiter": "順序付きリストで使用される区切り文字",
-        "preferHeadingStyle": "MarkText で優先される見出しスタイル",
         "tabSize": "タブを x個 のスペースに置き換える",
         "listIndentation": "リストのインデントを選択",
         "frontmatterType": "フロントマターのタイプ",
@@ -660,7 +661,8 @@
         "frontmatterType": {
           "jsonBrace": "JSON 括弧",
           "jsonSemicolon": "JSON セミコロン",
-          "title": "フロントマタータイプ"
+          "title": "フロントマタータイプ",
+          "description": "フロントマターは文書の先頭にタイトル、著者、タグなどを保存する領域で、ブログや静的サイトで利用されます。例（YAML）：\n---\ntitle: 私の記事\n---\n新しいブロックの形式を YAML、TOML、JSON から選びます。「段落 → フロントマター」で挿入します。既存のメタデータの形式は変わりません。"
         }
       },
       "diagrams": {
@@ -673,14 +675,6 @@
         "plantumlServer": {
           "title": "PlantUML サーバーの URL"
         }
-      },
-      "misc": {
-        "preferHeadingStyle": {
-          "title": "優先見出しスタイル",
-          "atx": "ATX スタイル",
-          "setext": "Setext スタイル"
-        },
-        "title": "その他"
       },
       "compatibility": {
         "enableHtml": "HTML サポートを有効",
@@ -700,7 +694,8 @@
         },
         "orderListDelimiter": "番号付きリスト区切り文字",
         "preferLooseListItem": "ルーズリスト項目を優先",
-        "title": "リスト"
+        "title": "リスト",
+        "looseListItemDescription": "ルーズリストは Markdown の項目間に空行を入れ、エディターでも段落の間隔を広げます。例：\n- 最初の項目\n\n- 次の項目\nこの設定は新しいリストに適用されます。既存のリストはカーソルを置いて「段落 → ルーズリスト項目」で切り替えます。"
       }
     },
     "theme": {

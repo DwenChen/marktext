@@ -275,14 +275,6 @@
     ],
     "default": "."
   },
-  "preferHeadingStyle": {
-    "description": "Markdown--The preferred heading style in MarkText",
-    "enum": [
-      "atx",
-      "setext"
-    ],
-    "default": "atx"
-  },
   "tabSize": {
     "description": "Markdown--Replace the tab with x spaces",
     "type": "number",

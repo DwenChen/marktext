@@ -78,7 +78,9 @@
       "taskList": "작업 목록",
       "looseListItem": "느슨한 목록 항목",
       "horizontalRule": "수평선",
-      "frontMatter": "프론트 매터"
+      "frontMatter": "프론트 매터",
+      "looseListItemHelp": "느슨한 목록 항목 설명",
+      "frontMatterHelp": "프론트 매터 설명"
     },
     "window": {
       "title": "창",
@@ -396,7 +398,6 @@
         "preferLooseListItem": "선호하는 목록 유형",
         "bulletListMarker": "글머리 기호 목록에서 사용되는 마커",
         "orderListDelimiter": "순서가 있는 목록에서 사용되는 구분자",
-        "preferHeadingStyle": "MarkText에서 선호하는 제목 스타일",
         "tabSize": "탭을 x개의 공백으로 바꾸기",
         "listIndentation": "목록의 들여쓰기 선택",
         "frontmatterType": "프론트매터 유형",
@@ -660,7 +661,8 @@
         "frontmatterType": {
           "jsonBrace": "중괄호가 있는 JSON",
           "jsonSemicolon": "세미콜론이 있는 JSON",
-          "title": "프론트매터 유형"
+          "title": "프론트매터 유형",
+          "description": "프론트 매터는 문서 처음에 제목, 작성자, 태그 등을 저장하는 영역으로 블로그와 정적 사이트에서 사용합니다. 예 (YAML):\n---\ntitle: 내 글\n---\n새 블록의 형식을 YAML, TOML 또는 JSON으로 선택합니다. 단락 → 프론트 매터로 삽입하세요. 기존 메타데이터는 원래 형식을 유지합니다."
         }
       },
       "diagrams": {
@@ -673,14 +675,6 @@
         "plantumlServer": {
           "title": "PlantUML 서버 URL"
         }
-      },
-      "misc": {
-        "preferHeadingStyle": {
-          "title": "제목 스타일 선호",
-          "atx": "ATX 스타일",
-          "setext": "Setext 스타일"
-        },
-        "title": "기타"
       },
       "compatibility": {
         "enableHtml": "HTML 지원 활성화",
@@ -700,7 +694,8 @@
         },
         "orderListDelimiter": "순서 목록 구분자",
         "preferLooseListItem": "느슨한 목록 항목 선호",
-        "title": "목록"
+        "title": "목록",
+        "looseListItemDescription": "느슨한 목록은 Markdown 항목 사이에 빈 줄을 넣고 편집기에서 문단 간격을 넓힙니다. 예:\n- 첫 번째 항목\n\n- 두 번째 항목\n이 설정은 새 목록에 적용됩니다. 기존 목록은 커서를 목록 안에 놓고 단락 → 느슨한 목록 항목으로 전환하세요."
       }
     },
     "theme": {

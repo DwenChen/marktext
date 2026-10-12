@@ -78,7 +78,9 @@
       "taskList": "Список задач",
       "looseListItem": "Свободный элемент списка",
       "horizontalRule": "Горизонтальная линия",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "looseListItemHelp": "О свободных элементах списка",
+      "frontMatterHelp": "О Front Matter"
     },
     "window": {
       "title": "Окно",
@@ -395,7 +397,6 @@
         "preferLooseListItem": "Предпочитаемый тип списка",
         "bulletListMarker": "Маркер маркированного списка",
         "orderListDelimiter": "Разделитель нумерованного списка",
-        "preferHeadingStyle": "Предпочитаемый стиль заголовков в MarkText",
         "tabSize": "Заменять табуляцию на x пробелов",
         "listIndentation": "Выберите отступ списка",
         "frontmatterType": "Тип front matter",
@@ -660,7 +661,8 @@
         "frontmatterType": {
           "jsonBrace": "JSON с фигурными скобками",
           "jsonSemicolon": "JSON с точкой с запятой",
-          "title": "Тип front matter"
+          "title": "Тип front matter",
+          "description": "Front Matter хранит метаданные в начале документа: заголовок, автора или метки для блогов и статических сайтов. Пример (YAML):\n---\ntitle: Моя статья\n---\nВыберите YAML, TOML или JSON для новых блоков. Вставка: Абзац → Front Matter. Существующие метаданные сохраняют исходный формат."
         }
       },
       "diagrams": {
@@ -673,14 +675,6 @@
         "plantumlServer": {
           "title": "URL сервера PlantUML"
         }
-      },
-      "misc": {
-        "preferHeadingStyle": {
-          "title": "Предпочитаемый стиль заголовков",
-          "atx": "Стиль ATX",
-          "setext": "Стиль Setext"
-        },
-        "title": "Разное"
       },
       "compatibility": {
         "enableHtml": "Включить поддержку HTML",
@@ -700,7 +694,8 @@
         },
         "orderListDelimiter": "Разделитель нумерованного списка",
         "preferLooseListItem": "Предпочитать свободные элементы списка",
-        "title": "Списки"
+        "title": "Списки",
+        "looseListItemDescription": "Свободные списки разделяют элементы пустой строкой в Markdown и увеличивают интервалы в редакторе. Пример:\n- Первый элемент\n\n- Второй элемент\nНастройка применяется к новым спискам. Для существующего списка поместите в него курсор и выберите Абзац → Свободный элемент списка."
       }
     },
     "theme": {

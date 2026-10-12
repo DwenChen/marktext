@@ -78,7 +78,9 @@
       "taskList": "Aufgabenliste",
       "looseListItem": "Lockeres Listenelement",
       "horizontalRule": "Horizontale Linie",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "looseListItemHelp": "Über lockere Listenelemente",
+      "frontMatterHelp": "Über Front Matter"
     },
     "window": {
       "title": "Fenster",
@@ -396,7 +398,6 @@
         "preferLooseListItem": "Der bevorzugte Listentyp",
         "bulletListMarker": "Die Markierung in Aufzählungslisten",
         "orderListDelimiter": "Das Trennzeichen in geordneten Listen",
-        "preferHeadingStyle": "Der bevorzugte Überschriften-Stil in MarkText",
         "tabSize": "Tab durch x Leerzeichen ersetzen",
         "listIndentation": "Einrückung der Liste auswählen",
         "frontmatterType": "Der Frontmatter-Typ",
@@ -660,7 +661,8 @@
         "frontmatterType": {
           "jsonBrace": "JSON-Klammer",
           "jsonSemicolon": "JSON-Semikolon",
-          "title": "Front Matter Typ"
+          "title": "Front Matter Typ",
+          "description": "Front Matter enthält Metadaten am Dokumentanfang, etwa Titel, Autor oder Tags für Blogs und statische Websites. Beispiel (YAML):\n---\ntitle: Mein Artikel\n---\nYAML, TOML oder JSON für neu eingefügte Blöcke wählen. Über Absatz → Front Matter einfügen. Bestehende Metadaten behalten ihr Format."
         }
       },
       "diagrams": {
@@ -673,14 +675,6 @@
         "plantumlServer": {
           "title": "PlantUML-Server-URL"
         }
-      },
-      "misc": {
-        "preferHeadingStyle": {
-          "title": "Bevorzugter Überschriftenstil",
-          "atx": "ATX-Stil",
-          "setext": "Setext-Stil"
-        },
-        "title": "Verschiedenes"
       },
       "compatibility": {
         "enableHtml": "HTML-Unterstützung aktivieren",
@@ -700,7 +694,8 @@
         },
         "orderListDelimiter": "Nummerierte Liste Trennzeichen",
         "preferLooseListItem": "Lockere Listenelemente bevorzugen",
-        "title": "Listen"
+        "title": "Listen",
+        "looseListItemDescription": "Lockere Listen trennen Elemente in Markdown durch eine Leerzeile und zeigen im Editor größere Absatzabstände. Beispiel:\n- Erstes Element\n\n- Zweites Element\nDiese Einstellung gilt für neue Listen. Für bestehende Listen den Cursor in die Liste setzen und Absatz → Lockeres Listenelement wählen."
       }
     },
     "theme": {

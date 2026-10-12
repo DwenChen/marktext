@@ -1,4 +1,4 @@
-import { type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
+import { dialog, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import * as actions from '../actions/paragraph'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
@@ -11,6 +11,11 @@ export default function(
   // A math block writes `$$…$$`, which the editor no longer reads back once
   // pandoc's tex_math_dollars is off — so the entry goes away with it (#5446).
   const texMathDollars = userPreference.getItem<boolean>('texMathDollars') !== false
+  const showInformation = (win: BrowserWindow | undefined, title: string, detail: string): void => {
+    const options = { type: 'info' as const, title, message: title, detail }
+    if (win) void dialog.showMessageBox(win, options)
+    else void dialog.showMessageBox(options)
+  }
 
   return {
     id: 'paragraphMenuEntry',
@@ -184,6 +189,17 @@ export default function(
         }
       },
       {
+        id: 'looseListItemHelpMenuItem',
+        label: 'ⓘ ' + t('menu.paragraph.looseListItemHelp'),
+        click(_menuItem, focusedWindow) {
+          showInformation(
+            focusedWindow as BrowserWindow | undefined,
+            t('menu.paragraph.looseListItem'),
+            t('preferences.markdown.lists.looseListItemDescription')
+          )
+        }
+      },
+      {
         type: 'separator'
       },
       {
@@ -211,6 +227,17 @@ export default function(
         accelerator: keybindings.getAccelerator('paragraph.front-matter') ?? undefined,
         click(_menuItem, focusedWindow) {
           actions.frontMatter(focusedWindow as BrowserWindow | undefined)
+        }
+      },
+      {
+        id: 'frontMatterHelpMenuItem',
+        label: 'ⓘ ' + t('menu.paragraph.frontMatterHelp'),
+        click(_menuItem, focusedWindow) {
+          showInformation(
+            focusedWindow as BrowserWindow | undefined,
+            t('menu.paragraph.frontMatter'),
+            t('preferences.markdown.extensions.frontmatterType.description')
+          )
         }
       }
     ]

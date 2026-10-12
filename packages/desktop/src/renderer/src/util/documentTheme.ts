@@ -136,6 +136,17 @@ ${EDITOR_SCOPE} {
 .editor-middle .mu-container pre.mu-code-block > code.mu-code { display: block; padding: 16px; }
 .editor-middle .mu-container pre.mu-code-block:has(.mu-line-numbers-rows) > code.mu-code { padding-left: 3.8em; }
 .editor-middle .mu-container .mu-code-block .mu-line-numbers-rows { top: 16px; }
-.editor-middle .mu-container .mu-thematic-break::before { display: none; }
+.editor-middle .mu-container .mu-tight-list > li > p { margin: 0; }
+.editor-middle .mu-container .mu-thematic-break::before {
+  display: block;
+  height: 0;
+  border-top: 1px solid var(--document-rule);
+  content: '';
+}
+.editor-middle .mu-container .mu-thematic-break.mu-active::before {
+  top: auto;
+  bottom: 0;
+  transform: none;
+}
 `
 }

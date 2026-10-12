@@ -78,7 +78,9 @@
       "taskList": "Liste de tâches",
       "looseListItem": "Élément de liste lâche",
       "horizontalRule": "Règle horizontale",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "looseListItemHelp": "À propos des listes espacées",
+      "frontMatterHelp": "À propos de Front Matter"
     },
     "window": {
       "title": "Fenêtre",
@@ -396,7 +398,6 @@
         "preferLooseListItem": "Le type de liste préféré",
         "bulletListMarker": "Le marqueur utilisé dans la liste à puces",
         "orderListDelimiter": "Le délimiteur utilisé dans la liste ordonnée",
-        "preferHeadingStyle": "Le style de titre préféré dans MarkText",
         "tabSize": "Remplacer la tabulation par x espaces",
         "listIndentation": "Sélectionner l'indentation de liste",
         "frontmatterType": "Le type de frontmatter",
@@ -660,7 +661,8 @@
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",
-          "title": "Type de métadonnées"
+          "title": "Type de métadonnées",
+          "description": "Front Matter contient les métadonnées au début du document, comme le titre, l’auteur ou les étiquettes pour les blogs et sites statiques. Exemple (YAML) :\n---\ntitle: Mon article\n---\nChoisissez YAML, TOML ou JSON pour les nouveaux blocs. Insérez-les via Paragraphe → Front Matter. Les métadonnées existantes gardent leur format."
         }
       },
       "diagrams": {
@@ -673,14 +675,6 @@
         "plantumlServer": {
           "title": "URL du serveur PlantUML"
         }
-      },
-      "misc": {
-        "preferHeadingStyle": {
-          "title": "Style de titre préféré",
-          "atx": "Style ATX",
-          "setext": "Style Setext"
-        },
-        "title": "Divers"
       },
       "compatibility": {
         "enableHtml": "Activer le support HTML",
@@ -700,7 +694,8 @@
         },
         "orderListDelimiter": "Délimiteur de liste ordonnée",
         "preferLooseListItem": "Préférer les éléments de liste lâches",
-        "title": "Listes"
+        "title": "Listes",
+        "looseListItemDescription": "Les listes espacées séparent les éléments par une ligne vide dans Markdown et davantage d’espace dans l’éditeur. Exemple :\n- Premier élément\n\n- Deuxième élément\nCe réglage concerne les nouvelles listes. Pour modifier une liste existante, placez le curseur dedans puis choisissez Paragraphe → Élément de liste lâche."
       }
     },
     "theme": {

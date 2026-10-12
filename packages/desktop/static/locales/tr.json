@@ -78,7 +78,9 @@
       "taskList": "Görev Listesi",
       "looseListItem": "Gevşek Liste Öğesi",
       "horizontalRule": "Yatay Çizgi",
-      "frontMatter": "Ön Bilgi"
+      "frontMatter": "Ön Bilgi",
+      "looseListItemHelp": "Gevşek liste öğeleri hakkında",
+      "frontMatterHelp": "Ön bilgi hakkında"
     },
     "window": {
       "title": "Pencere",
@@ -395,7 +397,6 @@
         "preferLooseListItem": "Tercih edilen liste türü",
         "bulletListMarker": "Sırasız listede kullanılan işaret",
         "orderListDelimiter": "Sıralı listede kullanılan ayraç",
-        "preferHeadingStyle": "MarkText'te tercih edilen başlık stili",
         "tabSize": "Sekmeyi x boşlukla değiştir",
         "listIndentation": "Liste girintisini seçin",
         "frontmatterType": "Ön bilgi türü",
@@ -660,7 +661,8 @@
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",
-          "title": "Ön Bilgi Türü"
+          "title": "Ön Bilgi Türü",
+          "description": "Ön bilgi, belgenin başında başlık, yazar veya etiket gibi verileri saklar; bloglar ve statik siteler kullanır. Örnek (YAML):\n---\ntitle: Yazım\n---\nYeni bloklar için YAML, TOML veya JSON seçin. Paragraf → Ön Bilgi ile ekleyin. Var olan veriler özgün biçimini korur."
         }
       },
       "diagrams": {
@@ -673,14 +675,6 @@
         "plantumlServer": {
           "title": "PlantUML Sunucu URL'si"
         }
-      },
-      "misc": {
-        "preferHeadingStyle": {
-          "title": "Tercih Edilen Başlık Stili",
-          "atx": "ATX Stili",
-          "setext": "Setext Stili"
-        },
-        "title": "Çeşitli"
       },
       "compatibility": {
         "enableHtml": "HTML desteğini etkinleştir",
@@ -700,7 +694,8 @@
         },
         "orderListDelimiter": "Sıralı liste ayracı",
         "preferLooseListItem": "Gevşek liste öğelerini tercih et",
-        "title": "Listeler"
+        "title": "Listeler",
+        "looseListItemDescription": "Gevşek listeler Markdown öğeleri arasına boş satır koyar ve düzenleyicide paragraf aralığını artırır. Örnek:\n- İlk öğe\n\n- İkinci öğe\nBu tercih yeni listelere uygulanır. Var olan liste için imleci listeye yerleştirip Paragraf → Gevşek Liste Öğesi seçin."
       }
     },
     "theme": {

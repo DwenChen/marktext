@@ -78,7 +78,9 @@
       "taskList": "任務清單",
       "looseListItem": "鬆散清單項目",
       "horizontalRule": "水平線",
-      "frontMatter": "前置資料"
+      "frontMatter": "前置資料",
+      "looseListItemHelp": "鬆散清單項目說明",
+      "frontMatterHelp": "前置資料說明"
     },
     "window": {
       "title": "視窗",
@@ -396,7 +398,6 @@
         "preferLooseListItem": "首選清單類型",
         "bulletListMarker": "項目符號清單中使用的標記",
         "orderListDelimiter": "有序清單中使用的分隔符",
-        "preferHeadingStyle": "MarkText 中的首選標題樣式",
         "tabSize": "用 x 個空格替換製表符",
         "listIndentation": "選擇清單的縮排",
         "frontmatterType": "前言類型",
@@ -660,7 +661,8 @@
         "frontmatterType": {
           "jsonBrace": "JSON 大括號",
           "jsonSemicolon": "JSON 分號",
-          "title": "前置資料類型"
+          "title": "前置資料類型",
+          "description": "前置資料是在文件開頭儲存標題、作者、標籤等資訊的區域，常供部落格及靜態網站讀取。例如（YAML）：\n---\ntitle: 我的文章\n---\n此設定選擇新插入資料的格式（YAML、TOML 或 JSON）；透過「段落 → 前置資料」插入。既有資料保留原格式。"
         }
       },
       "diagrams": {
@@ -673,14 +675,6 @@
         "plantumlServer": {
           "title": "PlantUML 伺服器 URL"
         }
-      },
-      "misc": {
-        "preferHeadingStyle": {
-          "title": "偏好標題樣式",
-          "atx": "ATX 樣式",
-          "setext": "Setext 樣式"
-        },
-        "title": "其他"
       },
       "compatibility": {
         "enableHtml": "啟用 HTML 支援",
@@ -700,7 +694,8 @@
         },
         "orderListDelimiter": "有序清單分隔符",
         "preferLooseListItem": "偏好鬆散清單項目",
-        "title": "清單"
+        "title": "清單",
+        "looseListItemDescription": "鬆散清單在 Markdown 的項目之間保留空白行，並在編輯器中顯示較大的段落間距。例如：\n- 第一項\n\n- 第二項\n此偏好只影響新建清單。若要切換既有清單，請將游標放入清單，再選擇「段落 → 鬆散清單項目」。"
       }
     },
     "theme": {

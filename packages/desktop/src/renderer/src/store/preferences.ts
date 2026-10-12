@@ -12,7 +12,6 @@ export type StartUpAction = 'restoreAll' | 'lastSession' | 'blank'
 export type TextDirection = 'ltr' | 'rtl'
 export type BulletListMarker = '*' | '+' | '-'
 export type OrderListDelimiter = '.' | ')'
-export type PreferHeadingStyle = 'atx' | 'setext'
 export type FrontmatterType = '-' | ';' | '{' | '+'
 export type SequenceTheme = 'hand' | 'simple'
 export type ImageInsertAction = 'folder' | 'path' | 'upload'
@@ -75,7 +74,6 @@ export interface PreferencesState {
   preferLooseListItem: boolean
   bulletListMarker: BulletListMarker | string
   orderListDelimiter: OrderListDelimiter | string
-  preferHeadingStyle: PreferHeadingStyle | string
   tabSize: number
   listIndentation: number
   frontmatterType: FrontmatterType | string
@@ -201,7 +199,6 @@ export const usePreferencesStore = defineStore('preferences', {
     preferLooseListItem: true,
     bulletListMarker: '-',
     orderListDelimiter: '.',
-    preferHeadingStyle: 'atx',
     tabSize: 4,
     listIndentation: 1,
     frontmatterType: '-',
