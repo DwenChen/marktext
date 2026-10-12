@@ -148,6 +148,9 @@ function canvas(target: HTMLElement, title: string) {
     svg.append(label, svgElement('rect', { width: '800', height: '480', fill: '#f6f8fa' }));
     target.replaceChildren(svg);
     target.classList.add('github-geometry');
+    // The editor normally focuses a diagram's source on click. Geometry
+    // gestures must keep focus on the interactive preview instead.
+    svg.addEventListener('click', event => event.stopPropagation());
     return svg;
 }
 

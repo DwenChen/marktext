@@ -140,6 +140,18 @@ describe('github markdown extensions', () => {
         expect(target.querySelector('[fill-rule="evenodd"]')?.getAttribute('d')?.match(/Z/g)).toHaveLength(2);
     });
 
+    it('keeps geometry gestures in the preview instead of activating source editing', () => {
+        const target = document.createElement('div');
+        let clicks = 0;
+        target.addEventListener('click', () => clicks++);
+        renderGithubGeometry('stl', STL, target);
+        const svg = target.querySelector('svg')!;
+        svg.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        svg.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+        expect(clicks).toBe(0);
+        expect(target.querySelector('polygon')?.getAttribute('fill')).toBe('none');
+    });
+
     it('rejects invalid geometry and safely preserves invalid export source', async () => {
         const target = document.createElement('div');
         expect(() => renderGithubGeometry('geojson', '{"type":"Point","coordinates":[null,1]}', target)).toThrow();

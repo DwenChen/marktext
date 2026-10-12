@@ -61,6 +61,13 @@ test('github extensions render and survive switching editing modes', async() => 
       expect(style).not.toBe('rgba(0, 0, 0, 0)')
     }
     await expect(page.locator('.github-geometry svg')).toHaveCount(3)
+    const map = page.locator('.github-geometry svg').first()
+    await map.hover()
+    await page.mouse.wheel(0, -300)
+    await expect.poll(() => map.getAttribute('viewBox')).not.toBe('0 0 800 480')
+    const model = page.locator('.github-geometry svg').last()
+    await model.dblclick()
+    await expect(model.locator('polygon').first()).toHaveAttribute('fill', 'none')
     await expect(page.locator('.mu-html-preview details')).toHaveCount(1)
     const details = page.locator('.mu-html-preview details')
     await details.locator('summary').click()
