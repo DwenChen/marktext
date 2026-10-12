@@ -7,6 +7,58 @@ import { fileURLToPath } from 'node:url'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 
+async function downloadArchive (endpoint, headers, artifact, archive, staging) {
+  const redirect = await fetch(endpoint, { headers, redirect: 'manual', signal: AbortSignal.timeout(60000) })
+  const location = redirect.headers.get('location')
+  if (redirect.status !== 302 || !location) throw new Error('GitHub did not return an artifact download redirect')
+  const url = new URL(location)
+  if (url.protocol !== 'https:') throw new Error('Artifact download must use HTTPS')
+  const chunkSize = 8 * 1024 * 1024
+  const count = Math.ceil(artifact.size_in_bytes / chunkSize)
+  const parts = Array.from({ length: count }, (_, i) => path.join(staging, `part-${i}.zip`))
+  const existing = await stat(archive).catch(() => null)
+  if (existing) {
+    const complete = Math.min(count, Math.floor(existing.size / chunkSize))
+    for (let i = 0; i < complete; i++) {
+      await pipeline(createReadStream(archive, { start: i * chunkSize, end: (i + 1) * chunkSize - 1 }), createWriteStream(parts[i]))
+    }
+  }
+  let next = 0
+  let received = 0
+  async function worker () {
+    while (next < count) {
+      const i = next++
+      const start = i * chunkSize
+      const end = Math.min(artifact.size_in_bytes - 1, start + chunkSize - 1)
+      const expected = end - start + 1
+      const saved = await stat(parts[i]).catch(() => null)
+      if (saved?.size !== expected) {
+        const response = await fetch(url, { headers: { Range: `bytes=${start}-${end}` }, signal: AbortSignal.timeout(180000) })
+        if (response.status !== 206 || !response.body || response.headers.get('content-range') !== `bytes ${start}-${end}/${artifact.size_in_bytes}`) {
+          throw new Error('Artifact server returned an unexpected byte range')
+        }
+        await pipeline(Readable.fromWeb(response.body), createWriteStream(parts[i]))
+        if ((await stat(parts[i])).size !== expected) throw new Error('Incomplete artifact chunk')
+      }
+      received += expected
+      console.log(JSON.stringify({ downloadedBytes: received, totalBytes: artifact.size_in_bytes }))
+    }
+  }
+  await Promise.all(Array.from({ length: 6 }, worker))
+  async function * chunks () {
+    for (const part of parts) {
+      for await (const chunk of createReadStream(part)) yield chunk
+    }
+  }
+  await pipeline(Readable.from(chunks()), createWriteStream(archive))
+  if (artifact.digest?.startsWith('sha256:')) {
+    const hash = createHash('sha256')
+    for await (const chunk of createReadStream(archive)) hash.update(chunk)
+    if (`sha256:${hash.digest('hex')}` !== artifact.digest) throw new Error('Artifact archive digest does not match GitHub')
+  }
+  await Promise.all(parts.map(part => unlink(part)))
+}
+
 async function main () {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
   const repo = 'DwenChen/marktext'
@@ -46,9 +98,7 @@ async function main () {
   const staging = path.join(root, 'dist', `.download-${run.id}`)
   await mkdir(staging, { recursive: true })
   const archive = path.join(staging, 'artifact.zip')
-  const response = await fetch(`https://api.github.com/repos/${repo}/actions/artifacts/${artifact.id}/zip`, { headers, signal: AbortSignal.timeout(600000) })
-  if (!response.ok || !response.body) throw new Error(`Artifact download returned ${response.status}`)
-  await pipeline(Readable.fromWeb(response.body), createWriteStream(archive))
+  await downloadArchive(`https://api.github.com/repos/${repo}/actions/artifacts/${artifact.id}/zip`, headers, artifact, archive, staging)
   const extract = spawnSync('powershell.exe', ['-NoProfile', '-Command', `
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $taskArchive = [IO.Compression.ZipFile]::OpenRead($env:MARKTEXT_ARTIFACT_ARCHIVE)
