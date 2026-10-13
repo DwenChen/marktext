@@ -701,10 +701,10 @@ onUnmounted(() => {
 .open-project .el-button {
   width: 100%;
   margin: 0;
-  min-height: 32px;
+  min-height: 28px;
   white-space: normal;
-  height: auto;
-  padding: 8px 12px;
+  height: 28px;
+  padding: 4px 12px;
 }
 .open-project .el-button.is-text.is-has-bg,
 .empty-project .el-button.is-text.is-has-bg {

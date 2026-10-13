@@ -437,6 +437,9 @@ onMounted(() => {
   }
   & .no-data .el-button {
     margin-top: 20px;
+    height: 28px;
+    min-height: 28px;
+    padding: 4px 12px;
   }
   & .no-data .el-button.is-text.is-has-bg {
     background-color: var(--buttonPrimaryBgColor);

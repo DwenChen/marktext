@@ -31,6 +31,7 @@ import { getTextContent } from '../../selection/dom';
 import { isListItemState } from '../../state/types';
 import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
+import { matchGithubAlert } from '../../utils/githubAlerts';
 import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
 import logger from '../../utils/logger';
 
@@ -389,6 +390,9 @@ class Format extends Content {
         const focusOffset = cEnd ? cEnd.offset : focus?.offset;
         if (anchorOffset == null || focusOffset == null)
             return false;
+        const alert = this.blockName === 'paragraph.content' ? matchGithubAlert(text) : null;
+        if (alert && (anchorOffset <= alert.markerLength || focusOffset <= alert.markerLength))
+            return true;
         const NO_NEED_TOKEN_REG = /text|hard_line_break|soft_line_break/;
 
         for (const token of tokenizer(text, {
@@ -568,6 +572,10 @@ class Format extends Content {
         const { target } = event;
         if (!(target instanceof Element))
             return;
+        const alertMarker = target.closest<HTMLElement>('.mu-alert-marker.mu-alert-preview');
+        const quote = this.parent?.parent;
+        if (alertMarker && quote?.blockName === 'block-quote' && quote.isOutMostBlock && quote.firstChild === this.parent)
+            return this._handleClickInlineRuleRender(event, alertMarker);
         const inlineRuleRenderEle
             = target.closest<HTMLElement>(`.${CLASS_NAMES.MU_MATH_RENDER}`)
                 || target.closest<HTMLElement>(`.${CLASS_NAMES.MU_RUBY_RENDER}`);

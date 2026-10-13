@@ -69,8 +69,8 @@ export const launchElectron = async(
 ): Promise<LaunchResult> => {
   userArgs = userArgs || []
   const executablePath = getElectronPath()
-  // Pass project root as entry so Electron reads package.json and getAppPath() returns project root.
-  // Passing out/main/index.js directly bypasses package.json and breaks __static path resolution.
+  // Package entries preserve getAppPath()/static resolution; a development
+  // entry can isolate the profile while reusing the existing Electron runtime.
   const userDataDir = trackTempDir(getTempPath())
   if (options.preferences) {
     fs.mkdirSync(userDataDir, { recursive: true })
@@ -80,7 +80,7 @@ export const launchElectron = async(
       'utf-8'
     )
   }
-  const args = [projectRoot, '--user-data-dir', userDataDir].concat(userArgs)
+  const args = [process.env.MARKTEXT_E2E_APP_PATH || projectRoot, '--user-data-dir', userDataDir].concat(userArgs)
   const env: Record<string, string> = {}
   for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = v
   if (options.suppressErrorDialog) env.MARKTEXT_ERROR_INTERACTION = '1'

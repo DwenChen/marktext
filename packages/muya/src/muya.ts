@@ -39,6 +39,7 @@ import { encodeImageSrc } from './utils/image';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
+import './assets/styles/githubAlerts.css';
 import './assets/styles/prismjs/light.theme.css';
 
 // UI plugins (e.g. InlineFormatToolbar, EmojiSelector) follow a common

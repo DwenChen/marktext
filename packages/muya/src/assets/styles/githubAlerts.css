@@ -1,0 +1,102 @@
+/* Derive appearance from the first paragraph so moving or deleting it cannot leave stale alert metadata. */
+.mu-container > blockquote:has(> p:first-child > .mu-paragraph-content > .mu-alert-marker) {
+    margin: 0 0 1em;
+    padding: 0.5em 1em;
+
+    color: inherit;
+
+    border: 0;
+    border-left: 0.25em solid var(--alert-border);
+}
+
+.mu-container > blockquote:has(> p:first-child > .mu-paragraph-content > .mu-alert-marker)::before {
+    content: none;
+}
+
+.mu-container > blockquote:has(> p:first-child > .mu-paragraph-content > .mu-alert-marker) > :first-child {
+    margin-top: 0;
+}
+
+.mu-container > blockquote:has(> p:first-child > .mu-paragraph-content > .mu-alert-marker) > :last-child {
+    margin-bottom: 0;
+}
+
+.mu-container > blockquote > p:first-child > .mu-paragraph-content > .mu-alert-marker {
+    color: var(--alert-text);
+    font-weight: 600;
+}
+
+.mu-container > blockquote > p:first-child > .mu-paragraph-content > .mu-alert-marker::before {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: 0.5em;
+
+    vertical-align: -0.125em;
+
+    background-color: currentcolor;
+
+    content: '';
+    mask: var(--alert-icon) center / contain no-repeat;
+}
+
+.mu-container > blockquote > p:first-child > .mu-paragraph-content > .mu-alert-marker.mu-alert-preview {
+    display: inline-block;
+}
+
+.mu-container > blockquote > p:first-child > .mu-paragraph-content > .mu-alert-marker.mu-alert-preview > .mu-alert-source {
+    font-size: 0;
+}
+
+.mu-container > blockquote > p:first-child > .mu-paragraph-content > .mu-alert-marker.mu-alert-preview::after {
+    content: attr(data-title);
+}
+
+/* The marker terminates the title even when soft newlines normally collapse to spaces. */
+.mu-container > blockquote > p:first-child > .mu-paragraph-content > .mu-alert-marker + .mu-plain-text + .mu-soft-line-break {
+    display: block;
+    height: 0;
+    margin-bottom: 1em;
+
+    white-space: pre-wrap;
+}
+
+.mu-container > blockquote:has(> p:first-child > .mu-paragraph-content > [data-alert='NOTE']) {
+    --alert-border: var(--github-alert-note-border, #0969da);
+    --alert-text: var(--github-alert-note-text, #0969da);
+}
+
+.mu-container > blockquote:has(> p:first-child > .mu-paragraph-content > [data-alert='TIP']) {
+    --alert-border: var(--github-alert-tip-border, #1a7f37);
+    --alert-text: var(--github-alert-tip-text, #1a7f37);
+}
+
+.mu-container > blockquote:has(> p:first-child > .mu-paragraph-content > [data-alert='IMPORTANT']) {
+    --alert-border: var(--github-alert-important-border, #8250df);
+    --alert-text: var(--github-alert-important-text, #8250df);
+}
+
+.mu-container > blockquote:has(> p:first-child > .mu-paragraph-content > [data-alert='WARNING']) {
+    --alert-border: var(--github-alert-warning-border, #9a6700);
+    --alert-text: var(--github-alert-warning-text, #9a6700);
+}
+
+.mu-container > blockquote:has(> p:first-child > .mu-paragraph-content > [data-alert='CAUTION']) {
+    --alert-border: var(--github-alert-caution-border, #cf222e);
+    --alert-text: var(--github-alert-caution-text, #d1242f);
+}
+
+@media not print {
+    body.dark .mu-container {
+        --github-alert-note-border: #1f6feb;
+        --github-alert-note-text: #4493f8;
+        --github-alert-tip-border: #238636;
+        --github-alert-tip-text: #3fb950;
+        --github-alert-important-border: #8957e5;
+        --github-alert-important-text: #ab7df8;
+        --github-alert-warning-border: #9e6a03;
+        --github-alert-warning-text: #d29922;
+        --github-alert-caution-border: #da3633;
+        --github-alert-caution-text: #f85149;
+    }
+}

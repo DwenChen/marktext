@@ -1303,8 +1303,9 @@ const scrollToCords = (y: number) => {
       resizeObserverForEditor.observe(editorId)
     }
   }
-  container.style.visibility = 'visible'
-  container.style.pointerEvents = 'auto'
+  // Mode and viewer CSS own visibility and hit testing after scroll restoration.
+  container.style.removeProperty('visibility')
+  container.style.removeProperty('pointer-events')
   container.scrollTop = y
 }
 
@@ -1721,8 +1722,8 @@ const handleFileChange = (payload: unknown) => {
   if (typeof scrollTop === 'number') {
     scrollToCords(scrollTop)
   } else {
-    container.style.visibility = 'visible'
-    container.style.pointerEvents = 'auto'
+    container.style.removeProperty('visibility')
+    container.style.removeProperty('pointer-events')
     scrollToCursor(0)
   }
 }
@@ -2200,14 +2201,12 @@ onBeforeUnmount(() => {
 
 .editor-wrapper.source {
   position: absolute;
-  z-index: -1;
   top: 0;
   left: 0;
   overflow: hidden;
-  /* `z-index: -1` only hides the editor visually; `document.elementsFromPoint`
-     ignores stacking, so muya's mousemove-driven float tools (front button/menu,
-     table drag/column toolbars, preview toolbar) still re-trigger over the source
-     editor. Drop the subtree from hit-testing too so they cannot (#4731). */
+  /* Negative z-index remains paintable inside the container's stacking context.
+     Visibility preserves Muya's layout and history during source editing. */
+  visibility: hidden;
   pointer-events: none;
 }
 

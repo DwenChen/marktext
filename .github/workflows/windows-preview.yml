@@ -40,29 +40,32 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           npm_config_user_agent: 'pnpm'
 
-      - name: Check types, lint, and Markdown unit tests
+      - name: Check types, lint, and editor unit tests
         run: |
           pnpm run typecheck
           pnpm run lint
-          pnpm -C packages/desktop exec vitest run test/unit/specs/locale-validation.spec.ts test/unit/specs/application-menu-state.spec.ts test/unit/specs/flush-before-save.spec.ts --maxWorkers=2
+          pnpm -C packages/desktop exec vitest run test/unit/specs/editor-theme-style.spec.ts test/unit/specs/theme-emoji-patch.spec.ts test/unit/specs/source-mode-dirty.spec.ts test/unit/specs/flush-before-save.spec.ts --maxWorkers=2
 
-      - name: Check Muya lint and paragraph regression tests
+      - name: Check Alert parsing, export, and styling
         run: |
-          pnpm -C packages/muya lint
-          pnpm -C packages/muya exec vitest run src/__tests__/updateParagraph.spec.ts src/__tests__/copyParagraphSelection.spec.ts src/__tests__/frontMatter.spec.ts src/state/__tests__/stateToMarkdown.spec.ts --maxWorkers=2
+          pnpm -C packages/muya exec eslint src/block/base/format.ts src/inlineRenderer/renderer/text.ts src/muya.ts src/state/htmlToMarkdown.ts src/state/markdownToHtml.ts src/utils/marked/getClipboardHtml.ts src/utils/marked/getHighlightHtml.ts src/utils/githubAlerts.ts src/utils/marked/extensions/githubAlerts.ts src/state/__tests__/githubAlerts.spec.ts
+          pnpm -C packages/muya exec stylelint src/assets/styles/githubAlerts.css src/assets/styles/githubAlertsExport.css
+          pnpm -C packages/muya exec vitest run src/state/__tests__/githubAlerts.spec.ts src/state/__tests__/renderToStaticHTML.spec.ts src/state/__tests__/stateToMarkdown.spec.ts --maxWorkers=2
 
       - name: Build Windows installer and ZIP
-        run: pnpm run build:win:x64
+        run: |
+          pnpm -C packages/desktop exec electron-vite build
+          pnpm -C packages/desktop exec electron-builder --win --x64 --publish never
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Verify startup and editor changes
+      - name: Verify startup, Alerts, exports, and source mode
         run: >-
           pnpm -C packages/desktop exec playwright test
           test/e2e/launch.spec.ts
-          test/e2e/editor-menus-clipboard.spec.ts
+          test/e2e/github-alerts.spec.ts
+          test/e2e/source-mode-visibility.spec.ts
           test/e2e/source-mode-flush.spec.ts
-          test/e2e/markdown-controls.spec.ts
           --workers=1
 
       - name: Record build provenance and checksums

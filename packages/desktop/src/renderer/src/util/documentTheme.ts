@@ -1,5 +1,6 @@
 import githubLight from 'github-markdown-css/github-markdown-light.css?inline'
 import githubDark from 'github-markdown-css/github-markdown-dark.css?inline'
+import githubAlerts from '@muyajs/core/assets/styles/githubAlertsExport.css?inline'
 import academic from '@/assets/themes/export/academic.theme.css?inline'
 import liber from '@/assets/themes/export/liber.theme.css?inline'
 import type { CustomDocumentTheme, ResolvedAppearance } from '../../../common/theme'
@@ -16,7 +17,7 @@ export const getDocumentThemeCss = (
 ): string => {
   const id = normalizeDocumentTheme(theme, customThemes)
   const overlay = overlays[id] || customThemes.find((item) => item.id === id)?.css || ''
-  return (appearance === 'dark' ? githubDark : githubLight) + '\n' + overlay
+  return (appearance === 'dark' ? githubDark : githubLight) + '\n' + overlay + '\n' + githubAlerts
 }
 
 const EDITOR_SCOPE = ':is(.editor-middle .mu-container, .document-theme-preview)'
@@ -56,7 +57,8 @@ export const scopeDocumentCss = (css: string): string => {
       .map((rule) => {
         if (rule instanceof CSSStyleRule) {
           const selectors = splitSelectors(rule.selectorText).map((selector) => {
-            const trimmed = selector.trim()
+            // Muya uses spans for editable link labels.
+            const trimmed = selector.trim().replace(/(^|[\s>+~,(])a(?=$|[\s>+~.#:[),])/g, '$1:is(a, span.mu-link)')
             if (nested) return trimmed
             if (/\.markdown-body\b/.test(trimmed))
               return trimmed.replace(/\.markdown-body\b/g, EDITOR_SCOPE)

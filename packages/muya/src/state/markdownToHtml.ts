@@ -3,6 +3,7 @@ import githubMarkdownCss from 'github-markdown-css/github-markdown-light.css?inl
 import katexCss from 'katex/dist/katex.css?inline';
 import prismCss from 'prismjs/themes/prism.css?inline';
 import exportStyle from '../assets/styles/exportStyle.css?inline';
+import githubAlertsStyle from '../assets/styles/githubAlertsExport.css?inline';
 import { EXPORT_DOMPURIFY_CONFIG } from '../config';
 import { isHTMLElement, sanitize, unescapeHTML } from '../utils';
 import loadRenderer from '../utils/diagram';
@@ -312,7 +313,7 @@ export class MarkdownToHtml {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
 ${baseStyles}
-  <style>${exportStyleFinal}</style>
+  <style>${exportStyleFinal}\n${githubAlertsStyle}</style>
   <style>${extraCSS}</style>
 </head>
 <body>
