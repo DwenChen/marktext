@@ -1,0 +1,86 @@
+name: Publish Windows Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: Successful Windows Preview Build run ID
+        required: true
+        type: string
+      tag:
+        description: Version tag matching the Windows build (vX.Y.Z)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: windows-release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUILD_RUN_ID: ${{ inputs.build_run_id }}
+      RELEASE_TAG: ${{ inputs.tag }}
+    steps:
+      - name: Check out release tools and notes
+        uses: actions/checkout@v7.0.1
+
+      - name: Download verified Windows build
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: marktext-windows-x64
+          path: dist
+          run-id: ${{ inputs.build_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Verify build source and checksums
+        id: prepare
+        run: node scripts/prepare-windows-release.mjs
+
+      - name: Prepare draft and upload Windows files
+        env:
+          BUILD_COMMIT: ${{ steps.prepare.outputs.commit }}
+          RELEASE_VERSION: ${{ steps.prepare.outputs.version }}
+        run: |
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft > draft-state.txt; then
+            if [ "$(cat draft-state.txt)" != true ]; then
+              echo 'A published release already exists; refusing to replace it.'
+              exit 1
+            fi
+          else
+            gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --target "$BUILD_COMMIT" --draft --title "MarkText $RELEASE_VERSION · Windows x64" --notes-file dist/release-notes.md
+          fi
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --notes-file dist/release-notes.md
+          gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            "dist/marktext-win-x64-$RELEASE_VERSION-setup.exe" \
+            "dist/marktext-win-x64-$RELEASE_VERSION.zip" \
+            dist/SHA256SUMS.txt dist/build-info.json --clobber
+
+      - name: Verify uploaded assets
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > dist/uploaded-assets.json
+          node --input-type=module <<'NODE'
+          import { readFile } from 'node:fs/promises'
+          const expected = JSON.parse(await readFile('dist/release-assets.json', 'utf8'))
+          const { assets } = JSON.parse(await readFile('dist/uploaded-assets.json', 'utf8'))
+          if (assets.length !== expected.length) throw new Error('Unexpected release asset count')
+          for (const file of expected) {
+            const asset = assets.find(item => item.name === file.name)
+            if (!asset || asset.state !== 'uploaded' || asset.size !== file.bytes || asset.digest !== `sha256:${file.sha256}`) {
+              throw new Error(`Uploaded asset does not match the verified build: ${file.name}`)
+            }
+          }
+          console.log('All four release assets match the verified Windows build')
+          NODE
+
+      - name: Publish release
+        run: |
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url,isDraft,tagName
