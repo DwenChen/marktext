@@ -40,26 +40,27 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           npm_config_user_agent: 'pnpm'
 
-      - name: Check types, lint, and editor unit tests
+      - name: Check types, lint, and document export unit tests
         run: |
           pnpm run typecheck
           pnpm run lint
-          pnpm -C packages/desktop exec vitest run test/unit/specs/editor-theme-style.spec.ts test/unit/specs/theme-emoji-patch.spec.ts test/unit/specs/source-mode-dirty.spec.ts test/unit/specs/flush-before-save.spec.ts --maxWorkers=2
+          pnpm -C packages/desktop exec vitest run test/unit/specs/body-toc.spec.ts test/unit/specs/exportHtml.spec.ts test/unit/specs/export-format-options.spec.ts test/unit/specs/export-settings-persist.spec.ts --maxWorkers=2
 
-      - name: Check Alert parsing, export, and styling
+      - name: Check list whitespace, Alerts, and export styling
         run: |
-          pnpm -C packages/muya exec eslint src/block/base/format.ts src/inlineRenderer/renderer/text.ts src/muya.ts src/state/htmlToMarkdown.ts src/state/markdownToHtml.ts src/utils/marked/getClipboardHtml.ts src/utils/marked/getHighlightHtml.ts src/utils/githubAlerts.ts src/utils/marked/extensions/githubAlerts.ts src/state/__tests__/githubAlerts.spec.ts
-          pnpm -C packages/muya exec stylelint src/assets/styles/githubAlerts.css src/assets/styles/githubAlertsExport.css
-          pnpm -C packages/muya exec vitest run src/state/__tests__/githubAlerts.spec.ts src/state/__tests__/renderToStaticHTML.spec.ts src/state/__tests__/stateToMarkdown.spec.ts --maxWorkers=2
+          pnpm -C packages/muya exec eslint src/state/markdownToHtml.ts src/state/__tests__/softBreakExportHtml.spec.ts
+          pnpm -C packages/muya exec stylelint src/assets/styles/exportStyle.css
+          pnpm -C packages/muya exec vitest run src/state/__tests__/softBreakExportHtml.spec.ts src/state/__tests__/githubAlerts.spec.ts --maxWorkers=2
 
       - name: Compile Electron app
         run: pnpm -C packages/desktop exec electron-vite build
 
-      - name: Verify startup, Alerts, exports, and source mode
+      - name: Verify startup, contents exports, Alerts, and source mode
         run: >-
           pnpm -C packages/desktop exec playwright test
           test/e2e/launch.spec.ts
           test/e2e/github-alerts.spec.ts
+          test/e2e/body-toc-export.spec.ts
           test/e2e/source-mode-visibility.spec.ts
           test/e2e/source-mode-flush.spec.ts
           --workers=1

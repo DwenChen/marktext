@@ -9,11 +9,11 @@ import { MarkdownToHtml } from '../markdownToHtml';
 // was lost on export because marked renders a soft break as a space. Rather
 // than emit a non-standard `<br>` (which CommonMark reserves for hard breaks),
 // the export keeps the conformant `\n` and renders it with `white-space:
-// pre-wrap` on `.markdown-body p` and `li:not(:has(> p))` (tight items only).
+// pre-wrap` on paragraphs, including exported tight-list text wrappers.
 //
 // These assert the HTML stays conformant — the soft break is a preserved
 // newline, never a `<br>`, and hard breaks are untouched. The pre-wrap
-// rendering itself (and the `:has()` exclusion of loose items) is a CSS
+// rendering itself is a CSS
 // concern verified in a real browser against the export stylesheet.
 
 const OPTS = { texMathDollars: false, superSubScript: false, footnote: false, frontMatter: false };
@@ -56,7 +56,7 @@ describe('softNewlineAsSpace export CSS', () => {
     it('appends a white-space:normal override when the option is on', async () => {
         const html = await generate(true);
         expect(html).toMatch(
-            /\.markdown-body p,\s*\.markdown-body li:not\(:has\(> p\)\)\s*\{\s*white-space:\s*normal;/,
+            /\.markdown-body p\s*\{\s*white-space:\s*normal;/,
         );
     });
 
@@ -74,10 +74,32 @@ describe('softNewlineAsSpace export CSS', () => {
     it('does not append the override when the option is off', async () => {
         const html = await generate(false);
         expect(html).not.toMatch(
-            /\.markdown-body p,\s*\.markdown-body li:not\(:has\(> p\)\)\s*\{\s*white-space:\s*normal;/,
+            /\.markdown-body p\s*\{\s*white-space:\s*normal;/,
         );
         expect(html).toMatch(
-            /\.markdown-body p,\s*\.markdown-body li:not\(:has\(> p\)\)\s*\{\s*white-space:\s*pre-wrap;/,
+            /\.markdown-body p\s*\{\s*white-space:\s*pre-wrap;/,
         );
+    });
+});
+
+describe('exported list whitespace', () => {
+    it('preserves text soft breaks but removes structural line endings around nested lists', async () => {
+        const html = await new MarkdownToHtml('- parent\n  continued\n  - child\n    continued\n- sibling').renderHtml();
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        expect(Array.from(container.querySelectorAll('p.export-list-text')).map(p => p.textContent))
+            .toEqual(['parent\ncontinued', 'child\ncontinued', 'sibling']);
+        expect(container.querySelector('li')?.children.length).toBe(2);
+        expect(html).not.toMatch(/<br\s*\/?>/);
+    });
+
+    it('keeps loose paragraphs loose and wraps task-list text with its checkbox', async () => {
+        const loose = await new MarkdownToHtml('- first\n\n- second').renderHtml();
+        expect(loose).not.toContain('export-list-text');
+        const tasks = await new MarkdownToHtml('- [x] done\n  - [ ] next').renderHtml();
+        const container = document.createElement('div');
+        container.innerHTML = tasks;
+        expect(container.querySelectorAll('p.export-list-text > input')).toHaveLength(2);
+        expect(container.querySelector('li > ul')).not.toBeNull();
     });
 });

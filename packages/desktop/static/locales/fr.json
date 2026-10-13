@@ -333,6 +333,10 @@
         "pdf": "A paginated document, ready to share or print.",
         "print": "Paper size and orientation are chosen in the system print dialog."
       }
+    },
+    "bodyToc": {
+      "show": "Afficher la table des matières dans le document",
+      "description": "Inclure le titre et les entrées de la table des matières dans l’export. Le document source et le plan de l’éditeur restent inchangés."
     }
   },
   "recent": {

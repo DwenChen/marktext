@@ -333,6 +333,10 @@
         "pdf": "A paginated document, ready to share or print.",
         "print": "Paper size and orientation are chosen in the system print dialog."
       }
+    },
+    "bodyToc": {
+      "show": "본문의 목차 표시",
+      "description": "목차 제목과 항목을 내보내기에 포함합니다. 원본 문서와 편집기 개요는 변경되지 않습니다."
     }
   },
   "recent": {

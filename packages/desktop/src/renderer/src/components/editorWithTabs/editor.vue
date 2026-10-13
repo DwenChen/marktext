@@ -1357,6 +1357,7 @@ interface ExportOptions {
   pageSizeWidth?: number
   pageSizeHeight?: number
   isLandscape?: boolean
+  showBodyToc?: boolean
   [key: string]: unknown
 }
 
@@ -1394,6 +1395,7 @@ const handleExport = async(options: unknown) => {
           printOptimization: false,
           extraCss,
           tocOptions: opts as HtmlTocOptions,
+          showBodyToc: opts.showBodyToc,
           dir: props.textDirection
         })
         editorStore.EXPORT({
@@ -1428,6 +1430,7 @@ const handleExport = async(options: unknown) => {
           printOptimization: true,
           extraCss,
           tocOptions: opts as HtmlTocOptions,
+          showBodyToc: opts.showBodyToc,
           header,
           footer,
           headerFooterStyled: headerFooterStyled as boolean | undefined,
@@ -1454,6 +1457,7 @@ const handleExport = async(options: unknown) => {
           printOptimization: true,
           extraCss,
           tocOptions: opts as HtmlTocOptions,
+          showBodyToc: opts.showBodyToc,
           header,
           footer,
           headerFooterStyled: headerFooterStyled as boolean | undefined,

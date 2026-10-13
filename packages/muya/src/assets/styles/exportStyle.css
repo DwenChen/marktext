@@ -106,20 +106,14 @@
     white-space: pre-wrap;
 }
 
-/* Render soft line breaks (Shift+Enter → a bare `\n` inside a block) the way
-   the editor does (`.mu-content` is pre-wrap) instead of emitting a
-   non-standard `<br>`, so the exported HTML stays CommonMark-conformant (the
-   `\n` is a plain line ending) yet still shows the break (#3676).
-
-   `li:not(:has(> p))` targets only tight list items, whose soft break is a
-   bare `\n` directly inside the `<li>`. Loose items wrap their content in
-   `<p>` (handled by the `p` rule); giving them `li` pre-wrap would expose
-   marked's pretty-printing newline between `</p>` and `</li>` as a stray blank
-   line, so they are deliberately excluded. Specificity stays level with the
-   earlier `.toc-container ul li` rule (no-descending-specificity). */
-.markdown-body p,
-.markdown-body li:not(:has(> p)) {
+/* Soft breaks belong to paragraph text. Applying pre-wrap to a list item
+   also exposes marked's structural newlines around nested lists (#3676). */
+.markdown-body p {
     white-space: pre-wrap;
+}
+
+.markdown-body li > p.export-list-text {
+    margin: 0;
 }
 
 .markdown-body table {

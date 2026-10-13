@@ -2,6 +2,7 @@ export interface DocumentExportFeatures {
   hasHeadings: boolean
   hasFrontMatter: boolean
   hasToc: boolean
+  hasBodyToc: boolean
 }
 
 // Persist all settings, but send only options that apply to this format and
@@ -18,6 +19,7 @@ export const buildExportOptions = (
   if (features.hasHeadings) copy('autoNumberingHeadings')
   if (features.hasFrontMatter) copy('showFrontMatter')
   if (features.hasToc) copy('tocTitle', 'tocIncludeTopHeading')
+  if (features.hasBodyToc) copy('showBodyToc')
   if (type === 'styledHtml') copy('htmlTitle')
   if (type === 'png') copy('imageWidth')
   if (type === 'pdf') {

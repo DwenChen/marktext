@@ -114,6 +114,14 @@
       </div>
     </section>
 
+    <section v-if="features.hasBodyToc" class="body-toc-options">
+      <bool
+        :description="t('exportSettings.bodyToc.show')"
+        :detailed-description="t('exportSettings.bodyToc.description')"
+        :bool="showBodyToc"
+        :on-change="(value) => onSelectChange('showBodyToc', value)"
+      />
+    </section>
     <button
       v-if="hasAdvancedOptions"
       class="advanced-toggle"
@@ -139,7 +147,7 @@
           :on-change="(value) => onSelectChange('showFrontMatter', value)"
         />
       </section>
-      <section v-if="features.hasToc" class="toc-options">
+      <section v-if="features.hasToc && showBodyToc" class="toc-options">
         <h4>{{ t('exportSettings.toc.label') }}</h4>
         <text-box
           :description="t('exportSettings.toc.title')"
@@ -297,6 +305,7 @@ import { useI18n } from 'vue-i18n'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { renderToStaticHTML } from '@muyajs/core'
+import { findBodyToc } from '@/util/bodyToc'
 
 const { t } = useI18n()
 const editor = useEditorStore()
@@ -306,7 +315,7 @@ const isPrintable = computed(() => exportType.value === 'pdf' || exportType.valu
 const formatName = computed(() => t('exportSettings.compact.formats.' + exportType.value))
 const showExportSettingsDialog = ref(false)
 const showAdvanced = ref(false)
-const features = ref({ hasHeadings: false, hasToc: false, hasFrontMatter: false })
+const features = ref({ hasHeadings: false, hasToc: false, hasBodyToc: false, hasFrontMatter: false })
 const hasAdvancedOptions = computed(
   () => isPrintable.value || Object.values(features.value).some(Boolean)
 )
@@ -327,6 +336,7 @@ const fontSize = ref(14)
 const lineHeight = ref(1.5)
 const autoNumberingHeadings = ref(false)
 const showFrontMatter = ref(false)
+const showBodyToc = ref(true)
 const pageSizeList = ref(getPageSizeList())
 const headerFooterTypes = ref(getHeaderFooterTypes())
 const headerType = ref(0)
@@ -362,6 +372,7 @@ const persistableSettings: Record<string, Ref<unknown>> = {
   lineHeight,
   autoNumberingHeadings,
   showFrontMatter,
+  showBodyToc,
   headerType,
   headerTextLeft,
   headerTextCenter,
@@ -413,12 +424,12 @@ const showDialog = (type: unknown) => {
   if (!['styledHtml', 'pdf', 'png', 'print'].includes(format)) return
   editor.flushActiveEditor()
   const markdown = editor.currentFile?.markdown || ''
+  const document = new DOMParser().parseFromString(renderToStaticHTML(markdown, preferences), 'text/html')
+  const bodyToc = findBodyToc(document.body)
   features.value = {
-    hasHeadings:
-      new DOMParser()
-        .parseFromString(renderToStaticHTML(markdown, preferences), 'text/html')
-        .querySelector('h2,h3,h4,h5,h6') !== null,
-    hasToc: /^ {0,3}\[TOC\] *$/im.test(markdown),
+    hasHeadings: document.querySelector('h2,h3,h4,h5,h6') !== null,
+    hasToc: bodyToc.markers.length > 0,
+    hasBodyToc: bodyToc.nodes.length > 0,
     hasFrontMatter:
       /^(---|\+\+\+|;;;)\r?\n[\s\S]+?\r?\n\1\s*(?:\n|$)/.test(markdown) ||
       /^\{[\s\S]*?\n\}/.test(markdown)

@@ -33,8 +33,7 @@ const CDN_STYLESHEET_LINKS = `  <!-- https://cdnjs.com/libraries/github-markdown
 // `white-space` to `normal`, collapsing a bare `\n` in a paragraph or tight list
 // item to a space (CommonMark's soft-break behaviour) instead of a line break.
 const SOFT_NEWLINE_AS_SPACE_OVERRIDE = `
-.markdown-body p,
-.markdown-body li:not(:has(> p)) {
+.markdown-body p {
     white-space: normal;
 }
 `;
@@ -43,6 +42,45 @@ export class MarkdownToHtml {
     private _exportContainer: HTMLDivElement | null = null;
 
     constructor(public markdown: string, private _muya?: Muya) {}
+
+    // Marked's newlines around nested blocks are structural; only inline text
+    // may preserve soft breaks. Paragraph wrappers mirror the live tight lists.
+    private _wrapTightListContent(container: HTMLElement) {
+        const blockTags = /^(?:ADDRESS|ARTICLE|ASIDE|BLOCKQUOTE|DIV|DL|FIELDSET|FIGURE|FOOTER|FORM|H[1-6]|HEADER|HR|NAV|OL|P|PRE|SECTION|TABLE|UL)$/;
+        for (const item of container.querySelectorAll('li')) {
+            if (Array.from(item.children).some(child => child.tagName === 'P'))
+                continue;
+
+            let inlineNodes: Node[] = [];
+            const wrap = () => {
+                if (!inlineNodes.length)
+                    return;
+                if (inlineNodes.every(node => node.nodeType === Node.TEXT_NODE && !node.textContent?.trim())) {
+                    inlineNodes.forEach(node => node.parentNode?.removeChild(node));
+                    inlineNodes = [];
+                    return;
+                }
+                const first = inlineNodes[0];
+                const last = inlineNodes[inlineNodes.length - 1];
+                if (first.nodeType === Node.TEXT_NODE)
+                    first.textContent = first.textContent?.replace(/^[ \t]*\n/, '') ?? '';
+                if (last.nodeType === Node.TEXT_NODE)
+                    last.textContent = last.textContent?.replace(/\n[ \t]*$/, '') ?? '';
+                const paragraph = document.createElement('p');
+                paragraph.className = 'export-list-text';
+                item.insertBefore(paragraph, first);
+                paragraph.append(...inlineNodes);
+                inlineNodes = [];
+            };
+            for (const node of Array.from(item.childNodes)) {
+                if (isHTMLElement(node) && blockTags.test(node.tagName))
+                    wrap();
+                else
+                    inlineNodes.push(node);
+            }
+            wrap();
+        }
+    }
 
     private async _renderMermaid() {
         const codes = this._exportContainer!.querySelectorAll(
@@ -219,6 +257,7 @@ export class MarkdownToHtml {
             = document.createElement('div'));
         exportContainer.classList.add('mu-render-container');
         exportContainer.innerHTML = html;
+        this._wrapTightListContent(exportContainer);
         document.body.appendChild(exportContainer);
 
         let result: string;

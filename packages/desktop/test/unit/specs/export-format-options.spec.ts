@@ -9,9 +9,10 @@ const saved = {
   headerType: 1, headerTextLeft: 'Old left', headerTextCenter: 'Title', headerTextRight: 'Old right',
   footerType: 2, footerTextLeft: 'Left', footerTextCenter: 'Page', footerTextRight: 'Right',
   headerFooterCustomize: true, headerFooterStyled: true, headerFooterFontSize: 10,
-  autoNumberingHeadings: true, showFrontMatter: true, tocTitle: 'Contents', tocIncludeTopHeading: false
+  autoNumberingHeadings: true, showFrontMatter: true, tocTitle: 'Contents', tocIncludeTopHeading: false,
+  showBodyToc: false
 }
-const noFeatures = { hasHeadings: false, hasToc: false, hasFrontMatter: false }
+const noFeatures = { hasHeadings: false, hasToc: false, hasBodyToc: false, hasFrontMatter: false }
 
 describe('format-specific export settings', () => {
   it('saved print options do not affect HTML or PNG', () => {
@@ -38,6 +39,10 @@ describe('format-specific export settings', () => {
     expect(options).not.toHaveProperty('fontSize')
   })
   it('TOC, front matter and numbering options apply only when present in the document', () => {
-    expect(buildExportOptions('styledHtml', saved, { hasHeadings: true, hasToc: true, hasFrontMatter: true })).toMatchObject({ tocTitle: 'Contents', tocIncludeTopHeading: false, showFrontMatter: true, autoNumberingHeadings: true })
+    expect(buildExportOptions('styledHtml', saved, { ...noFeatures, hasHeadings: true, hasToc: true, hasFrontMatter: true })).toMatchObject({ tocTitle: 'Contents', tocIncludeTopHeading: false, showFrontMatter: true, autoNumberingHeadings: true })
+  })
+  it.each(['styledHtml', 'pdf', 'png', 'print'])('exports the body contents choice only for documents containing it (%s)', type => {
+    expect(buildExportOptions(type, saved, { ...noFeatures, hasBodyToc: true })).toHaveProperty('showBodyToc', false)
+    expect(buildExportOptions(type, saved, noFeatures)).not.toHaveProperty('showBodyToc')
   })
 })

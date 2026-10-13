@@ -333,6 +333,10 @@
         "pdf": "A paginated document, ready to share or print.",
         "print": "Paper size and orientation are chosen in the system print dialog."
       }
+    },
+    "bodyToc": {
+      "show": "Show contents section in document body",
+      "description": "Include the contents heading and entries in the export. The source document and editor outline stay unchanged."
     }
   },
   "recent": {

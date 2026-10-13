@@ -333,6 +333,10 @@
         "pdf": "A paginated document, ready to share or print.",
         "print": "Paper size and orientation are chosen in the system print dialog."
       }
+    },
+    "bodyToc": {
+      "show": "Mostrar el índice en el cuerpo del documento",
+      "description": "Incluir el título y las entradas del índice en la exportación. El documento original y el esquema del editor permanecen sin cambios."
     }
   },
   "recent": {

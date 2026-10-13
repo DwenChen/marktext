@@ -47,6 +47,44 @@ import { getHtmlToc, type TocEntry } from '@/util/pdf'
 // calls `new MarkdownToHtml(md).generate(...)` with no muya.
 const NO_MUYA = null as unknown as Parameters<typeof exportStyledHTML>[0]
 
+describe('export body contents visibility', () => {
+  const markdown = '# 目录\n\n- [目录](#目录)\n  - [Entry](#目录-1)\n\n# 目录\n\nActual chapter about directories.\n\n[Body link](#目录-1)'
+
+  it('includes the manually authored contents by default', async() => {
+    const doc = new DOMParser().parseFromString(await exportStyledHTML(NO_MUYA, markdown), 'text/html')
+    expect(doc.querySelectorAll('article > h1')).toHaveLength(2)
+    expect(doc.querySelector('article > ul')).not.toBeNull()
+  })
+
+  it('omits only the body contents and preserves heading IDs and ordinary links', async() => {
+    const doc = new DOMParser().parseFromString(await exportStyledHTML(NO_MUYA, markdown, { showBodyToc: false }), 'text/html')
+    expect(doc.querySelector('article > ul')).toBeNull()
+    expect(doc.querySelectorAll('article > h1')).toHaveLength(1)
+    expect(doc.querySelector('article > h1')?.id).toBe('目录-1')
+    expect(decodeURI(doc.querySelector('a')?.getAttribute('href') || '')).toBe('#目录-1')
+    expect(doc.querySelector('article')?.textContent).toContain('Actual chapter about directories.')
+  })
+
+  it('omits marker-based contents together with its label without touching chapters', async() => {
+    const source = '# 目录\n\n[TOC]\n\n# Chapter\n\nText\n\n## Section'
+    const options = { tocOptions: { tocTitle: 'Generated contents' } }
+    const included = new DOMParser().parseFromString(await exportStyledHTML(NO_MUYA, source, options), 'text/html')
+    expect(included.querySelector('.toc-container')).not.toBeNull()
+    const omitted = new DOMParser().parseFromString(await exportStyledHTML(NO_MUYA, source, { ...options, showBodyToc: false }), 'text/html')
+    expect(omitted.querySelector('.toc-container')).toBeNull()
+    expect(omitted.querySelector('article')?.textContent).not.toContain('[TOC]')
+    expect(Array.from(omitted.querySelectorAll('h1,h2')).map(heading => heading.id)).toEqual(['chapter', 'section'])
+  })
+
+  it('never replaces markers inside code or quotations', async() => {
+    const source = '```md\n[TOC]\n```\n\n> [TOC]\n\n# Chapter'
+    const doc = new DOMParser().parseFromString(await exportStyledHTML(NO_MUYA, source, { tocOptions: {} }), 'text/html')
+    expect(doc.querySelector('.toc-container')).toBeNull()
+    expect(doc.querySelector('pre')?.textContent).toContain('[TOC]')
+    expect(doc.querySelector('blockquote')?.textContent).toContain('[TOC]')
+  })
+})
+
 describe('exportStyledHTML — wrapper parity', () => {
   it('emits a self-contained document: inline <style> blocks, no CDN <link>', async() => {
     const out = await exportStyledHTML(NO_MUYA, '# Hi\n\ntext', {})

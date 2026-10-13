@@ -333,6 +333,10 @@
         "pdf": "A paginated document, ready to share or print.",
         "print": "Paper size and orientation are chosen in the system print dialog."
       }
+    },
+    "bodyToc": {
+      "show": "Belge gövdesindeki içindekiler bölümünü göster",
+      "description": "İçindekiler başlığını ve maddelerini dışa aktarıma dahil eder. Kaynak belge ve düzenleyici anahattı değişmez."
     }
   },
   "recent": {

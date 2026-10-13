@@ -333,6 +333,10 @@
         "pdf": "A paginated document, ready to share or print.",
         "print": "Paper size and orientation are chosen in the system print dialog."
       }
+    },
+    "bodyToc": {
+      "show": "本文の目次を表示",
+      "description": "目次の見出しと項目をエクスポートに含めます。元の文書とエディターのアウトラインは変更されません。"
     }
   },
   "recent": {

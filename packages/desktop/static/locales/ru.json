@@ -333,6 +333,10 @@
         "pdf": "A paginated document, ready to share or print.",
         "print": "Paper size and orientation are chosen in the system print dialog."
       }
+    },
+    "bodyToc": {
+      "show": "Показывать оглавление в тексте документа",
+      "description": "Включить заголовок и пункты оглавления в экспорт. Исходный документ и структура в редакторе не изменяются."
     }
   },
   "recent": {

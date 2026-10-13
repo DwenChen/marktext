@@ -333,6 +333,10 @@
         "pdf": "A paginated document, ready to share or print.",
         "print": "Paper size and orientation are chosen in the system print dialog."
       }
+    },
+    "bodyToc": {
+      "show": "Inhoudsopgave in het document weergeven",
+      "description": "Neem de titel en vermeldingen van de inhoudsopgave op in de export. Het brondocument en het overzicht van de editor blijven ongewijzigd."
     }
   },
   "recent": {

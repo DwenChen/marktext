@@ -15,6 +15,7 @@ import { sanitize, EXPORT_DOMPURIFY_CONFIG } from './dompurify'
 import { resolveLocalImageSrc } from './resolveImageSrc'
 import { resolveLocalLinkHref } from './resolveLinkHref'
 import { getHtmlToc, type HtmlTocOptions } from './pdf'
+import { findBodyToc } from './bodyToc'
 
 export interface HeaderFooterPart {
   type?: number
@@ -30,6 +31,7 @@ export interface ExportStyledHtmlOptions {
   /** Pre-rendered TOC HTML (from `getHtmlToc`). Injected at `[TOC]`. */
   toc?: string
   tocOptions?: HtmlTocOptions
+  showBodyToc?: boolean
   header?: HeaderFooterPart | null
   footer?: HeaderFooterPart | null
   headerFooterStyled?: boolean
@@ -126,9 +128,6 @@ const createTableBody = (article: string): string =>
   </div>
 </td></tr></tbody>`
 
-// Match a standalone `[TOC]` line (mirrors legacy marked TOC block token).
-const TOC_REG = /^ {0,3}\[TOC\] *$/im
-
 // Match the `src="…"` of an <img> tag in the (already sanitized, double-quoted)
 // engine output, so relative image paths can be rewritten to absolute `file://`
 // URLs. A string rewrite avoids re-serializing the whole article DOM (which
@@ -200,17 +199,32 @@ export const exportStyledHTML = async(
   const articleMatch = /<article class="markdown-body">([\s\S]*)<\/article>/.exec(fullDoc)
   let article = articleMatch ? articleMatch[1] : fullDoc
 
-  if (options.tocOptions) {
-    // Read the rendered snapshot's IDs, including duplicate and explicit HTML
-    // anchors, so every TOC link targets the body this export actually contains.
+  if (options.showBodyToc === false || options.tocOptions || toc) {
     const parsed = new DOMParser().parseFromString(article, 'text/html')
-    const headings = Array.from(parsed.querySelectorAll('h1,h2,h3,h4,h5,h6')).map((heading) => ({
-      lvl: Number(heading.tagName.slice(1)),
-      content: heading.textContent ?? '',
-      contentHtml: heading.innerHTML,
-      slug: heading.id
-    }))
-    toc = getHtmlToc(headings, { ...options.tocOptions, useHeadingIds: true })
+    const bodyToc = findBodyToc(parsed.body)
+    if (options.showBodyToc === false) {
+      bodyToc.nodes.forEach(node => node.remove())
+      if (bodyToc.nodes.length) article = parsed.body.innerHTML
+    } else if (bodyToc.markers.length) {
+      if (options.tocOptions) {
+        // Preserve the snapshot's duplicate and explicit heading IDs.
+        const headings = Array.from(parsed.querySelectorAll('h1,h2,h3,h4,h5,h6')).map((heading) => ({
+          lvl: Number(heading.tagName.slice(1)),
+          content: heading.textContent ?? '',
+          contentHtml: heading.innerHTML,
+          slug: heading.id
+        }))
+        toc = getHtmlToc(headings, { ...options.tocOptions, useHeadingIds: true })
+      }
+      if (toc) {
+        for (const marker of bodyToc.markers) {
+          const template = parsed.createElement('template')
+          template.innerHTML = toc
+          marker.replaceWith(template.content)
+        }
+        article = parsed.body.innerHTML
+      }
+    }
   }
 
   // Resolve relative image paths to absolute file:// URLs so the saved document
@@ -219,18 +233,6 @@ export const exportStyledHTML = async(
   // Same for relative local links so they still resolve after the document is
   // moved out of the source folder (#1688).
   article = rewriteAnchorHrefs(article)
-
-  // Inject the TOC at the `[TOC]` marker (legacy behaviour: only appears when
-  // the document explicitly contains `[TOC]`). The marker is rendered as a
-  // paragraph by marked, so replace the rendered `<p>[TOC]</p>` first, falling
-  // back to a raw `[TOC]` if present.
-  if (toc) {
-    if (/<p>\s*\[TOC\]\s*<\/p>/i.test(article)) {
-      article = article.replace(/<p>\s*\[TOC\]\s*<\/p>/i, toc)
-    } else if (TOC_REG.test(article)) {
-      article = article.replace(TOC_REG, toc)
-    }
-  }
 
   let bodyHtml: string
   if (!appendHeaderFooter) {
