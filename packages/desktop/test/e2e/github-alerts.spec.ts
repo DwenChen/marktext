@@ -24,6 +24,8 @@ test('GitHub alerts retain their Markdown across themes, editing, and undo', asy
     expect(await marker.evaluate(el => getComputedStyle(el, '::after').content)).toBe('"Note"')
     expect(await marker.evaluate(el => getComputedStyle(el, '::before').maskImage)).toContain('data:image/svg+xml')
     if (!(await page.locator('.side-bar').isVisible())) await clickMenuById(app, 'sideBarMenuItem')
+    const closeFolder = page.locator('.project-tree .close-project')
+    if (await closeFolder.isVisible()) await closeFolder.click()
     const folderButton = page.locator('.open-project .el-button')
     await expect(folderButton).toBeVisible()
     await expect(folderButton).toHaveCSS('height', '28px')
