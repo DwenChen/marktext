@@ -10,7 +10,7 @@ test('GitHub alerts retain their Markdown across themes, editing, and undo', asy
   test.setTimeout(60000)
   const { app, page } = await launchWithMarkdown(markdown, {
     suppressErrorDialog: true,
-    preferences: { appearance: 'light', language: 'en', sideBarVisibility: true }
+    preferences: { appearance: 'light', language: 'en' }
   })
   try {
     if (process.env.MARKTEXT_E2E_APP_PATH) await setSourceMarkdown(page, app, markdown)
@@ -23,7 +23,9 @@ test('GitHub alerts retain their Markdown across themes, editing, and undo', asy
     await expect(note).toHaveCSS('border-left-style', 'solid')
     expect(await marker.evaluate(el => getComputedStyle(el, '::after').content)).toBe('"Note"')
     expect(await marker.evaluate(el => getComputedStyle(el, '::before').maskImage)).toContain('data:image/svg+xml')
+    if (!(await page.locator('.side-bar').isVisible())) await clickMenuById(app, 'sideBarMenuItem')
     const folderButton = page.locator('.open-project .el-button')
+    await expect(folderButton).toBeVisible()
     await expect(folderButton).toHaveCSS('height', '28px')
 
     for (const theme of ['academic', 'liber', 'github']) {

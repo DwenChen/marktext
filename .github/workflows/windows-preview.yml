@@ -52,12 +52,8 @@ jobs:
           pnpm -C packages/muya exec stylelint src/assets/styles/githubAlerts.css src/assets/styles/githubAlertsExport.css
           pnpm -C packages/muya exec vitest run src/state/__tests__/githubAlerts.spec.ts src/state/__tests__/renderToStaticHTML.spec.ts src/state/__tests__/stateToMarkdown.spec.ts --maxWorkers=2
 
-      - name: Build Windows installer and ZIP
-        run: |
-          pnpm -C packages/desktop exec electron-vite build
-          pnpm -C packages/desktop exec electron-builder --win --x64 --publish never
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Compile Electron app
+        run: pnpm -C packages/desktop exec electron-vite build
 
       - name: Verify startup, Alerts, exports, and source mode
         run: >-
@@ -67,6 +63,11 @@ jobs:
           test/e2e/source-mode-visibility.spec.ts
           test/e2e/source-mode-flush.spec.ts
           --workers=1
+
+      - name: Build Windows installer and ZIP
+        run: pnpm -C packages/desktop exec electron-builder --win --x64 --publish never
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Record build provenance and checksums
         shell: pwsh
@@ -89,6 +90,7 @@ jobs:
           name: marktext-windows-x64
           retention-days: 7
           if-no-files-found: error
+          compression-level: 0
           path: |
             dist/*.exe
             dist/*.zip
