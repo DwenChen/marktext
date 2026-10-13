@@ -65,7 +65,9 @@ jobs:
 
       - name: Verify uploaded assets
         run: |
-          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > dist/uploaded-assets.json
+          # Draft tags do not resolve through the release-by-tag API.
+          release_id=$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json databaseId --jq .databaseId)
+          gh api "repos/$GITHUB_REPOSITORY/releases/$release_id" > dist/uploaded-assets.json
           node --input-type=module <<'NODE'
           import { readFile } from 'node:fs/promises'
           const expected = JSON.parse(await readFile('dist/release-assets.json', 'utf8'))
