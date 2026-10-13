@@ -10,7 +10,6 @@ import type {
 import escapeCharactersMap from '../config/escapeCharacter';
 import { escapeHTML, isLengthEven, union } from '../utils';
 import { validEmoji } from '../utils/emoji';
-import { githubReference } from '../utils/githubMarkdown';
 import { scanEmphasisSpans } from './emphasis';
 import { parseSrcAndTitle } from './linkDestination';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
@@ -285,10 +284,6 @@ function tryChunks(state: ILexState): boolean {
             ? ruleValue.map(rule => rule.exec(state.src)).find(Boolean)
             : ruleValue.exec(state.src);
         if (to && isLengthEven(to[3])) {
-            // Single tildes belong to Pandoc subscript only when that optional
-            // extension is enabled; otherwise GitHub renders strikethrough.
-            if (rule === 'del' && to[1].length === 1 && state.superSubScript)
-                continue;
             if (rule === 'emoji') {
                 // An emoji opener must sit at a word boundary: a ":" glued to a
                 // preceding letter/digit (e.g. the colons in "12:00-14:00") is
@@ -627,29 +622,6 @@ function tryAutoLinkExtension(state: ILexState): boolean {
     return true;
 }
 
-function tryGithubReference(state: ILexState): boolean {
-    if (!state.top)
-        return false;
-    const reference = githubReference(state.src, state.originSrc[state.pos - state.basePos - 1]);
-    if (!reference)
-        return false;
-    const { raw, href } = reference;
-    pushPending(state);
-    state.tokens.push({
-        type: 'auto_link_extension',
-        raw,
-        www: '',
-        url: href,
-        email: '',
-        linkType: 'url',
-        parent: state.tokens,
-        range: { start: state.pos, end: state.pos + raw.length },
-    });
-    state.src = state.src.slice(raw.length);
-    state.pos += raw.length;
-    return true;
-}
-
 function tryAutoLink(state: ILexState): boolean {
     const autoLTo = state.inlineRules.auto_link.exec(state.src);
     if (!autoLTo)
@@ -832,7 +804,6 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryReferenceImage,
     tryHtmlEscape,
     tryAutoLinkExtension,
-    tryGithubReference,
     tryAutoLink,
     tryHtmlTag,
     trySoftLineBreak,

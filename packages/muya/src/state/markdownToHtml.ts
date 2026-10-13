@@ -3,11 +3,9 @@ import githubMarkdownCss from 'github-markdown-css/github-markdown-light.css?inl
 import katexCss from 'katex/dist/katex.css?inline';
 import prismCss from 'prismjs/themes/prism.css?inline';
 import exportStyle from '../assets/styles/exportStyle.css?inline';
-import githubStyle from '../assets/styles/githubMarkdown.css?inline';
 import { EXPORT_DOMPURIFY_CONFIG } from '../config';
 import { isHTMLElement, sanitize, unescapeHTML } from '../utils';
 import loadRenderer from '../utils/diagram';
-import { renderGithubGeometry } from '../utils/diagram/githubGeometry';
 
 import { getHighlightHtml } from '../utils/marked';
 import { generateGithubSlug } from '../utils/slug';
@@ -159,25 +157,6 @@ export class MarkdownToHtml {
         }
     }
 
-    private _renderGithubGeometry() {
-        const codes = this._exportContainer!.querySelectorAll('code.language-geojson, code.language-topojson, code.language-stl');
-        for (const code of codes) {
-            const type = code.className.match(/language-(geojson|topojson|stl)/)![1];
-            const target = document.createElement('div');
-            target.classList.add(type);
-            code.parentElement!.replaceWith(target);
-            try {
-                renderGithubGeometry(type, code.textContent ?? '', target);
-            }
-            catch {
-                const fallback = document.createElement('pre');
-                fallback.textContent = code.textContent;
-                target.append(fallback);
-                target.setAttribute('aria-label', `Invalid ${type} diagram`);
-            }
-        }
-    }
-
     // Assign a github-compatible slug `id` to every `<h1>..<h6>` in the
     // export container. Headings that already carry an explicit id (none today,
     // but defensive) are left as-is and reserve that id. Duplicates are
@@ -213,11 +192,11 @@ export class MarkdownToHtml {
 
     // render pure html by marked
     async renderHtml() {
-        const footnote = this._muya?.options?.footnote ?? true;
+        const footnote = this._muya?.options?.footnote ?? false;
         let html = getHighlightHtml(this.markdown, {
             superSubScript: this._muya?.options?.superSubScript ?? true,
             footnote,
-            texMathGfm: this._muya?.options?.texMathGfm ?? true,
+            texMathGfm: this._muya?.options?.texMathGfm ?? false,
             texMathSingleBackslash: this._muya?.options?.texMathSingleBackslash ?? false,
             texMathDoubleBackslash: this._muya?.options?.texMathDoubleBackslash ?? false,
             texMathDollars: this._muya?.options?.texMathDollars ?? true,
@@ -246,7 +225,6 @@ export class MarkdownToHtml {
             // render only render the light theme of mermaid and diagram...
             await this._renderMermaid();
             await this._renderDiagram();
-            this._renderGithubGeometry();
 
             // Inject github-compatible slug ids onto exported headings so the
             // exported document's [TOC] / `getHtmlToc` `href="#slug"` anchors
@@ -334,7 +312,7 @@ export class MarkdownToHtml {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
 ${baseStyles}
-  <style>${exportStyleFinal}\n${githubStyle}</style>
+  <style>${exportStyleFinal}</style>
   <style>${extraCSS}</style>
 </head>
 <body>

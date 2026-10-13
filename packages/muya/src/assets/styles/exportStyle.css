@@ -163,9 +163,6 @@
     list-style-type: decimal;
 }
 
-.markdown-body div.geojson,
-.markdown-body div.topojson,
-.markdown-body div.stl,
 .markdown-body div.plantuml,
 .markdown-body div.mermaid,
 .markdown-body div.vega-lite,

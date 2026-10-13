@@ -5,7 +5,6 @@ import Prism from 'prismjs';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import emojiExtension from './extensions/emoji';
 import footnoteExtension from './extensions/footnote';
-import githubExtension from './extensions/github';
 import inlineDiffExtension from './extensions/inlineDiff';
 import markExtension from './extensions/mark';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
@@ -21,9 +20,6 @@ const DIAGRAM_TYPE = [
     'vega-lite',
     'flowchart',
     'sequence',
-    'geojson',
-    'topojson',
-    'stl',
 ];
 
 function highlight(code: string, lang: string) {
@@ -63,7 +59,6 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     marked.use(cjkEmStrongExtension());
 
     marked.use(emojiExtension({ isRenderEmoji: true }));
-    marked.use(githubExtension());
 
     if (texMathDollars) {
         marked.use(

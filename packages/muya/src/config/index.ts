@@ -348,12 +348,12 @@ export const MUYA_DEFAULT_OPTIONS = {
     // Markdown extensions
     frontMatter: true, // Whether to support frontmatter.
     superSubScript: true,
-    footnote: true,
+    footnote: false,
     // pandoc's `tex_math_dollars`: `$…$` and `$$…$$`.
     texMathDollars: true,
     // pandoc's `tex_math_gfm`: GitHub's `` $`…`$ `` and ```` ```math ````.
     // Off by default, as in pandoc, where only tex_math_dollars ships enabled.
-    texMathGfm: true,
+    texMathGfm: false,
     // pandoc's `tex_math_single_backslash`: `\(…\)` inline and `\[…\]` display.
     // Off by default, as in pandoc, where it is a non-default extension: turning
     // it on precludes escaping `(` and `[`, so `- \[TODO\]` reads as a formula.

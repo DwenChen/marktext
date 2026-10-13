@@ -52,12 +52,12 @@ export function renderToStaticHTML(
     if (!markdown)
         return '';
 
-    const footnote = options.footnote ?? true;
+    const footnote = options.footnote ?? false;
 
     let html = getHighlightHtml(markdown, {
         footnote,
         texMathDollars: options.texMathDollars ?? true,
-        texMathGfm: options.texMathGfm ?? true,
+        texMathGfm: options.texMathGfm ?? false,
         texMathSingleBackslash: options.texMathSingleBackslash ?? false,
         texMathDoubleBackslash: options.texMathDoubleBackslash ?? false,
         superSubScript: options.superSubScript ?? true,

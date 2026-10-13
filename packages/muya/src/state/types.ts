@@ -173,7 +173,7 @@ export interface IFrontmatterState {
 
 export interface IDiagramMeta {
     lang: string; // 'yaml' | 'json';
-    type: 'mermaid' | 'plantuml' | 'vega-lite' | 'flowchart' | 'sequence' | 'geojson' | 'topojson' | 'stl';
+    type: 'mermaid' | 'plantuml' | 'vega-lite' | 'flowchart' | 'sequence';
 }
 
 export interface IDiagramState {

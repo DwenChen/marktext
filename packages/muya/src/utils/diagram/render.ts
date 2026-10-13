@@ -150,11 +150,6 @@ export async function renderDiagram({
     plantumlServer,
     sequenceTheme,
 }: IRenderOptions) {
-    if (['geojson', 'topojson', 'stl'].includes(type)) {
-        const { renderGithubGeometry } = await import('./githubGeometry');
-        renderGithubGeometry(type, code, target);
-        return;
-    }
     const render = await loadRenderer(type);
     const options = {};
     if (type === 'vega-lite') {

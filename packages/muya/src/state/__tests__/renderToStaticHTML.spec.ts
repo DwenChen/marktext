@@ -194,10 +194,9 @@ describe('renderToStaticHTML', () => {
             expect(on).toContain('<h1>Body</h1>');
         });
 
-        it('honours an explicit footnote opt-out', () => {
+        it('honours footnote option (off by default)', () => {
             const off = renderToStaticHTML(
                 'See [^1].\n\n[^1]: footnote body',
-                { footnote: false },
             );
             // With footnote disabled the definition is parsed as a regular
             // paragraph / link-reference and the inline `[^1]` stays literal.
