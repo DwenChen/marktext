@@ -90,6 +90,7 @@ export const showEditorContextMenu = (
     const menu = new Menu()
     if (blockState) {
       menu.append(new MenuItem(getBlockMenu(blockState)))
+      menu.append(new MenuItem(getNestBlockMenu(blockState)))
       menu.append(new MenuItem(SEPARATOR))
     }
     if (isOsx && hasText) {
@@ -133,14 +134,15 @@ export const showEditorContextMenu = (
   }
 }
 
+const blockTypes: Array<[EditorBlockType, string]> = [
+  ['table', 'table'], ['code-block', 'codeFences'], ['block-quote', 'quoteBlock'],
+  ['math-block', 'mathBlock'], ['order-list', 'orderedList'], ['bullet-list', 'bulletList']
+]
+
 export const getBlockMenu = (state: EditorContextMenuState): MenuItemConstructorOptions => {
-  const types: Array<[EditorBlockType, string]> = [
-    ['table', 'table'], ['code-block', 'codeFences'], ['block-quote', 'quoteBlock'],
-    ['math-block', 'mathBlock'], ['order-list', 'orderedList'], ['bullet-list', 'bulletList']
-  ]
   return {
     label: t(state.hasSelection ? 'contextMenu.convertSelection' : 'contextMenu.insertBlockBelow'),
-    submenu: types.filter(([type]) => type !== 'math-block' || state.mathEnabled).map(([type, label]) => ({
+    submenu: blockTypes.filter(([type]) => type !== 'math-block' || state.mathEnabled).map(([type, label]) => ({
       id: `context-block-${type}`,
       label: t(`menu.paragraph.${label}`),
       type: state.hasSelection ? 'normal' : 'checkbox',
@@ -151,3 +153,19 @@ export const getBlockMenu = (state: EditorContextMenuState): MenuItemConstructor
     }))
   }
 }
+
+export const getNestBlockMenu = (state: EditorContextMenuState): MenuItemConstructorOptions => ({
+  id: 'context-nest-block',
+  label: t('contextMenu.nestBlockAtLevel'),
+  enabled: !state.hasSelection && state.nestableBlocks.length > 0,
+  submenu: blockTypes.filter(([type]) => type !== 'math-block' || state.mathEnabled).map(([type, label]) => ({
+    id: `context-nest-block-${type}`,
+    label: t(`menu.paragraph.${label}`),
+    enabled: !state.hasSelection && state.nestableBlocks.includes(type),
+    click(_item, targetWindow) {
+      if (targetWindow && !state.hasSelection && state.nestableBlocks.includes(type)) {
+        (targetWindow as BrowserWindow).webContents.send('mt::cm-nest-block', type)
+      }
+    }
+  }))
+})

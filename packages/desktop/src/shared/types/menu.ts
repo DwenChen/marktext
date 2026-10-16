@@ -29,6 +29,7 @@ export type EditorBlockType = 'table' | 'code-block' | 'block-quote' | 'math-blo
 export interface EditorContextMenuState {
   hasSelection: boolean
   activeBlocks: EditorBlockType[]
+  nestableBlocks: EditorBlockType[]
   mathEnabled: boolean
 }
 

@@ -12,7 +12,7 @@ import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TS
 import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
 import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
-import { applyContextBlock, getActiveContextBlocks } from './block/contextActions';
+import { applyContextBlock, getActiveContextBlocks, getNestableContextBlocks, nestContextBlock } from './block/contextActions';
 import { ScrollPage } from './block/scrollPage';
 import { CopyType } from './clipboard/types';
 import emptyStates from './config/emptyStates';
@@ -409,6 +409,15 @@ export class Muya {
 
     getActiveContextBlocks(): TContextBlockType[] {
         return getActiveContextBlocks(this);
+    }
+
+    getNestableContextBlocks(): TContextBlockType[] {
+        return getNestableContextBlocks(this);
+    }
+
+    /** Insert a child block at the current list-item or quote level, preserving existing text. */
+    nestContextBlock(type: TContextBlockType) {
+        nestContextBlock(this, type);
     }
 
     /** Insert below the complete cursor block, or convert only the selected text. */

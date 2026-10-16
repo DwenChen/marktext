@@ -149,6 +149,7 @@
   },
   "contextMenu": {
     "insertBlockBelow": "Inserir bloco abaixo / remover formato",
+    "nestBlockAtLevel": "Aninhar bloco neste nível",
     "convertSelection": "Converter texto selecionado",
     "cut": "Cortar",
     "copy": "Copiar",

@@ -1,6 +1,7 @@
 import type { Muya } from '../muya';
 import type { IParagraphState, ITableState, TState } from '../state/types';
 import type Parent from './base/parent';
+import type { TBlockPath } from './types';
 import { buildPartialContainerState } from '../clipboard/copyData';
 import { SelectionDirection } from '../selection/types';
 import { isAnyListState } from '../state/types';
@@ -13,6 +14,46 @@ export function getActiveContextBlocks(muya: Muya): TContextBlockType[] {
     const content = muya.getSelection()?.focus.block ?? muya.editor.activeContentBlock;
     const ancestors = content?.getAncestors() ?? [];
     return BLOCK_TYPES.filter(type => ancestors.some(block => block.blockName === type));
+}
+
+function nestingAnchor(muya: Muya): Parent | null {
+    const selection = muya.getSelection();
+    if (!selection?.isCollapsed)
+        return null;
+    const block = selection.focus.block.parent;
+    const container = block?.parent;
+    // Leaf blocks (including table cells and code) cannot contain Markdown blocks.
+    if (!block || !['paragraph', 'atx-heading', 'setext-heading'].includes(block.blockName)
+        || !container || !['list-item', 'task-list-item', 'block-quote'].includes(container.blockName)) {
+        return null;
+    }
+    return block;
+}
+
+export function getNestableContextBlocks(muya: Muya): TContextBlockType[] {
+    if (!nestingAnchor(muya))
+        return [];
+    return BLOCK_TYPES.filter(type => type !== 'math-block' || muya.options.texMathDollars !== false);
+}
+
+/** Insert after the caret's block inside its immediate list item or quote; one undo step. */
+export function nestContextBlock(muya: Muya, type: TContextBlockType): void {
+    muya.flush();
+    if (!getNestableContextBlocks(muya).includes(type))
+        return;
+    const anchor = nestingAnchor(muya)!;
+    const path = [...anchor.path];
+    path[path.length - 1] = (path.at(-1) as number) + 1;
+    const states = muya.getState();
+    replaceBlockState(states, anchor, [anchor.getState(), blockFromText(muya, type, '')]);
+    muya.replaceContent(states);
+    const result = muya.editor.scrollPage?.queryBlock(path);
+    if (!result?.isParent())
+        return;
+    const leaf = type === 'code-block'
+        ? result.lastContentInDescendant()
+        : result.firstContentInDescendant();
+    leaf?.setCursor(0, 0, true);
 }
 
 function paragraphs(text: string): IParagraphState[] {
@@ -68,37 +109,15 @@ function hasContent(state: TState): boolean {
     return 'text' in state ? state.text.length > 0 : state.children.some(hasContent);
 }
 
-function removeBlockFormat(state: TState, type: TContextBlockType): TState[] {
-    if (state.name === type) {
-        if (state.name === 'table')
-            return state.children.map(row => ({ name: 'paragraph', text: row.children.map(cell => cell.text).join('\t') }));
-        if ('text' in state)
-            return paragraphs(state.text);
-        if (state.name === 'block-quote')
-            return state.children.flatMap(child => removeBlockFormat(child, type));
-        if (state.name === 'order-list' || state.name === 'bullet-list')
-            return unwrapLists(state);
-    }
-    if ('children' in state) {
-        // Each concrete container restricts its child type; only quote/list
-        // descendants can contain another block of the same kind.
-        if (state.name === 'block-quote' || state.name === 'list-item' || state.name === 'task-list-item')
-            return [{ ...state, children: state.children.flatMap(child => removeBlockFormat(child, type)) }];
-        if (isAnyListState(state)) {
-            return [{ ...state, children: state.children.map(item => ({
-                ...item,
-                children: item.children.flatMap(child => removeBlockFormat(child, type)),
-            })) } as TState];
-        }
-    }
-    return [state];
-}
-
-function unwrapLists(state: TState): TState[] {
-    if (isAnyListState(state))
-        return state.children.flatMap(item => item.children.flatMap(unwrapLists));
+function removeBlockFormat(state: TState): TState[] {
+    if (state.name === 'table')
+        return state.children.map(row => ({ name: 'paragraph', text: row.children.map(cell => cell.text).join('\t') }));
+    if ('text' in state)
+        return paragraphs(state.text);
     if (state.name === 'block-quote')
-        return [{ ...state, children: state.children.flatMap(unwrapLists) }];
+        return state.children;
+    if (isAnyListState(state))
+        return state.children.flatMap(item => item.children);
     return [state];
 }
 
@@ -119,6 +138,11 @@ function replaceBlockState(states: TState[], target: Parent, replacement: TState
     siblings.splice(indices.at(-1)!, 1, ...replacement);
 }
 
+function stateBlockPath(block: Parent): TBlockPath {
+    const path = [...block.path];
+    return path.at(-1) === 'children' ? path.slice(0, -1) : path;
+}
+
 /** List/table boundaries remain intact outside the range; every action is one undo step. */
 export function applyContextBlock(muya: Muya, type: TContextBlockType): void {
     if (!BLOCK_TYPES.includes(type))
@@ -132,6 +156,7 @@ export function applyContextBlock(muya: Muya, type: TContextBlockType): void {
         return;
     const states = muya.getState();
     let focusIndex = page.offset(outer);
+    let focusPath: TBlockPath | undefined;
 
     if (selection && !selection.isCollapsed) {
         const [start, end] = selection.direction === SelectionDirection.BACKWARD
@@ -153,10 +178,10 @@ export function applyContextBlock(muya: Muya, type: TContextBlockType): void {
         states.splice(firstIndex, lastIndex - firstIndex + 1, ...replacement);
     }
     else {
-        const matching = content.getAncestors().filter(block => block.blockName === type);
-        const target = matching.at(-1);
+        const target = content.getAncestors().find(block => block.blockName === type);
         if (target) {
-            replaceBlockState(states, target, removeBlockFormat(target.getState(), type));
+            focusPath = stateBlockPath(target);
+            replaceBlockState(states, target, removeBlockFormat(target.getState()));
         }
         else {
             focusIndex++;
@@ -165,7 +190,7 @@ export function applyContextBlock(muya: Muya, type: TContextBlockType): void {
     }
 
     muya.replaceContent(states);
-    const result = page.queryBlock([focusIndex]);
+    const result = page.queryBlock(focusPath ?? [focusIndex]);
     if (!result?.isParent())
         return;
     const leaf = type === 'code-block' && result.blockName === type

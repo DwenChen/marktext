@@ -40,29 +40,24 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           npm_config_user_agent: 'pnpm'
 
-      - name: Check types, lint, and document export unit tests
+      - name: Check types, lint, and block context menu unit tests
         run: |
           pnpm run typecheck
           pnpm run lint
-          pnpm -C packages/desktop exec vitest run test/unit/specs/body-toc.spec.ts test/unit/specs/exportHtml.spec.ts test/unit/specs/export-format-options.spec.ts test/unit/specs/export-settings-persist.spec.ts --maxWorkers=2
+          pnpm -C packages/desktop exec vitest run test/unit/specs/context-block-menu.spec.ts test/unit/specs/context-menu-locales.spec.ts --maxWorkers=2
 
-      - name: Check list whitespace, Alerts, and export styling
+      - name: Check Markdown block nesting
         run: |
-          pnpm -C packages/muya exec eslint src/state/markdownToHtml.ts src/state/__tests__/softBreakExportHtml.spec.ts
-          pnpm -C packages/muya exec stylelint src/assets/styles/exportStyle.css
-          pnpm -C packages/muya exec vitest run src/state/__tests__/softBreakExportHtml.spec.ts src/state/__tests__/githubAlerts.spec.ts --maxWorkers=2
+          pnpm -C packages/muya exec eslint src/block/contextActions.ts src/muya.ts src/__tests__/contextActions.nesting.spec.ts
+          pnpm -C packages/muya exec vitest run src/__tests__/contextActions.nesting.spec.ts --maxWorkers=2 --silent
 
       - name: Compile Electron app
         run: pnpm -C packages/desktop exec electron-vite build
 
-      - name: Verify startup, contents exports, Alerts, and source mode
+      - name: Verify native nesting menu, editing, undo, and saving
         run: >-
           pnpm -C packages/desktop exec playwright test
-          test/e2e/launch.spec.ts
-          test/e2e/github-alerts.spec.ts
-          test/e2e/body-toc-export.spec.ts
-          test/e2e/source-mode-visibility.spec.ts
-          test/e2e/source-mode-flush.spec.ts
+          test/e2e/context-block-nesting.spec.ts
           --workers=1
 
       - name: Build Windows installer and ZIP

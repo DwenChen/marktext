@@ -9,6 +9,14 @@ const __dirname = path.dirname(__filename)
 const localesDir = path.resolve(__dirname, '../../../static/locales')
 
 describe('context menu locale coverage', () => {
+  it('defines nesting for every supported desktop locale', () => {
+    for (const language of getSupportedLanguages()) {
+      const locale = JSON.parse(fs.readFileSync(path.join(localesDir, `${language}.json`), 'utf8'))
+      expect(locale.contextMenu.nestBlockAtLevel, language).toEqual(expect.any(String))
+      expect(locale.contextMenu.nestBlockAtLevel.trim(), language).not.toBe('')
+    }
+  })
+
   it('defines Look Up for every supported desktop locale', () => {
     for (const language of getSupportedLanguages()) {
       const localePath = path.join(localesDir, `${language}.json`)

@@ -149,6 +149,7 @@
   },
   "contextMenu": {
     "insertBlockBelow": "在下方插入块 / 取消块格式",
+    "nestBlockAtLevel": "在此层级嵌套块格式",
     "convertSelection": "将选中文字转换为",
     "cut": "剪切",
     "copy": "复制",

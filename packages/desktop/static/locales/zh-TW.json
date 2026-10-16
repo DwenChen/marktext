@@ -149,6 +149,7 @@
   },
   "contextMenu": {
     "insertBlockBelow": "在下方插入區塊 / 取消區塊格式",
+    "nestBlockAtLevel": "在此層級巢狀插入區塊格式",
     "convertSelection": "將選取文字轉換為",
     "cut": "剪下",
     "copy": "複製",

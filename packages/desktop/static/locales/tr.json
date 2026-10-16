@@ -149,6 +149,7 @@
   },
   "contextMenu": {
     "insertBlockBelow": "Alta blok ekle / biçimi kaldır",
+    "nestBlockAtLevel": "Bu düzeyde blok iç içe ekle",
     "convertSelection": "Seçili metni dönüştür",
     "cut": "Kes",
     "copy": "Kopyala",

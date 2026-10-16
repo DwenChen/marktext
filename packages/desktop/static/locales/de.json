@@ -149,6 +149,7 @@
   },
   "contextMenu": {
     "insertBlockBelow": "Block darunter einfügen / Format entfernen",
+    "nestBlockAtLevel": "Block auf dieser Ebene verschachteln",
     "convertSelection": "Ausgewählten Text umwandeln",
     "cut": "Ausschneiden",
     "copy": "Kopieren",

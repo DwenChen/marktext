@@ -265,6 +265,7 @@ export interface IpcMainEventChannels {
   'mt::bootstrap-editor': [config: BootstrapEditorConfig]
   'mt::prepare-editor-context-menu': []
   'mt::cm-block': [type: EditorBlockType]
+  'mt::cm-nest-block': [type: EditorBlockType]
   'mt::cm-insert-paragraph': [direction: 'before' | 'after']
   'mt::cm-paste-as-plain-text': []
   'mt::current-language': [language: string]

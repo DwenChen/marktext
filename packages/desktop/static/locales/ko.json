@@ -149,6 +149,7 @@
   },
   "contextMenu": {
     "insertBlockBelow": "아래에 블록 삽입 / 서식 해제",
+    "nestBlockAtLevel": "이 수준에 블록 중첩",
     "convertSelection": "선택한 텍스트 변환",
     "cut": "잘라내기",
     "copy": "복사",

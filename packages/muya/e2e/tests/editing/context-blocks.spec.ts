@@ -38,7 +38,7 @@ for (const type of types) {
     });
 }
 
-test('removes the whole list, including mixed nested list kinds', async ({ page }) => {
+test('removes the chosen list layer and preserves deeper mixed list kinds', async ({ page }) => {
     const state = await page.evaluate(() => {
         const muya = window.muya!;
         muya.setContent('- first\n    1. nested\n- last\n\nafter');
@@ -48,7 +48,10 @@ test('removes the whole list, including mixed nested list kinds', async ({ page 
         return muya.getState();
     });
     expect(state).toEqual([
-        { name: 'paragraph', text: 'first' }, { name: 'paragraph', text: 'nested' },
+        { name: 'paragraph', text: 'first' },
+        { name: 'order-list', meta: expect.objectContaining({ start: 1 }), children: [
+            expect.objectContaining({ name: 'list-item', children: [{ name: 'paragraph', text: 'nested' }] }),
+        ] },
         { name: 'paragraph', text: 'last' }, { name: 'paragraph', text: 'after' },
     ]);
 });
