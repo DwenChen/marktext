@@ -46,18 +46,18 @@ jobs:
           pnpm run lint
           pnpm -C packages/desktop exec vitest run test/unit/specs/context-block-menu.spec.ts test/unit/specs/context-menu-locales.spec.ts --maxWorkers=2
 
-      - name: Check Markdown block nesting
+      - name: Check typing between existing Markdown levels
         run: |
-          pnpm -C packages/muya exec eslint src/block/contextActions.ts src/muya.ts src/__tests__/contextActions.nesting.spec.ts
-          pnpm -C packages/muya exec vitest run src/__tests__/contextActions.nesting.spec.ts --maxWorkers=2 --silent
+          pnpm -C packages/muya exec eslint src/block/typingLevels.ts src/muya.ts src/__tests__/typingLevels.spec.ts
+          pnpm -C packages/muya exec vitest run src/__tests__/typingLevels.spec.ts --maxWorkers=2 --silent
 
       - name: Compile Electron app
         run: pnpm -C packages/desktop exec electron-vite build
 
-      - name: Verify native nesting menu, editing, undo, and saving
+      - name: Verify typing levels, menu visibility, Enter, undo, and saving
         run: >-
           pnpm -C packages/desktop exec playwright test
-          test/e2e/context-block-nesting.spec.ts
+          test/e2e/context-typing-levels.spec.ts
           --workers=1
 
       - name: Build Windows installer and ZIP

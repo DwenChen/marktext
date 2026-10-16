@@ -10,25 +10,35 @@
 [![Windows build](https://github.com/DwenChen/marktext/actions/workflows/windows-preview.yml/badge.svg)](https://github.com/DwenChen/marktext/actions/workflows/windows-preview.yml)
 [![License](https://img.shields.io/github/license/DwenChen/marktext)](LICENSE)
 
-当前版本 **1.1.0** · **Windows x64** · [更新说明](docs/releases/v1.1.0.md) · [问题反馈](https://github.com/DwenChen/marktext/issues)
+当前版本 **1.2.0** · **Windows x64** · [更新说明](docs/releases/v1.2.0.md) · [问题反馈](https://github.com/DwenChen/marktext/issues)
 
 ## 下载与启动
 
 | 文件                                                                                                             | 使用方式                  |
 | ---------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| [Windows 安装包](https://github.com/DwenChen/marktext/releases/download/v1.1.0/marktext-win-x64-1.1.0-setup.exe) | 运行向导，选择安装目录    |
-| [免安装 ZIP](https://github.com/DwenChen/marktext/releases/download/v1.1.0/marktext-win-x64-1.1.0.zip)           | 解压后运行 `marktext.exe` |
+| [Windows 安装包](https://github.com/DwenChen/marktext/releases/download/v1.2.0/marktext-win-x64-1.2.0-setup.exe) | 运行向导，选择安装目录    |
+| [免安装 ZIP](https://github.com/DwenChen/marktext/releases/download/v1.2.0/marktext-win-x64-1.2.0.zip)           | 解压后运行 `marktext.exe` |
 
-[Release 页面](https://github.com/DwenChen/marktext/releases/tag/v1.1.0)同时提供 `SHA256SUMS.txt` 与 `build-info.json`，用于核对下载摘要和构建来源。安装包和 ZIP 均由 GitHub Actions 在 Windows 环境编译、测试后生成。
+[Release 页面](https://github.com/DwenChen/marktext/releases/tag/v1.2.0)同时提供 `SHA256SUMS.txt` 与 `build-info.json`，用于核对下载摘要和构建来源。安装包和 ZIP 均由 GitHub Actions 在 Windows 环境编译、测试后生成。
 
 免安装版如需随目录携带配置，在可执行文件同级新建 **marktext-user-data** 文件夹，再启动应用。
 
 ```powershell
-Get-FileHash .\marktext-win-x64-1.1.0-setup.exe -Algorithm SHA256
-Get-FileHash .\marktext-win-x64-1.1.0.zip -Algorithm SHA256
+Get-FileHash .\marktext-win-x64-1.2.0-setup.exe -Algorithm SHA256
+Get-FileHash .\marktext-win-x64-1.2.0.zip -Algorithm SHA256
 ```
 
-## 新增：在此层级嵌套块格式
+## 新增：在层级之间继续键入
+
+右键菜单提供 **在上一层级键入** 和 **在下一层级键入**，仅在存在相应层级时显示。
+
+- 在二级列表条目中选择“上一层级”，直接创建新的一级条目，保留当前内容及子列表；继续按 Enter 仍在一级列表内输入。
+- 当前条目或引用已有子块时，可选择“下一层级”继续键入。进入子列表新增条目，进入引用新增段落，已有空输入位置会复用。
+- 支持有序列表、无序列表、任务列表和引用的混合层级，以及已有表格、代码和数学块；新增输入可撤销／重做。有文字选区时隐藏两个入口。
+
+规则与示例见 [层级键入与嵌套说明](docs/BLOCK_NESTING.md)。
+
+## 在此层级嵌套块格式
 
 在列表条目或引用内右键，选择 **在此层级嵌套块格式**，即可在当前段落后插入新块，保留当前层级和已有文字。例如在父条目中选择“无序列表”，输入子条目后得到：
 
@@ -90,10 +100,10 @@ corepack pnpm dev
 # 编译应用，不打安装包
 corepack pnpm build:unpack
 
-# 仅验证本次嵌套功能
-corepack pnpm -C packages/muya exec vitest run src/__tests__/contextActions.nesting.spec.ts --silent
+# 仅验证本次层级键入功能
+corepack pnpm -C packages/muya exec vitest run src/__tests__/typingLevels.spec.ts --silent
 corepack pnpm -C packages/desktop exec vitest run test/unit/specs/context-block-menu.spec.ts test/unit/specs/context-menu-locales.spec.ts
-corepack pnpm -C packages/desktop exec playwright test test/e2e/context-block-nesting.spec.ts --workers=1
+corepack pnpm -C packages/desktop exec playwright test test/e2e/context-typing-levels.spec.ts --workers=1
 
 # 代码和类型检查
 corepack pnpm lint
@@ -102,7 +112,7 @@ corepack pnpm typecheck
 
 ## 云端构建与发布
 
-`Windows Preview Build` 在 `develop` 提交消息包含 `[windows-build]` 时启动，也支持手动运行。当前验证范围仅包含嵌套引擎、右键菜单、本地化与相应 Electron 实测；通过后构建 Windows x64 EXE 和 ZIP，并记录提交、构建地址和 SHA-256。
+`Windows Preview Build` 在 `develop` 提交消息包含 `[windows-build]` 时启动，也支持手动运行。当前验证范围仅包含层级键入、右键菜单、本地化与相应 Electron 实测；通过后构建 Windows x64 EXE 和 ZIP，并记录提交、构建地址和 SHA-256。
 
 `Publish Windows Release` 使用成功的构建运行 ID 与匹配版本的标签，校验来源与摘要，上传四个附件，再发布 Release。配置见 [构建流程](.github/workflows/windows-preview.yml)和 [发布流程](.github/workflows/windows-release.yml)。
 

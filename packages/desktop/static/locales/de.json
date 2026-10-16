@@ -150,6 +150,8 @@
   "contextMenu": {
     "insertBlockBelow": "Block darunter einfügen / Format entfernen",
     "nestBlockAtLevel": "Block auf dieser Ebene verschachteln",
+    "typeAtPreviousLevel": "Auf der übergeordneten Ebene schreiben",
+    "typeAtNextLevel": "Auf der untergeordneten Ebene schreiben",
     "convertSelection": "Ausgewählten Text umwandeln",
     "cut": "Ausschneiden",
     "copy": "Kopieren",

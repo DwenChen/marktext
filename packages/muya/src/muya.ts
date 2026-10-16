@@ -2,6 +2,7 @@ import type Content from './block/base/content';
 import type Parent from './block/base/parent';
 import type { TContextBlockType } from './block/contextActions';
 import type { TBlockPath } from './block/types';
+import type { TTypingLevelDirection } from './block/typingLevels';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IReplaceOption, ISearchOption } from './search/types';
@@ -14,6 +15,7 @@ import Format from './block/base/format';
 import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
 import { applyContextBlock, getActiveContextBlocks, getNestableContextBlocks, nestContextBlock } from './block/contextActions';
 import { ScrollPage } from './block/scrollPage';
+import { getTypingLevels, typeAtLevel } from './block/typingLevels';
 import { CopyType } from './clipboard/types';
 import emptyStates from './config/emptyStates';
 import {
@@ -409,6 +411,15 @@ export class Muya {
 
     getActiveContextBlocks(): TContextBlockType[] {
         return getActiveContextBlocks(this);
+    }
+
+    getTypingLevels(): TTypingLevelDirection[] {
+        return getTypingLevels(this);
+    }
+
+    /** Start typing in an existing adjacent level without moving the current content. */
+    typeAtLevel(direction: TTypingLevelDirection) {
+        typeAtLevel(this, direction);
     }
 
     getNestableContextBlocks(): TContextBlockType[] {

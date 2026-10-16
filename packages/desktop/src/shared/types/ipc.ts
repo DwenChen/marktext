@@ -266,6 +266,7 @@ export interface IpcMainEventChannels {
   'mt::prepare-editor-context-menu': []
   'mt::cm-block': [type: EditorBlockType]
   'mt::cm-nest-block': [type: EditorBlockType]
+  'mt::cm-type-at-level': [direction: 'previous' | 'next']
   'mt::cm-insert-paragraph': [direction: 'before' | 'after']
   'mt::cm-paste-as-plain-text': []
   'mt::current-language': [language: string]

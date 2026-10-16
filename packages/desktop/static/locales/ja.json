@@ -150,6 +150,8 @@
   "contextMenu": {
     "insertBlockBelow": "下にブロックを挿入 / 書式を解除",
     "nestBlockAtLevel": "この階層にブロックを入れ子にする",
+    "typeAtPreviousLevel": "上の階層で入力",
+    "typeAtNextLevel": "下の階層で入力",
     "convertSelection": "選択したテキストを変換",
     "cut": "切り取り",
     "copy": "コピー",

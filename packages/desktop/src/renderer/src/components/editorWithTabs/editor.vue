@@ -1137,11 +1137,12 @@ const prepareContextMenu = () => {
     hasSelection: !selection.isCollapsed,
     activeBlocks: muya.getActiveContextBlocks(),
     nestableBlocks: muya.getNestableContextBlocks(),
+    typingLevels: muya.getTypingLevels(),
     mathEnabled: muya.options.texMathDollars !== false
   })
 }
 
-const applyContextBlock = (type: Parameters<Muya['applyContextBlock']>[0], nest = false) => {
+const withContextSelection = (action: (muya: Muya) => void) => {
   const muya = editor.value
   const snapshot = contextSelection
   contextSelection = null
@@ -1155,9 +1156,11 @@ const applyContextBlock = (type: Parameters<Muya['applyContextBlock']>[0], nest 
   muya.editor.selection.setSelection(
     { ...anchor, block: anchorBlock }, { ...focus, block: focusBlock }
   )
-  if (nest) muya.nestContextBlock(type)
-  else muya.applyContextBlock(type)
+  action(muya)
 }
+
+const applyContextBlock = (type: Parameters<Muya['applyContextBlock']>[0], nest = false) =>
+  withContextSelection(muya => nest ? muya.nestContextBlock(type) : muya.applyContextBlock(type))
 
 const handleCopyPaste = () => {
   editor.value?.pasteAsPlainText()
@@ -1937,7 +1940,9 @@ onMounted(() => {
   contextSubscriptions.push(
     window.electron.ipcRenderer.on('mt::prepare-editor-context-menu', prepareContextMenu),
     window.electron.ipcRenderer.on('mt::cm-block', (_event, type) => applyContextBlock(type)),
-    window.electron.ipcRenderer.on('mt::cm-nest-block', (_event, type) => applyContextBlock(type, true))
+    window.electron.ipcRenderer.on('mt::cm-nest-block', (_event, type) => applyContextBlock(type, true)),
+    window.electron.ipcRenderer.on('mt::cm-type-at-level', (_event, direction) =>
+      withContextSelection(muya => muya.typeAtLevel(direction)))
   )
   updateViewportPadding()
   // The first document's content is set via constructor options, so no

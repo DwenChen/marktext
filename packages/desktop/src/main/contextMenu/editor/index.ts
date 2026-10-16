@@ -91,6 +91,7 @@ export const showEditorContextMenu = (
     if (blockState) {
       menu.append(new MenuItem(getBlockMenu(blockState)))
       menu.append(new MenuItem(getNestBlockMenu(blockState)))
+      for (const item of getTypingLevelMenu(blockState)) menu.append(new MenuItem(item))
       menu.append(new MenuItem(SEPARATOR))
     }
     if (isOsx && hasText) {
@@ -138,6 +139,17 @@ const blockTypes: Array<[EditorBlockType, string]> = [
   ['table', 'table'], ['code-block', 'codeFences'], ['block-quote', 'quoteBlock'],
   ['math-block', 'mathBlock'], ['order-list', 'orderedList'], ['bullet-list', 'bulletList']
 ]
+
+export const getTypingLevelMenu = (state: EditorContextMenuState): MenuItemConstructorOptions[] => {
+  if (state.hasSelection) return []
+  return (['previous', 'next'] as const).filter(direction => state.typingLevels.includes(direction)).map(direction => ({
+    id: `context-type-at-${direction}-level`,
+    label: t(direction === 'previous' ? 'contextMenu.typeAtPreviousLevel' : 'contextMenu.typeAtNextLevel'),
+    click(_item, targetWindow) {
+      if (targetWindow) (targetWindow as BrowserWindow).webContents.send('mt::cm-type-at-level', direction)
+    }
+  }))
+}
 
 export const getBlockMenu = (state: EditorContextMenuState): MenuItemConstructorOptions => {
   return {

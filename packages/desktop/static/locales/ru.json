@@ -150,6 +150,8 @@
   "contextMenu": {
     "insertBlockBelow": "Вставить блок ниже / убрать формат",
     "nestBlockAtLevel": "Вложить блок на этом уровне",
+    "typeAtPreviousLevel": "Ввод на уровень выше",
+    "typeAtNextLevel": "Ввод на уровень ниже",
     "convertSelection": "Преобразовать выделенный текст",
     "cut": "Вырезать",
     "copy": "Копировать",

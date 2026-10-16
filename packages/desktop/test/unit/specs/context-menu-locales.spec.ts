@@ -14,6 +14,8 @@ describe('context menu locale coverage', () => {
       const locale = JSON.parse(fs.readFileSync(path.join(localesDir, `${language}.json`), 'utf8'))
       expect(locale.contextMenu.nestBlockAtLevel, language).toEqual(expect.any(String))
       expect(locale.contextMenu.nestBlockAtLevel.trim(), language).not.toBe('')
+      expect(locale.contextMenu.typeAtPreviousLevel, language).toEqual(expect.any(String))
+      expect(locale.contextMenu.typeAtNextLevel, language).toEqual(expect.any(String))
     }
   })
 

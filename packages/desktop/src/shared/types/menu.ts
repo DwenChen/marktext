@@ -30,6 +30,7 @@ export interface EditorContextMenuState {
   hasSelection: boolean
   activeBlocks: EditorBlockType[]
   nestableBlocks: EditorBlockType[]
+  typingLevels: Array<'previous' | 'next'>
   mathEnabled: boolean
 }
 

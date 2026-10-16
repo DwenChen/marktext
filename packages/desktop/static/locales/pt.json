@@ -150,6 +150,8 @@
   "contextMenu": {
     "insertBlockBelow": "Inserir bloco abaixo / remover formato",
     "nestBlockAtLevel": "Aninhar bloco neste nível",
+    "typeAtPreviousLevel": "Escrever no nível superior",
+    "typeAtNextLevel": "Escrever no nível inferior",
     "convertSelection": "Converter texto selecionado",
     "cut": "Cortar",
     "copy": "Copiar",

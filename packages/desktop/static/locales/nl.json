@@ -150,6 +150,8 @@
   "contextMenu": {
     "insertBlockBelow": "Blok eronder invoegen / opmaak verwijderen",
     "nestBlockAtLevel": "Blok op dit niveau nesten",
+    "typeAtPreviousLevel": "Op bovenliggend niveau typen",
+    "typeAtNextLevel": "Op onderliggend niveau typen",
     "convertSelection": "Geselecteerde tekst omzetten",
     "cut": "Knippen",
     "copy": "Kopiëren",
