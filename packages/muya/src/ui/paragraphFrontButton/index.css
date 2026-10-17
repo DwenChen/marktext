@@ -63,22 +63,16 @@
     filter: drop-shadow(14px 0 currentcolor);
 }
 
-.mu-line-ghost {
-    position: absolute;
-
-    height: 3px;
-
-    background: var(--editor-color-30);
-}
-
 .mu-shadow {
-    position: absolute;
+    position: fixed;
     z-index: 1;
 
     background: var(--editor-bg-color);
     box-shadow: var(--float-shadow);
     transform: translateX(-30px);
     opacity: 0.8;
+
+    pointer-events: none;
 }
 
 .mu-shadow > * {

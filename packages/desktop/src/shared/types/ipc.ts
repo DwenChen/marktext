@@ -18,7 +18,12 @@
  */
 
 import type { IKeyboardLayoutInfo, IKeyboardMapping } from 'native-keymap'
-import type { EditorBlockType, EditorContextMenuState, SidebarMenuSection } from './menu'
+import type {
+  EditorBlockType,
+  EditorContextMenuState,
+  SidebarMenuSection,
+  HelpCommand
+} from './menu'
 import type {
   MarkdownDocument,
   TabOptions,
@@ -53,6 +58,7 @@ export type PlantumlFetchResult =
 
 export interface IpcInvokeChannels {
   'mt::menu::get-application': { args: []; ret: MenuTemplate }
+  'mt::menu::get-help-commands': { args: []; ret: HelpCommand[] }
   'mt::menu::execute-application': { args: [command: string]; ret: boolean }
   'mt::import-document-theme': {
     args: []
@@ -261,6 +267,7 @@ export interface IpcMainEventChannels {
   'mt::UPDATE_ERROR': [error: unknown]
   'mt::UPDATE_NOT_AVAILABLE': [info?: unknown]
   'mt::about-dialog': []
+  'mt::help-dialog': [page?: 'guide' | 'markdown']
   'mt::ask-for-close': []
   'mt::bootstrap-editor': [config: BootstrapEditorConfig]
   'mt::prepare-editor-context-menu': []

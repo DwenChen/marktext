@@ -223,13 +223,17 @@ const handleLeftBottomClick = (name: string): void => {
   width: 45px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding-top: var(--titleBarHeight);
   box-sizing: border-box;
 }
 
 .left-column > ul {
   opacity: 1;
+}
+
+.left-column > ul.bottom {
+  margin-top: auto;
 }
 
 .left-column ul {
@@ -252,15 +256,8 @@ const handleLeftBottomClick = (name: string): void => {
 }
 
 .left-column > .compact-menus {
-  position: absolute;
-  top: var(--titleBarHeight);
-  left: 0;
   width: 45px;
   box-sizing: border-box;
-}
-
-.side-bar.compact .left-column > ul:first-of-type {
-  margin-top: 94px;
 }
 
 .left-column ul > li > svg {

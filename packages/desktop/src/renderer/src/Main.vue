@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import en from 'element-plus/es/locale/lang/en'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import zhTw from 'element-plus/es/locale/lang/zh-tw'
+import UserGuide from '@/components/userGuide/index.vue'
 
 const { locale } = useI18n()
 const elementLocale = computed(() =>
@@ -15,6 +16,7 @@ const elementLocale = computed(() =>
   <div id="app">
     <el-config-provider :locale="elementLocale">
       <router-view />
+      <user-guide />
     </el-config-provider>
   </div>
 </template>

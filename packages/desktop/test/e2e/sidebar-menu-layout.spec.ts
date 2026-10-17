@@ -26,7 +26,7 @@ test('sidebar header uses the title row and aligns the hamburger with the icon r
     expect(geometry.hamburger.x + geometry.hamburger.width / 2).toBe(geometry.folder.x + geometry.folder.width / 2)
     await page.screenshot({ path: 'test-results/sidebar-menu-layout.png' })
     await page.locator('.left-column li').first().click()
-    await expect(page.locator('.compact-menus button')).toHaveCount(3)
+    await expect(page.locator('.compact-menus button')).toHaveCount(4)
     await page.locator('.left-column li').first().click()
     await expect(page.locator('.right-column .sidebar-menus')).toBeVisible()
     await expectNoRendererErrors(app)

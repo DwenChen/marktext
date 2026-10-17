@@ -102,7 +102,8 @@
       "support": "MarkText 후원",
       "license": "라이선스",
       "about": "정보",
-      "checkUpdates": "업데이트 확인"
+      "checkUpdates": "업데이트 확인",
+      "userGuide": "사용자 가이드"
     },
     "marktext": {
       "title": "MarkText",

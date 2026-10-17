@@ -65,15 +65,18 @@ function isWebImageDrag(dataTransfer: DataTransfer): boolean {
     return hasUri && hasHtml && !hasText;
 }
 
-// Resolve the drop target to an outermost block + insert position. Returns
-// `null` when the pointer is not over an editor content block.
+// Keep images inside the list item or quote under the pointer.
 function resolveDropTarget(event: DragEvent): IDropTarget | null {
     const contentDom = findContentDOM(event.target as Node | null);
     if (!contentDom)
         return null;
 
     const block = getBlock(contentDom);
-    const anchor = block?.outMostBlock;
+    const paragraph = block?.parent;
+    const container = paragraph?.parent?.blockName;
+    const anchor = container === 'list-item' || container === 'task-list-item' || container === 'block-quote'
+        ? paragraph
+        : block?.outMostBlock;
     if (!anchor || !anchor.domNode)
         return null;
 
@@ -109,6 +112,8 @@ function insertImageParagraph(
     target: IDropTarget,
     text: string,
 ): Parent {
+    muya.flush();
+    muya.editor.history.cutoff();
     const state = { name: 'paragraph', text };
     const imageBlock = ScrollPage.loadBlock('paragraph').create(muya, state);
     const { anchor, position } = target;
@@ -119,6 +124,8 @@ function insertImageParagraph(
         anchor.parent!.insertAfter(imageBlock, anchor);
 
     imageBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+    muya.flush();
+    muya.editor.history.cutoff();
 
     return imageBlock;
 }
@@ -273,13 +280,6 @@ function handleFileImage(
 export function attachDragDropImageHandlers(muya: Muya): void {
     const { eventCenter, domNode } = muya;
 
-    // Prevent the browser from starting its own image drag inside the editor;
-    // it would otherwise open the dragged image as a navigation.
-    const dragStartHandler = (event: Event) => {
-        if ((event.target as HTMLElement)?.tagName === 'IMG')
-            event.preventDefault();
-    };
-
     const dragOverHandler = (event: Event) => {
         const dragEvent = event as DragEvent;
         const { dataTransfer } = dragEvent;
@@ -329,7 +329,6 @@ export function attachDragDropImageHandlers(muya: Muya): void {
 
     const dragLeaveHandler = () => hideGhost();
 
-    eventCenter.attachDOMEvent(domNode, 'dragstart', dragStartHandler);
     eventCenter.attachDOMEvent(domNode, 'dragover', dragOverHandler);
     eventCenter.attachDOMEvent(domNode, 'drop', dropHandler);
     // `dragleave` is bound on `document` (not `window`) to clear the ghost when

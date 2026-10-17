@@ -102,7 +102,8 @@
       "support": "MarkText'e Destek Ol",
       "license": "Lisans",
       "about": "Hakkında",
-      "checkUpdates": "Güncellemeleri Denetle"
+      "checkUpdates": "Güncellemeleri Denetle",
+      "userGuide": "Kullanıcı Kılavuzu"
     },
     "marktext": {
       "title": "MarkText",

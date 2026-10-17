@@ -16,7 +16,7 @@ import type Keybindings from '../keyboard/shortcutHandler'
 import type { IUserPreferences } from '@shared/types/preferences'
 import type { MenuTemplate } from '@shared/types/menu'
 import { syncWindowMenu } from '../ipc/window'
-import { getMenuItemsRecursive } from './utils'
+import { getMenuItemsRecursive, describeMenuCommands } from './utils'
 
 const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
 const MAX_RECENTLY_USED_DOCUMENTS = 12
@@ -510,6 +510,11 @@ class AppMenu {
   }
 
   _listenForIpcMain(): void {
+    ipcMain.handle('mt::menu::get-help-commands', (event) => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      const menu = win && this.has(win.id) ? this.getWindowMenuById(win.id) : null
+      return menu ? describeMenuCommands(menu.items) : []
+    })
     ipcMain.handle('mt::menu::get-application', (event): MenuTemplate => {
       const win = BrowserWindow.fromWebContents(event.sender)
       if (!win || !this.has(win.id)) return []
@@ -539,10 +544,9 @@ class AppMenu {
       const items = serialize(
         menu.items.filter(
           (item) =>
-            item.role !== 'help' &&
             !(
               sidebarVisible &&
-              ['paragraphMenuEntry', 'formatMenuItem', 'viewMenu'].includes(item.id)
+              ['paragraphMenuEntry', 'formatMenuItem', 'viewMenu', 'helpMenu'].includes(item.id)
             )
         )
       )
@@ -570,7 +574,7 @@ class AppMenu {
     ipcMain.on(
       'mt::menu::popup-section',
       (event, section: string, position: { x: number; y: number }) => {
-        if (!['paragraphMenuEntry', 'formatMenuItem', 'viewMenu'].includes(section)) return
+        if (!['paragraphMenuEntry', 'formatMenuItem', 'viewMenu', 'helpMenu'].includes(section)) return
         const win = BrowserWindow.fromWebContents(event.sender)
         if (!win) return
         const submenu = this.getWindowMenuById(win.id)?.getMenuItemById(section)?.submenu

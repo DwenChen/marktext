@@ -1,5 +1,6 @@
 import type Format from '../block/base/format';
 import type { Muya } from '../muya';
+import type { TState } from '../state/types';
 import type Selection from './index';
 import type { IImageSelectionData } from './types';
 import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../config';
@@ -18,7 +19,8 @@ class ImageSelection {
         const { eventCenter, domNode } = this._muya;
         eventCenter.attachDOMEvent(domNode, 'click', this._handleClick);
         eventCenter.attachDOMEvent(document, 'click', this._handleDocClick);
-        eventCenter.attachDOMEvent(document, 'keydown', this._handleKeydown);
+        // Image selection leaves a stale DOM text range; consume its keys before text blocks.
+        eventCenter.attachDOMEvent(document, 'keydown', this._handleKeydown, true);
     }
 
     clear(): void {
@@ -42,6 +44,8 @@ class ImageSelection {
     private _handleKeydown = (event: Event): void => {
         if (!isKeyboardEvent(event))
             return;
+        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.isComposing)
+            return;
 
         const { key } = event;
         const { selected } = this;
@@ -55,17 +59,80 @@ class ImageSelection {
 
         if (key === ' ') {
             event.preventDefault();
+            event.stopPropagation();
             this._previewSelectedImage(selected);
             return;
         }
 
-        if (/^(?:Backspace|Delete|Enter)$/.test(key)) {
+        if (key === 'Enter') {
             event.preventDefault();
+            event.stopPropagation();
+            const { block, token } = selected;
+            this._selection.activate(SelectionType.TEXT);
+            this._enterAfterImage(block, token.range.end);
+            return;
+        }
+
+        if (/^(?:Backspace|Delete)$/.test(key)) {
+            event.preventDefault();
+            event.stopPropagation();
             const { block, ...imageInfo } = selected;
             block.deleteImage(imageInfo);
             this._selection.activate(SelectionType.TEXT);
         }
     };
+
+    private _enterAfterImage(block: Format, offset: number): void {
+        const paragraph = block.parent;
+        if (!paragraph || paragraph.blockName !== 'paragraph') {
+            block.setCursor(offset, offset, true);
+            return;
+        }
+        const muya = this._muya;
+        muya.flush();
+        const states = muya.getState();
+        let children = states;
+        for (const index of paragraph.parent!.path) {
+            if (typeof index !== 'number')
+                continue;
+            const state = children[index];
+            if (!state || !('children' in state))
+                return;
+            children = state.children;
+        }
+        const index = paragraph.parent!.offset(paragraph);
+        const state = children[index];
+        if (state?.name !== 'paragraph')
+            return;
+        const next: TState = { name: 'paragraph', text: state.text.slice(offset) };
+        state.text = state.text.slice(0, offset);
+        const item = paragraph.parent!;
+        let path = [...item.path, index + 1];
+        if (item.blockName === 'list-item' || item.blockName === 'task-list-item') {
+            let listStates = states;
+            for (const index of item.parent!.path) {
+                if (typeof index !== 'number')
+                    continue;
+                const state = listStates[index];
+                if (!state || !('children' in state))
+                    return;
+                listStates = state.children;
+            }
+            const index = item.parent!.offset(item) + 1;
+            listStates.splice(index, 0, item.blockName === 'task-list-item'
+                ? { name: 'task-list-item', meta: { checked: false }, children: [next] }
+                : { name: 'list-item', children: [next] });
+            path = [...item.parent!.path, index];
+        }
+        else {
+            children.splice(index + 1, 0, next);
+        }
+        // Atomic image DOM nodes cannot reliably represent a caret after the image.
+        muya.replaceContent(states);
+        const input = muya.editor.scrollPage?.queryBlock(path);
+        if (input?.isParent())
+            input.firstContentInDescendant()?.setCursor(0, 0, true);
+    }
 
     private _previewSelectedImage(selected: IImageSelectionData) {
         const { token, imageId } = selected;

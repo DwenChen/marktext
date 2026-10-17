@@ -40,25 +40,23 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           npm_config_user_agent: 'pnpm'
 
-      - name: Check types, lint, and block context menu unit tests
+      - name: Check desktop types and lint
         run: |
           pnpm run typecheck
           pnpm run lint
-          pnpm -C packages/desktop exec vitest run test/unit/specs/context-block-menu.spec.ts test/unit/specs/context-menu-locales.spec.ts --maxWorkers=2
 
-      - name: Check typing between existing Markdown levels
+      - name: Check drag handling and toolbar unit tests
         run: |
-          pnpm -C packages/muya exec eslint src/block/typingLevels.ts src/muya.ts src/__tests__/typingLevels.spec.ts
-          pnpm -C packages/muya exec vitest run src/__tests__/typingLevels.spec.ts --maxWorkers=2 --silent
+          pnpm -C packages/muya exec eslint src/block/content/paragraphContent/index.ts src/editor/dragDropImage.ts src/editor/dragDropText.ts src/editor/dragDropState.ts src/editor/standaloneTextDrop.ts src/editor/textDropIndicator.ts src/editor/imageDragSelection.ts src/editor/index.ts src/selection/ImageSelection.ts src/ui/imageToolbar/index.ts src/ui/inlineFormatToolbar/index.ts src/ui/paragraphFrontButton/index.ts src/editor/__tests__/dragDropImage.spec.ts src/editor/__tests__/listImageDrag.spec.ts src/editor/__tests__/imageDragMove.spec.ts src/ui/__tests__/inlineFormatToolbarDrag.spec.ts
+          pnpm -C packages/muya exec vitest run src/editor/__tests__/listImageDrag.spec.ts src/editor/__tests__/imageDragMove.spec.ts src/editor/__tests__/dragDropImage.spec.ts src/ui/__tests__/inlineFormatToolbarDrag.spec.ts --maxWorkers=2 --silent
 
       - name: Compile Electron app
         run: pnpm -C packages/desktop exec electron-vite build
 
-      - name: Verify typing levels, menu visibility, Enter, undo, and saving
-        run: >-
-          pnpm -C packages/desktop exec playwright test
-          test/e2e/context-typing-levels.spec.ts
-          --workers=1
+      - name: Verify list and image dragging, offline help, and affected sidebar menus
+        run: |
+          pnpm -C packages/desktop exec playwright test test/e2e/list-image-drag.spec.ts test/e2e/user-guide.spec.ts --workers=1
+          pnpm -C packages/desktop exec playwright test test/e2e/sidebar-menu-layout.spec.ts test/e2e/editor-menus-clipboard.spec.ts -g "sidebar header|sidebar menus preserve" --workers=1
 
       - name: Build Windows installer and ZIP
         run: pnpm -C packages/desktop exec electron-builder --win --x64 --publish never

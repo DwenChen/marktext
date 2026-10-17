@@ -13,7 +13,7 @@ test('sidebar menus preserve focus and editor context actions round-trip through
       Menu.prototype.popup = function() { state.popupMenu = this }
     })
     const menus = page.locator('.right-column .sidebar-menus button')
-    await expect(menus).toHaveText(['段落', '格式', '视图'])
+    await expect(menus).toHaveText(['段落', '格式', '视图', '帮助'])
     const content = page.locator('.mu-paragraph-content').first()
     await content.click()
     await menus.first().click()

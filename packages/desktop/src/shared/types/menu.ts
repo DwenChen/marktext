@@ -34,4 +34,10 @@ export interface EditorContextMenuState {
   mathEnabled: boolean
 }
 
-export type SidebarMenuSection = 'paragraphMenuEntry' | 'formatMenuItem' | 'viewMenu'
+export type SidebarMenuSection = 'paragraphMenuEntry' | 'formatMenuItem' | 'viewMenu' | 'helpMenu'
+
+export interface HelpCommand {
+  path: string
+  accelerator?: string
+  available: boolean
+}

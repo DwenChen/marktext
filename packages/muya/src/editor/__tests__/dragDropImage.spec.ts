@@ -47,13 +47,14 @@ vi.mock('../../block/scrollPage', () => ({
 const { attachDragDropImageHandlers } = await import('../dragDropImage');
 
 interface IMockMuya {
+    flush: () => void;
     eventCenter: EventCenter;
     domNode: HTMLElement;
     options: {
         imageAction?: (state: { src: string; alt: string; title: string }) => Promise<string>;
         getPathForFile?: (file: File) => string;
     };
-    editor: { inlineRenderer: { renderer: { urlMap: Map<string, string> } } };
+    editor: { history: { cutoff: () => void }; inlineRenderer: { renderer: { urlMap: Map<string, string> } } };
 }
 
 // Build a fake outermost anchor block whose `parent.insertBefore/insertAfter`
@@ -99,10 +100,11 @@ function makeMuya(options: IMockMuya['options'] = {}): IMockMuya {
     const domNode = document.createElement('div');
     document.body.appendChild(domNode);
     return {
+        flush: vi.fn(),
         eventCenter: new EventCenter(),
         domNode,
         options,
-        editor: { inlineRenderer: { renderer: { urlMap: new Map() } } },
+        editor: { history: { cutoff: vi.fn() }, inlineRenderer: { renderer: { urlMap: new Map() } } },
     };
 }
 

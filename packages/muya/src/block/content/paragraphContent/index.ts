@@ -583,7 +583,7 @@ class ParagraphContent extends Format {
             }
         }
         else {
-            if (parent!.isOnlyChild()) {
+            if (this._canSplitListItem(start.offset, end.offset)) {
                 this.text = text.substring(0, start.offset);
                 const paragraphChild: IParagraphState = {
                     name: 'paragraph',
@@ -608,6 +608,10 @@ class ParagraphContent extends Format {
                 super.enterHandler(event);
             }
         }
+    }
+
+    private _canSplitListItem(start: number, end: number): boolean {
+        return this.parent!.isOnlyChild() || (this.parent!.isLastChild() && start === this.text.length && end === this.text.length);
     }
 
     override enterHandler(event: Event) {

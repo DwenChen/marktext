@@ -254,3 +254,28 @@ body {
 
     background: var(--highlight-color);
 }
+
+.mu-text-drop-indicator {
+    position: fixed;
+    z-index: 1000;
+
+    background: var(--link-color, #1456f0);
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px var(--editor-bg-color, #fff);
+
+    pointer-events: none;
+}
+
+.mu-text-drop-indicator[data-kind="item"]::before {
+    position: absolute;
+    top: -2px;
+    left: -3px;
+
+    width: 7px;
+    height: 7px;
+
+    background: inherit;
+    border-radius: 50%;
+
+    content: "";
+}

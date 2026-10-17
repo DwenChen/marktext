@@ -126,8 +126,8 @@ export const registerWindowHandlers = (): void => {
       syncWindowMenu(appMenu, win)
       const popup = new Menu()
       for (const item of appMenu.items) {
-        const inSidebar = ['paragraphMenuEntry', 'formatMenuItem', 'viewMenu'].includes(item.id)
-        if (item.role !== 'help' && !(inSidebar && appMenu.getMenuItemById('sideBarMenuItem')?.checked)) {
+        const inSidebar = ['paragraphMenuEntry', 'formatMenuItem', 'viewMenu', 'helpMenu'].includes(item.id)
+        if (!(inSidebar && appMenu.getMenuItemById('sideBarMenuItem')?.checked)) {
           popup.append(item)
         }
       }

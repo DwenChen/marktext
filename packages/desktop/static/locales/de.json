@@ -102,7 +102,8 @@
       "support": "MarkText unterstützen",
       "license": "Lizenz",
       "about": "Über",
-      "checkUpdates": "Updates prüfen"
+      "checkUpdates": "Updates prüfen",
+      "userGuide": "Benutzerhandbuch"
     },
     "marktext": {
       "title": "MarkText",

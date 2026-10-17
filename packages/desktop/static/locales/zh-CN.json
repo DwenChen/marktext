@@ -102,7 +102,8 @@
       "support": "支持 MarkText",
       "license": "许可证",
       "about": "关于",
-      "checkUpdates": "检查更新"
+      "checkUpdates": "检查更新",
+      "userGuide": "使用帮助"
     },
     "marktext": {
       "title": "MarkText",

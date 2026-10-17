@@ -8,6 +8,7 @@ import dragIcon from '../../assets/icons/drag/2.png';
 import BulletList from '../../block/commonMark/bulletList';
 import OrderList from '../../block/commonMark/orderList';
 import { BLOCK_DOM_PROPERTY } from '../../config';
+import { TextDropIndicator } from '../../editor/textDropIndicator';
 import { isMouseEvent, throttle, verticalPositionInRect } from '../../utils';
 import { h, patch } from '../../utils/snabbdom';
 import { getIcon } from './config';
@@ -67,12 +68,15 @@ export class ParagraphFrontButton {
         position?: 'down' | 'up' | null;
     } | null = null;
 
-    private _ghost: HTMLDivElement | null = null;
+    private _dropIndicator: TextDropIndicator;
+    private _lastDragPoint: MouseEvent | null = null;
+    private _previousCursor = '';
     private _shadow: HTMLDivElement | null = null;
     private _disableListen: boolean = false;
     private _dragEvents: string[] = [];
 
     constructor(public muya: Muya, options = {}) {
+        this._dropIndicator = new TextDropIndicator(muya.domNode);
         this._options = Object.assign({}, defaultOptions(), options);
         this.init();
         this.listen();
@@ -150,6 +154,7 @@ export class ParagraphFrontButton {
 
         eventCenter.attachDOMEvent(container, 'mousedown', this._dragBarMouseDown);
         eventCenter.attachDOMEvent(container, 'mouseup', this._dragBarMouseUp);
+        eventCenter.attachDOMEvent(document, 'mouseup', this._dragBarMouseUp);
         eventCenter.attachDOMEvent(document, 'mousemove', mousemoveHandler);
         eventCenter.attachDOMEvent(container, 'click', clickHandler);
     }
@@ -177,6 +182,7 @@ export class ParagraphFrontButton {
         event.preventDefault();
 
         const { x, y } = event;
+        this._lastDragPoint = event;
         const els = [
             ...document.elementsFromPoint(x, y),
             ...document.elementsFromPoint(x + LEFT_OFFSET, y),
@@ -184,7 +190,8 @@ export class ParagraphFrontButton {
         const outMostElement = els.find(
             ele =>
                 ele[BLOCK_DOM_PROPERTY]
-                && (ele[BLOCK_DOM_PROPERTY] as Parent).isOutMostBlock,
+                && (ele[BLOCK_DOM_PROPERTY] as Parent).isOutMostBlock
+                && ele[BLOCK_DOM_PROPERTY]?.muya === this.muya,
         );
         this._moveShadow(event);
 
@@ -192,6 +199,7 @@ export class ParagraphFrontButton {
             outMostElement
             && outMostElement[BLOCK_DOM_PROPERTY] !== this._dragInfo.block
             && (outMostElement[BLOCK_DOM_PROPERTY] as Parent).blockName !== 'frontmatter'
+            && outMostElement[BLOCK_DOM_PROPERTY]?.parent === this._dragInfo.block.parent
         ) {
             const block = outMostElement[BLOCK_DOM_PROPERTY];
             const rect = outMostElement.getBoundingClientRect();
@@ -204,12 +212,9 @@ export class ParagraphFrontButton {
             });
         }
         else {
-            if (this._ghost) {
-                this._ghost.remove();
-                this._ghost = null;
-                this._dragInfo.target = null;
-                this._dragInfo.position = null;
-            }
+            this._dropIndicator.hide();
+            this._dragInfo.target = null;
+            this._dragInfo.position = null;
         }
     };
 
@@ -217,17 +222,10 @@ export class ParagraphFrontButton {
         event.preventDefault();
         event.stopPropagation();
 
-        this._disableListen = false;
-        const { eventCenter } = this.muya;
-        this._dragEvents.forEach(eventId => eventCenter.detachDOMEvent(eventId));
-        this._dragEvents = [];
-        if (this._ghost)
-            this._ghost.remove();
-
-        this._destroyShadow();
-        document.body.style.cursor = 'auto';
-        this._dragTimer = null;
+        // Mouseup can arrive before the last move callback; resolve its actual release position.
+        this._mouseMove(event);
         const { block, target, position } = this._dragInfo || {};
+        this._stopDrag();
 
         if (target && position && block) {
             if (
@@ -256,8 +254,19 @@ export class ParagraphFrontButton {
                 anchorBlock.setCursor(begin, end);
             }
         }
+    };
 
+    private _stopDrag = () => {
+        this._dragBarMouseUp();
+        this._dragEvents.forEach(eventId => this.muya.eventCenter.detachDOMEvent(eventId));
+        this._dragEvents = [];
+        this._dropIndicator.hide();
+        this._destroyShadow();
+        if (this._dragInfo)
+            document.body.style.cursor = this._previousCursor;
         this._dragInfo = null;
+        this._lastDragPoint = null;
+        this._disableListen = false;
     };
 
     private _startDrag = () => {
@@ -274,32 +283,29 @@ export class ParagraphFrontButton {
         this.hide();
         const { eventCenter } = this.muya;
 
+        this._previousCursor = document.body.style.cursor;
         document.body.style.cursor = 'grabbing';
 
         this._dragEvents = [
             eventCenter.attachDOMEvent(
                 document,
                 'mousemove',
-                throttle(this._mouseMove, 100),
+                this._mouseMove,
             ),
             eventCenter.attachDOMEvent(document, 'mouseup', this._mouseUp),
+            eventCenter.attachDOMEvent(document, 'keydown', (event) => {
+                if ((event as KeyboardEvent).key === 'Escape')
+                    this._stopDrag();
+            }, true),
+            eventCenter.attachDOMEvent(document, 'scroll', () => {
+                if (this._lastDragPoint)
+                    this._mouseMove(this._lastDragPoint);
+            }, true),
         ];
     };
 
     private _createStyledGhost(rect: DOMRect, position: 'down' | 'up') {
-        let ghost = this._ghost;
-        if (!ghost) {
-            ghost = document.createElement('div');
-            document.body.appendChild(ghost);
-            ghost.classList.add('mu-line-ghost');
-            this._ghost = ghost;
-        }
-
-        Object.assign(ghost.style, {
-            width: `${rect.width}px`,
-            left: `${rect.left}px`,
-            top: position === 'up' ? `${rect.top}px` : `${rect.top + rect.height}px`,
-        });
+        this._dropIndicator.show(rect, 'item', position === 'down');
     }
 
     private _createStyledShadow() {
@@ -439,6 +445,7 @@ export class ParagraphFrontButton {
     }
 
     destroy() {
+        this._stopDrag();
         if (this._container && this._resizeObserver)
             this._resizeObserver.unobserve(this._container);
 

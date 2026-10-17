@@ -81,6 +81,9 @@ export class InlineFormatToolbar extends BaseFloat {
     private _formatContainer: HTMLDivElement = document.createElement('div');
 
     private _colorPanelCloseTimer: number | null = null;
+    private _showRequest = 0;
+    private _draggingText = false;
+    private _suppressAfterTextDrag = false;
 
     /**
      * Create inline format toolbar instance
@@ -105,10 +108,15 @@ export class InlineFormatToolbar extends BaseFloat {
         super.listen();
 
         eventCenter.subscribe('muya-format-picker', ({ reference, block }) => {
+            if (this._suppressAfterTextDrag)
+                return;
             if (reference) {
+                const request = ++this._showRequest;
                 this._block = block;
                 this._formats = block.getFormatsInRange().formats;
                 requestAnimationFrame(() => {
+                    if (request !== this._showRequest || this._suppressAfterTextDrag)
+                        return;
                     this.show(reference);
                     this._render();
                 });
@@ -116,6 +124,21 @@ export class InlineFormatToolbar extends BaseFloat {
             else {
                 this.hide();
             }
+        });
+
+        eventCenter.attachDOMEvent(domNode, 'dragstart', () => {
+            this._draggingText = true;
+            this._suppressAfterTextDrag = true;
+            this.hide();
+        }, true);
+        const finishDrag = () => {
+            this._draggingText = false;
+        };
+        eventCenter.attachDOMEvent(document, 'dragend', finishDrag, true);
+        eventCenter.attachDOMEvent(document, 'drop', finishDrag, true);
+        eventCenter.attachDOMEvent(domNode, 'pointerdown', () => {
+            this._draggingText = false;
+            this._suppressAfterTextDrag = false;
         });
 
         // While open, re-sync the highlight from the selection's current
@@ -131,6 +154,10 @@ export class InlineFormatToolbar extends BaseFloat {
         });
 
         eventCenter.attachDOMEvent(domNode, 'keydown', (event) => {
+            if (isKeyboardEvent(event) && event.key === 'Escape')
+                this._draggingText = false;
+            else if (!this._draggingText)
+                this._suppressAfterTextDrag = false;
             this._handleKeydown(event, editor);
         });
 
@@ -149,6 +176,8 @@ export class InlineFormatToolbar extends BaseFloat {
     }
 
     override hide() {
+        // A picker request can still be queued when a drag or a dismissal hides the float.
+        this._showRequest++;
         this._closeColorPanelNow();
         super.hide();
     }

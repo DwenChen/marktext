@@ -26,7 +26,8 @@ const { t } = useI18n()
 const menus: Array<{ id: SidebarMenuSection; label: string }> = [
   { id: 'paragraphMenuEntry', label: 'menu.paragraph.title' },
   { id: 'formatMenuItem', label: 'menu.format.format' },
-  { id: 'viewMenu', label: 'menu.view.view' }
+  { id: 'viewMenu', label: 'menu.view.view' },
+  { id: 'helpMenu', label: 'menu.help.help' }
 ]
 const openMenu = (event: MouseEvent, section: SidebarMenuSection): void => {
   const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()

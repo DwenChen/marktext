@@ -54,6 +54,8 @@ export class ImageToolBar extends BaseFloat {
                 this._block = block;
                 this._imageInfo = imageInfo;
                 setTimeout(() => {
+                    if (this._reference !== reference)
+                        return;
                     this.show(reference);
                     this._render();
                 }, 0);
