@@ -39,16 +39,51 @@ function highlight(code: string, lang: string) {
     return Prism.highlight(code, grammar, lang);
 }
 
+const DOUBLE_TILDE_DEL_RULE = /^(~~)(?=[^\s~])((?:\\.|[^\\])*?(?:\\.|[^\s~\\]))\1(?!~)/;
+
 export function getHighlightHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote }
-        = options;
+    const {
+        footnote,
+        frontMatter,
+        texMathDollars,
+        texMathGfm,
+        texMathSingleBackslash,
+        texMathDoubleBackslash,
+        superSubScript,
+        highlightSyntax,
+        inlineDiff,
+        multilineBlockquote,
+        doubleTildeStrikethrough,
+    } = options;
 
     // Build a fresh Marked instance per call. `Marked.use({ walkTokens })`
     // chains rather than replaces, so reusing a module-level singleton would
     // cause walkTokens to fire N times after N invocations and corrupt token
     // state (e.g. wiping `lang` on subsequent runs).
     const marked = new Marked(markedHighlight({ highlight }));
+
+    // Match the live WYSIWYG editor's strikethrough rule (`~~...~~` only) so
+    // numeric ranges written with single tildes (e.g. `180~265 ns ... 395~440 ns`)
+    // are not corrupted into <del> tags during HTML/PDF/PNG export.
+    if (doubleTildeStrikethrough) {
+        marked.use({
+            tokenizer: {
+                del(src) {
+                    const cap = DOUBLE_TILDE_DEL_RULE.exec(src);
+                    if (cap) {
+                        return {
+                            type: 'del',
+                            raw: cap[0],
+                            text: cap[2],
+                            tokens: this.lexer.inlineTokens(cap[2]),
+                        };
+                    }
+                    return undefined;
+                },
+            },
+        });
+    }
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),

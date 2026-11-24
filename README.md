@@ -10,23 +10,31 @@
 [![Windows build](https://github.com/DwenChen/marktext/actions/workflows/windows-preview.yml/badge.svg)](https://github.com/DwenChen/marktext/actions/workflows/windows-preview.yml)
 [![License](https://img.shields.io/github/license/DwenChen/marktext)](LICENSE)
 
-当前版本 **1.3.0** · **Windows x64** · [完整更新说明](docs/releases/v1.3.0.md) · [问题反馈](https://github.com/DwenChen/marktext/issues)
+当前版本 **1.4.0** · **Windows x64** · [完整更新说明](docs/releases/v1.4.0.md) · [问题反馈](https://github.com/DwenChen/marktext/issues)
 
 ## 下载与运行
 
 | 发行文件                                                                                                           | 使用方式                            |
 | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
-| [Windows 安装程序](https://github.com/DwenChen/marktext/releases/download/v1.3.0/marktext-win-x64-1.3.0-setup.exe) | 运行安装向导，可选择安装目录        |
-| [免安装 ZIP](https://github.com/DwenChen/marktext/releases/download/v1.3.0/marktext-win-x64-1.3.0.zip)             | 解压到独立目录后运行 `marktext.exe` |
+| [Windows 安装程序](https://github.com/DwenChen/marktext/releases/download/v1.4.0/marktext-win-x64-1.4.0-setup.exe) | 运行安装向导，可选择安装目录        |
+| [免安装 ZIP](https://github.com/DwenChen/marktext/releases/download/v1.4.0/marktext-win-x64-1.4.0.zip)             | 解压到独立目录后运行 `marktext.exe` |
 
-[Release 页面](https://github.com/DwenChen/marktext/releases/tag/v1.3.0)同时提供 `SHA256SUMS.txt` 与 `build-info.json`，记录下载摘要、源代码提交和云端构建地址。安装程序和 ZIP 均由 GitHub Actions 在 Windows 环境构建。
+[Release 页面](https://github.com/DwenChen/marktext/releases/tag/v1.4.0)同时提供 `SHA256SUMS.txt` 与 `build-info.json`，记录下载摘要、源代码提交和云端构建地址。安装程序和 ZIP 均由 GitHub Actions 在 Windows 环境构建。
 
 免安装版如需随目录携带配置，可在可执行文件同级新建 **marktext-user-data** 文件夹，再启动软件。
 
 ```powershell
-Get-FileHash .\marktext-win-x64-1.3.0-setup.exe -Algorithm SHA256
-Get-FileHash .\marktext-win-x64-1.3.0.zip -Algorithm SHA256
+Get-FileHash .\marktext-win-x64-1.4.0-setup.exe -Algorithm SHA256
+Get-FileHash .\marktext-win-x64-1.4.0.zip -Algorithm SHA256
 ```
+
+## 1.4.0：复杂文档 PDF、HTML 与 PNG 导出保真优化
+
+针对包含多列表格、KaTeX 数学公式、长 Mermaid 流程图、GitHub Alerts 与 ASCII 图示的复杂文档，全面优化 PDF、HTML 和 PNG 导出质量：
+
+- **PDF 隔离离屏渲染**：在独立离屏窗口中等待内嵌 KaTeX 字体与图片就绪后再生成 PDF，彻底解决数学公式不可见与深色主题样式污染，并修复自定义纸张尺寸单位换算错误。
+- **消除空白页与比例失调**：按实际可打印区域等比适配长流程图与高图，保持标题与图表同页呈现；多列表格自动微调内边距与字号、保持单行不跨页腰斩并重复表头；ASCII 图示与宽公式自适应防截断。
+- **HTML 与 PNG 同步提升**：统一双波浪线删除线规则避免数值区间（如 `180~265 ns`）被误加删除线；统一编辑器代码高亮配色并自动预加载语言语法；修复 PNG 双重外边距与长代码裁剪，确保多列宽表与图表清晰完整。
 
 ## 1.3.0：拖动时看清落点
 

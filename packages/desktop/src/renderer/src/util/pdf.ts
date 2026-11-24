@@ -6,7 +6,7 @@
 // algorithm, with the SAME `-N` document-order dedup the engine uses, so the
 // in-document TOC links resolve.
 import { escapeHTML, unescapeHTML, generateGithubSlug } from '@muyajs/core'
-import { getDocumentThemeCss, getTableAlignmentCss } from './documentTheme'
+import { getDocumentThemeOverlayCss, getTableAlignmentCss } from './documentTheme'
 import type { CustomDocumentTheme } from '../../../common/theme'
 import { deepClone } from '../util'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from '../util/dompurify'
@@ -53,6 +53,7 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
     // Keep a heading with the content that follows it, so a page never breaks
     // immediately after a heading, and never split a multi-line heading (#3039).
     output += 'h1,h2,h3,h4,h5,h6{break-after:avoid;break-inside:avoid;}'
+    output += 'thead{display:table-header-group;}tfoot{display:table-footer-group;}tr{break-inside:avoid;}'
   }
 
   // Auto numbering headings via CSS
@@ -65,7 +66,9 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
     output += 'pre.front-matter{display:none!important;}'
   }
 
-  output += getDocumentThemeCss(theme || 'github', options.customThemes)
+  // Only emit the theme overlay here; `@muyajs/core`'s MarkdownToHtml already
+  // inlines github-markdown-light.css and githubAlertsExport.css once.
+  output += getDocumentThemeOverlayCss(theme || 'github', options.customThemes)
   output += getTableAlignmentCss(options.centerTables)
 
   // Font options. Emitted AFTER the theme CSS so the "Overwrite theme font"

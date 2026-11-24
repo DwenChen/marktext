@@ -31,9 +31,3 @@
 
     fill: currentcolor;
 }
-
-@media print {
-    .markdown-body .markdown-alert {
-        break-inside: avoid-page;
-    }
-}

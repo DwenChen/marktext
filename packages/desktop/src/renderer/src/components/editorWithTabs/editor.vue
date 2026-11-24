@@ -1420,14 +1420,28 @@ const handleExport = async(options: unknown) => {
       break
     }
     case 'pdf': {
-      // NOTE: We need to set page size via Electron.
+      // Render in an isolated offscreen window in main so live editor styles,
+      // dark-mode rules, and unloaded KaTeX fonts never corrupt the exported PDF.
       try {
-        const { pageSize, pageSizeWidth, pageSizeHeight, isLandscape } = opts
+        const {
+          pageSize,
+          pageSizeWidth,
+          pageSizeHeight,
+          isLandscape,
+          pageMarginTop,
+          pageMarginRight,
+          pageMarginBottom,
+          pageMarginLeft
+        } = opts
         const pageOptions = {
           pageSize,
           pageSizeWidth,
           pageSizeHeight,
-          isLandscape
+          isLandscape,
+          pageMarginTop: pageMarginTop as number | undefined,
+          pageMarginRight: pageMarginRight as number | undefined,
+          pageMarginBottom: pageMarginBottom as number | undefined,
+          pageMarginLeft: pageMarginLeft as number | undefined
         }
 
         const html = await exportStyledHTML(muya, markdown, {
@@ -1441,8 +1455,7 @@ const handleExport = async(options: unknown) => {
           headerFooterStyled: headerFooterStyled as boolean | undefined,
           dir: props.textDirection
         })
-        printer!.renderMarkdown(html, true, props.textDirection)
-        editorStore.EXPORT({ type, pageOptions })
+        editorStore.EXPORT({ type, content: html, pageOptions })
       } catch (err) {
         log.error('Failed to export document:', err)
         notice.notify({
@@ -1450,7 +1463,6 @@ const handleExport = async(options: unknown) => {
           type: 'error',
           message: t('editor.export.errorExporting', { type: htmlTitle || 'PDF' })
         })
-        handlePrintServiceClearup()
       }
       break
     }
@@ -1469,6 +1481,7 @@ const handleExport = async(options: unknown) => {
           dir: props.textDirection
         })
         printer!.renderMarkdown(html, true, props.textDirection)
+        await printer!.waitForReady()
         editorStore.PRINT_RESPONSE()
       } catch (err) {
         log.error('Failed to export document:', err)

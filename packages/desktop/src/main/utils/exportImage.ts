@@ -2,6 +2,7 @@ import { BrowserWindow, app } from 'electron'
 import { mkdtemp, writeFile, rm } from 'node:fs/promises'
 import path from 'node:path'
 import { t } from '../i18n'
+import { buildExportLayoutScript } from './exportLayout'
 
 export const getImageSize = (width: number, height: number): { width: number; height: number } => {
   width = Math.ceil(width)
@@ -52,8 +53,10 @@ export const renderLongImage = async(html: string, requestedWidth = 1200): Promi
         '</head>',
         `<style>
         html, body { margin: 0; min-height: 0; overflow: hidden; background: white; }
-        body { padding: 32px; box-sizing: border-box; }
-        body article.markdown-body { width: 100%; max-width: none; margin: 0; box-sizing: border-box; }
+        body { padding: 36px; box-sizing: border-box; width: ${width}px; }
+        body article.markdown-body { width: 100%; max-width: none; margin: 0; padding: 0 !important; box-sizing: border-box; }
+        body article.markdown-body pre { overflow: visible; }
+        body article.markdown-body pre code { white-space: pre-wrap; overflow-wrap: break-word; }
       </style></head>`
       )
     const filename = path.join(directory, 'document.html')
@@ -69,12 +72,15 @@ export const renderLongImage = async(html: string, requestedWidth = 1200): Promi
         mobile: false
       })
       await debuggerClient.sendCommand('Page.getLayoutMetrics')
-      await win.webContents.executeJavaScript(`(async () => {
-        await document.fonts.ready;
-        await Promise.all(Array.from(document.images, image => image.decode().catch(() => {})));
-      })()`)
+      await win.webContents.executeJavaScript(
+        buildExportLayoutScript({
+          mode: 'png',
+          pageWidthPx: Math.max(200, width - 72)
+        })
+      )
       const metrics = await debuggerClient.sendCommand('Page.getLayoutMetrics')
-      const size = getImageSize(metrics.cssContentSize.width, metrics.cssContentSize.height)
+      const contentWidth = Math.min(width, Math.max(width, metrics.cssContentSize.width))
+      const size = getImageSize(contentWidth, metrics.cssContentSize.height)
       const { data } = await debuggerClient.sendCommand('Page.captureScreenshot', {
         format: 'png',
         captureBeyondViewport: true,

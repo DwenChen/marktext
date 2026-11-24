@@ -38,6 +38,51 @@ class MarkdownPrint {
   }
 
   /**
+   * Wait until embedded web fonts (such as KaTeX WOFF2 fonts) and images inside
+   * the print container are ready before invoking native printing.
+   */
+  async waitForReady(): Promise<void> {
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready.catch(() => {})
+    }
+    if (this.container) {
+      const images = Array.from(this.container.getElementsByTagName('img'))
+      await Promise.all(
+        images.map((img) => {
+          if (img.complete) {
+            return typeof img.decode === 'function' ? img.decode().catch(() => {}) : Promise.resolve()
+          }
+          return new Promise<void>((resolve) => {
+            const timer = setTimeout(resolve, 10000)
+            img.addEventListener(
+              'load',
+              () => {
+                clearTimeout(timer)
+                if (typeof img.decode === 'function') {
+                  img.decode().catch(() => {}).finally(resolve)
+                } else {
+                  resolve()
+                }
+              },
+              { once: true }
+            )
+            img.addEventListener(
+              'error',
+              () => {
+                clearTimeout(timer)
+                resolve()
+              },
+              { once: true }
+            )
+          })
+        })
+      )
+    }
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+  }
+
+  /**
    * Remove the print container from the window.
    */
   clearup(): void {

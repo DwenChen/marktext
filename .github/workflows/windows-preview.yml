@@ -45,18 +45,18 @@ jobs:
           pnpm run typecheck
           pnpm run lint
 
-      - name: Check drag handling and toolbar unit tests
+      - name: Check export engine and desktop export unit tests
         run: |
-          pnpm -C packages/muya exec eslint src/block/content/paragraphContent/index.ts src/editor/dragDropImage.ts src/editor/dragDropText.ts src/editor/dragDropState.ts src/editor/standaloneTextDrop.ts src/editor/textDropIndicator.ts src/editor/imageDragSelection.ts src/editor/index.ts src/selection/ImageSelection.ts src/ui/imageToolbar/index.ts src/ui/inlineFormatToolbar/index.ts src/ui/paragraphFrontButton/index.ts src/editor/__tests__/dragDropImage.spec.ts src/editor/__tests__/listImageDrag.spec.ts src/editor/__tests__/imageDragMove.spec.ts src/ui/__tests__/inlineFormatToolbarDrag.spec.ts
-          pnpm -C packages/muya exec vitest run src/editor/__tests__/listImageDrag.spec.ts src/editor/__tests__/imageDragMove.spec.ts src/editor/__tests__/dragDropImage.spec.ts src/ui/__tests__/inlineFormatToolbarDrag.spec.ts --maxWorkers=2 --silent
+          pnpm -C packages/muya exec eslint src/utils/marked/types.ts src/utils/marked/getHighlightHtml.ts src/state/markdownToHtml.ts src/state/__tests__/exportComplexFormatting.spec.ts
+          pnpm -C packages/muya exec vitest run src/state/__tests__/exportComplexFormatting.spec.ts src/state/__tests__/parityExportHtml.spec.ts src/state/__tests__/softBreakExportHtml.spec.ts src/state/__tests__/exportHtmlDir.spec.ts src/state/__tests__/mermaidExportResilience.spec.ts src/state/__tests__/renderToStaticHTML.spec.ts --maxWorkers=2 --silent
+          pnpm -C packages/desktop exec vitest run test/unit/specs/export-pdf-options.spec.ts test/unit/specs/exportHtml.spec.ts test/unit/specs/pdf.spec.ts test/unit/specs/pdf-heading-break.spec.ts test/unit/specs/export-image-size.spec.ts test/unit/specs/export-format-options.spec.ts test/unit/specs/export-header-footer-diagram.spec.ts --silent
 
       - name: Compile Electron app
         run: pnpm -C packages/desktop exec electron-vite build
 
-      - name: Verify list and image dragging, offline help, and affected sidebar menus
+      - name: Verify PDF, HTML, and PNG export fidelity
         run: |
-          pnpm -C packages/desktop exec playwright test test/e2e/list-image-drag.spec.ts test/e2e/user-guide.spec.ts --workers=1
-          pnpm -C packages/desktop exec playwright test test/e2e/sidebar-menu-layout.spec.ts test/e2e/editor-menus-clipboard.spec.ts -g "sidebar header|sidebar menus preserve" --workers=1
+          pnpm -C packages/desktop exec playwright test test/e2e/complex-export-fidelity.spec.ts test/e2e/export-pdf.spec.ts test/e2e/export-settings-layout.spec.ts test/e2e/body-toc-export.spec.ts --workers=1
 
       - name: Build Windows installer and ZIP
         run: pnpm -C packages/desktop exec electron-builder --win --x64 --publish never

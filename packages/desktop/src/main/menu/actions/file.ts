@@ -41,15 +41,12 @@ import type {
   SaveSnapshot
 } from '@shared/types/files'
 import { renderLongImage } from '../../utils/exportImage'
+import { renderPdf, type PdfPageOptions } from '../../utils/exportPdf'
 
 type Win = BrowserWindow | null | undefined
 
-interface PageOptions {
+interface PageOptions extends PdfPageOptions {
   imageWidth?: number
-  pageSize?: string
-  pageSizeWidth?: number
-  pageSizeHeight?: number
-  isLandscape?: boolean
 }
 
 // TODO(refactor): "save" and "save as" should be moved to the editor window (editor.js) and
@@ -76,23 +73,6 @@ const getExportExtensionFilter = (type: string): Electron.FileFilter[] | undefin
 
   // Allow all extensions.
   return undefined
-}
-
-const getPdfPageOptions = (options?: PageOptions): Record<string, unknown> => {
-  if (!options) {
-    return {}
-  }
-
-  const { pageSize, pageSizeWidth, pageSizeHeight, isLandscape } = options
-  if (pageSize === 'custom' && pageSizeWidth && pageSizeHeight) {
-    return {
-      // Note: mm to microns
-      pageSize: { height: pageSizeHeight * 1000, width: pageSizeWidth * 1000 },
-      landscape: !!isLandscape
-    }
-  } else {
-    return { pageSize, landscape: !!isLandscape }
-  }
 }
 
 interface ExportPayload {
@@ -128,18 +108,8 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
   if (filePath && !canceled) {
     try {
       if (type === 'pdf') {
-        // Build a clickable bookmark/outline tree from the document's h1-h6
-        // headings so exported PDFs have a navigation pane (#2989). The outline
-        // is derived from the tagged-PDF structure tree, so generateTaggedPDF is
-        // required — generateDocumentOutline alone produces no outline.
-        const options: Electron.PrintToPDFOptions = {
-          printBackground: true,
-          generateTaggedPDF: true,
-          generateDocumentOutline: true
-        }
-        Object.assign(options, getPdfPageOptions(pageOptions))
-        const data = await win.webContents.printToPDF(options)
-        removePrintServiceFromWindow(win)
+        if (!content) throw new Error('No HTML content found.')
+        const data = await renderPdf(content, pageOptions)
         await writeFile(filePath, data, extension!, 'binary')
       } else if (type === 'png') {
         if (!content) throw new Error('No HTML content found.')
@@ -161,11 +131,6 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
         type: 'error',
         message: ERROR_MSG
       })
-    }
-  } else {
-    // User canceled save dialog
-    if (type === 'pdf') {
-      removePrintServiceFromWindow(win)
     }
   }
 }

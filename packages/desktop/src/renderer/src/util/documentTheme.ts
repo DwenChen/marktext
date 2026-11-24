@@ -8,6 +8,17 @@ import { normalizeDocumentTheme } from '../../../common/theme'
 
 const overlays: Record<string, string> = { academic, liber }
 
+// Theme overlay CSS (academic, liber, or imported custom CSS) without
+// re-emitting github-markdown-css / githubAlertsExport.css, which
+// `@muyajs/core`'s MarkdownToHtml already inlines once into exported HTML.
+export const getDocumentThemeOverlayCss = (
+  theme: string,
+  customThemes: CustomDocumentTheme[] = []
+): string => {
+  const id = normalizeDocumentTheme(theme, customThemes)
+  return overlays[id] || customThemes.find((item) => item.id === id)?.css || ''
+}
+
 // The same CSS drives the live document and every styled export. Appearance
 // changes the on-screen palette only; exported documents retain a white page.
 export const getDocumentThemeCss = (
@@ -15,8 +26,7 @@ export const getDocumentThemeCss = (
   customThemes: CustomDocumentTheme[] = [],
   appearance: ResolvedAppearance = 'light'
 ): string => {
-  const id = normalizeDocumentTheme(theme, customThemes)
-  const overlay = overlays[id] || customThemes.find((item) => item.id === id)?.css || ''
+  const overlay = getDocumentThemeOverlayCss(theme, customThemes)
   return (appearance === 'dark' ? githubDark : githubLight) + '\n' + overlay + '\n' + githubAlerts
 }
 

@@ -195,10 +195,15 @@ export interface BootstrapEditorConfig {
 }
 
 export interface PageOptions {
+  imageWidth?: number
   pageSize?: string
   pageSizeWidth?: number
   pageSizeHeight?: number
   isLandscape?: boolean
+  pageMarginTop?: number
+  pageMarginRight?: number
+  pageMarginBottom?: number
+  pageMarginLeft?: number
   printBackground?: boolean
   [key: string]: unknown
 }

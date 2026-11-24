@@ -12,6 +12,7 @@ export interface ILexOption {
     highlightSyntax?: boolean;
     inlineDiff?: boolean;
     multilineBlockquote?: boolean;
+    doubleTildeStrikethrough?: boolean;
 }
 
 export type Heading = Tokens.Heading & {

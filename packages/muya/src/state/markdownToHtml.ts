@@ -1,9 +1,9 @@
 import type { Muya } from '../muya';
 import githubMarkdownCss from 'github-markdown-css/github-markdown-light.css?inline';
 import katexCss from 'katex/dist/katex.css?inline';
-import prismCss from 'prismjs/themes/prism.css?inline';
 import exportStyle from '../assets/styles/exportStyle.css?inline';
 import githubAlertsStyle from '../assets/styles/githubAlertsExport.css?inline';
+import prismLightThemeCss from '../assets/styles/prismjs/light.theme.css?inline';
 import { EXPORT_DOMPURIFY_CONFIG } from '../config';
 import { isHTMLElement, sanitize, unescapeHTML } from '../utils';
 import loadRenderer from '../utils/diagram';
@@ -82,6 +82,52 @@ export class MarkdownToHtml {
         }
     }
 
+    private async _preloadCodeLanguages() {
+        const langs = new Set<string>();
+        const fenceRe = /^[ \t]{0,3}(?:`{3,}|~{3,})[ \t]*([^\s`~]+)/gm;
+        const skip = new Set(['mermaid', 'plantuml', 'vega-lite', 'flowchart', 'sequence', 'math', 'text', 'txt', 'plain', 'plaintext']);
+        for (const match of this.markdown.matchAll(fenceRe)) {
+            const lang = match[1]?.toLowerCase();
+            if (lang && !skip.has(lang))
+                langs.add(lang);
+        }
+        if (langs.size === 0)
+            return;
+
+        try {
+            const { loadLanguage, transformAliasToOrigin } = await import('../utils/prism');
+            await Promise.allSettled(
+                Array.from(langs, lang => loadLanguage(transformAliasToOrigin([lang])[0] || lang)),
+            );
+        }
+        catch {
+            // Best-effort preloading; unknown languages fall back to unhighlighted code.
+        }
+    }
+
+    private _normalizeDiagramSvgs(container: HTMLElement) {
+        const svgs = container.querySelectorAll(
+            'div.mermaid svg, div.flowchart svg, div.sequence svg, div.vega-lite svg, div.vega-embed svg, div.plantuml svg',
+        );
+        for (const svg of svgs) {
+            if (!svg.getAttribute('viewBox')) {
+                const rawW = Number.parseFloat(svg.getAttribute('width') || '');
+                const rawH = Number.parseFloat(svg.getAttribute('height') || '');
+                const rect = svg.getBoundingClientRect();
+                const width = Number.isFinite(rawW) && rawW > 0 ? rawW : Math.ceil(rect.width);
+                const height = Number.isFinite(rawH) && rawH > 0 ? rawH : Math.ceil(rect.height);
+                if (width > 0 && height > 0)
+                    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            }
+            if (!svg.getAttribute('preserveAspectRatio'))
+                svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            // Drop inline fixed pixel heights so CSS `max-width: 100%; height: auto;`
+            // scales proportionally without stretching or clipping.
+            if (svg instanceof SVGElement && svg.style.height)
+                svg.style.removeProperty('height');
+        }
+    }
+
     private async _renderMermaid() {
         const codes = this._exportContainer!.querySelectorAll(
             'code.language-mermaid',
@@ -109,6 +155,7 @@ export class MarkdownToHtml {
             startOnLoad: false,
             securityLevel: 'strict',
             theme: 'default',
+            fontFamily: '-apple-system, "Segoe UI", Helvetica, Arial, sans-serif',
         });
         // Render each diagram in isolation: `mermaid.run` rejects the whole
         // batch on the first parse error, so one invalid diagram used to abort
@@ -231,6 +278,7 @@ export class MarkdownToHtml {
 
     // render pure html by marked
     async renderHtml() {
+        await this._preloadCodeLanguages();
         const footnote = this._muya?.options?.footnote ?? false;
         let html = getHighlightHtml(this.markdown, {
             superSubScript: this._muya?.options?.superSubScript ?? true,
@@ -242,6 +290,7 @@ export class MarkdownToHtml {
             highlightSyntax: this._muya?.options?.highlightSyntax ?? false,
             inlineDiff: this._muya?.options?.inlineDiff ?? false,
             multilineBlockquote: this._muya?.options?.multilineBlockquote ?? false,
+            doubleTildeStrikethrough: true,
         });
 
         // Post-process footnotes into the standard GFM / pandoc shape (inline
@@ -265,6 +314,7 @@ export class MarkdownToHtml {
             // render only render the light theme of mermaid and diagram...
             await this._renderMermaid();
             await this._renderDiagram();
+            this._normalizeDiagramSvgs(exportContainer);
 
             // Inject github-compatible slug ids onto exported headings so the
             // exported document's [TOC] / `getHtmlToc` `href="#slug"` anchors
@@ -337,7 +387,7 @@ export class MarkdownToHtml {
             // font data (~300KB base64) is dynamically imported here so it only
             // loads on export, never in the editor bundle.
             const { embedKatexFonts } = await import('../utils/embedKatexFonts');
-            baseStyles = [githubMarkdownCss, embedKatexFonts(katexCss), prismCss]
+            baseStyles = [githubMarkdownCss, embedKatexFonts(katexCss), prismLightThemeCss]
                 .map(css => `  <style>${css}</style>`)
                 .join('\n');
         }

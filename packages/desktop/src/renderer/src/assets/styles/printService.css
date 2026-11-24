@@ -33,7 +33,7 @@ body article.print-container {
     display: block !important;
     height: auto !important;
     background: #ffffff !important;
-    overflow: hidden;
+    overflow: visible !important;
   }
 
   body {
@@ -48,19 +48,29 @@ body article.print-container {
 
   body article.print-container {
     display: block;
-  }
-  body article.print-container {
-    height: 100%;
+    height: auto;
   }
   body article.markdown-body {
     box-sizing: border-box;
     min-width: 200px;
-    max-width: 980px;
+    max-width: none;
     margin: 0 auto;
     padding: 0;
   }
   body article.markdown-body table {
     display: table;
+    max-width: 100%;
+    border-collapse: collapse;
+  }
+  body article.markdown-body thead {
+    display: table-header-group;
+  }
+  body article.markdown-body tfoot {
+    display: table-footer-group;
+  }
+  body article.markdown-body tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
   body article.markdown-body input[type='checkbox'] ~ p {
     margin-top: 0;
@@ -71,23 +81,31 @@ body article.print-container {
      "language-"]`) both pin it to `white-space: pre`, which would cut long
      lines off at the page edge (#5307). Selecting any `pre code` also covers
      the language-less fences the engine emits without a class. */
+  body article.markdown-body pre {
+    overflow: visible;
+  }
   body article.markdown-body pre code {
     white-space: pre-wrap;
-    word-break: break-word;
+    overflow-wrap: break-word;
   }
   body article.markdown-body .flowchart,
   body article.markdown-body .sequence,
   body article.markdown-body .plantuml,
   body article.markdown-body .mermaid,
+  body article.markdown-body .vega-lite,
   body article.markdown-body .vega-embed {
     text-align: center;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
   body article.markdown-body .flowchart > svg,
   body article.markdown-body .sequence > svg,
   body article.markdown-body .plantuml > svg,
   body article.markdown-body .plantuml > img,
   body article.markdown-body .mermaid > svg,
+  body article.markdown-body .vega-lite > svg,
   body article.markdown-body .vega-embed > svg {
     max-width: 100%;
+    height: auto;
   }
 }
